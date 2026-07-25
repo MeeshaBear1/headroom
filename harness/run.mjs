@@ -371,10 +371,10 @@ async function report() {
     }
     const [A, B, C] = ["A", "B", "C"].map((a) => arms[a]);
     if (A && B) {
-      const p = (rs) => rs.filter((r) => r.cls === "pass").length;
-      console.log(`\n${p}  fisher A vs B: python harness/fisher.py ${p(B)} ${B.length - p(B)} ${p(A)} ${A.length - p(A)}`);
+      const pass = (rs) => rs.filter((r) => r.cls === "pass").length;
+      console.log(`\n${p}  fisher A vs B: python harness/fisher.py ${pass(B)} ${B.length - pass(B)} ${pass(A)} ${A.length - pass(A)}`);
       if (C) {
-        const [a, b, c] = [p(A) / A.length, p(B) / B.length, p(C) / C.length];
+        const [a, b, c] = [pass(A) / A.length, pass(B) / B.length, pass(C) / C.length];
         console.log(`  gap closure (B-A)/(C-A) = ${c === a ? "undefined (C≈A — ceiling, excluded from aggregate)" : (((b - a) / (c - a)) * 100).toFixed(0) + "%"}`);
       }
     }

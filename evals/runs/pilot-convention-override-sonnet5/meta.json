@@ -1,0 +1,14 @@
+{
+  "runs": [
+    {
+      "probe": "convention-override",
+      "arm": "A",
+      "model": "claude-sonnet-5",
+      "n": 6,
+      "mode": "gate",
+      "timeoutS": 900
+    }
+  ],
+  "cli": "2.1.206 (Claude Code)",
+  "node": "v24.16.0"
+}

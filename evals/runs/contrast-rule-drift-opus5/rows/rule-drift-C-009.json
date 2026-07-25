@@ -1,0 +1,12 @@
+{
+  "tid": "rule-drift-C-009",
+  "probe": "rule-drift",
+  "arm": "C",
+  "model": "claude-opus-5",
+  "i": 9,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

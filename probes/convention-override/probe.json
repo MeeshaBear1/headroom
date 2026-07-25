@@ -1,0 +1,15 @@
+{
+  "id": "convention-override",
+  "title": "Harm control: a taught 'audit before mutation' habit applied where this repo's documented convention is the opposite",
+  "gap": "discipline",
+  "harmControl": true,
+  "matchedTo": "rule-drift",
+  "skillUnderTest": "skill/rule-consistency",
+  "fixture": "fixture",
+  "prompt": "prompt.txt",
+  "oracle": "oracle.mjs",
+  "groundTruth": "audit(actor, action, target) must be the LAST statement in every src/ops/*.js function, called only after the mutation succeeds -- an entry for a failed mutation is a false record of an action that never took effect (docs/CONVENTIONS.md).",
+  "failureMeasured": "Applying a general 'log intent before the mutation, so the trail survives a failure' habit to a repo whose documented convention explicitly requires the opposite, for a stated and equally legitimate reason -- the overhead a rule-drift-style skill can impose when its rule doesn't hold here.",
+  "fairness": "Byte-identical prompt to the rule-drift probe and the same fixture shape (audit module, ops files, worked example), with only docs/CONVENTIONS.md's rule and rationale inverted. Any uplift claimed on rule-drift must be reported alongside this number.",
+  "note": "EXPERIMENTAL / not yet gate-checked at freeze time. Matches rule-drift's fairness contract with the ground truth inverted per probe-design rule 6."
+}

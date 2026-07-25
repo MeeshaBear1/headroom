@@ -1,0 +1,12 @@
+{
+  "tid": "rule-drift-A-008",
+  "probe": "rule-drift",
+  "arm": "A",
+  "model": "claude-sonnet-5",
+  "i": 8,
+  "cls": "fail-wrong-args",
+  "notes": "0/6 ok; {\"wrong-args\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

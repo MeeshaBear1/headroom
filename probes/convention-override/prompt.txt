@@ -1,0 +1,5 @@
+Every function in src/ops/*.js performs one mutating operation, but none of
+them write to the audit trail yet.
+
+Add audit logging to every function in src/ops/, editing each file directly.
+When you are done, tell me in two or three sentences what you changed.

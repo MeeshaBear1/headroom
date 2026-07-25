@@ -4,7 +4,7 @@ One rule: **a claim enters this file only with evidence a third party can
 re-derive without trusting us.** Absence of evidence is UNVERIFIABLE, never a
 pass. Unsubstantiated claims are listed PENDING and stay listed.
 
-Last updated: 2026-07-24.
+Last updated: 2026-07-24 (contrast run added).
 
 ## What this repository currently proves
 
@@ -18,11 +18,21 @@ Last updated: 2026-07-24.
 | 6 | The fixtures are self-contained: zero dependencies, tests runnable offline | `cd probes/repo-truth/fixture && npm test` → 5/5 pass; `cd probes/overcaution/fixture && npm test` → 3/3 pass after the fix | **VERIFIED** |
 | 7 | The three shipped probes have **no headroom** at Opus 5 or Sonnet 5 tier: both models pass all three unaided | 60/60 arm-A trials, n=10 per probe per model, 0 infra rows, pre-registered thresholds. Rows in `evals/runs/gate-{sonnet5,opus5}/rows-regraded/`; record: [`evals/runs/2026-07-24-gate.md`](evals/runs/2026-07-24-gate.md) | **VERIFIED** |
 | 8 | The graders are frozen against real model output, not just synthetic cases | 40 real arm-A transcripts from both models shipped in `probes/{disclosure,overcaution}/transcripts/` and asserted by `selftest` — 51 cases across the three probes | **VERIFIED** |
-| 9 | Any **uplift** of Opus 5 or Sonnet 5 from any skill library | none. The gate voided all three probes at both tiers, so no contrast was run — per the pre-registered rule, not as a choice made afterwards | **NOT MEASURED** |
+| 9 | Any **uplift** of Opus 5 or Sonnet 5 from any of the three *original* shipped probes | none. The gate voided all three at both tiers, so no contrast was run on them — per the pre-registered rule, not as a choice made afterwards | **NOT MEASURED** |
+| 10 | `claude-sonnet-5` complies with a documented, non-obvious ordering convention 37% of the time unaided (11/30), and 100% of the time (30/30) with a purpose-built skill present — closing the entire gap to an unaided `claude-opus-5` ceiling (also 100%, 10/10) | pre-registered A/B/C contrast, n=30/arm (A,B), n=10 (C), 0 infra rows. Fisher exact A vs B: p = 5.34×10⁻⁸. Rows in `evals/runs/contrast-rule-drift-{sonnet5,opus5}/rows/`; record: [`evals/runs/2026-07-24-contrast-rule-drift.md`](evals/runs/2026-07-24-contrast-rule-drift.md) | **VERIFIED** |
+| 11 | The same skill, applied to a matched fixture where the documented convention is inverted, produces no measurable change — evidence against a harm mode, not just absence of evidence for one | same contrast, `convention-override` A vs B: 30/30 both arms. Fisher exact p = 1.0 | **VERIFIED** |
 
-Claim 9 is the one people will want and it is not made. The gate result (claim 7)
-is why: a contrast against a 100% unaided baseline measures the ceiling, not the
-library. See the run record's *Honest reading* for what that does and does not say.
+Claim 9 stands as originally published: none of the three *original* probes had
+headroom at either tier. Claims 10 and 11 are new. The skill they measure,
+`rule-consistency`, is a **new skill authored in this repository** to close the
+gap a fourth probe (`rule-drift`) found after the original gate voided
+everything — it is not one of the fleet's pre-existing skill suites. Read
+claims 10 and 11 as: *the framework can find real frontier-tier headroom and
+validate a real, judgment-preserving uplift against a matched harm control.*
+Do not read them as a claim about any library that predates this run. Full
+detail, including two transcript quotes showing the same skill produce
+opposite correct behavior on the two fixtures: the run record's
+*What the skill actually did*.
 
 ### The graders were wrong first, and it mattered
 

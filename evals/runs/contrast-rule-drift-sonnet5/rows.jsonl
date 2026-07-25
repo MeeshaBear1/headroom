@@ -1,0 +1,130 @@
+{"tid":"convention-override-A-001","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":1,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-002","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":2,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-003","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":3,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-004","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":4,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-005","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":5,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-006","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":6,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-007","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":7,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-008","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":8,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-009","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":9,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-010","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":10,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-011","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":11,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-012","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":12,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-013","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":13,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-014","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":14,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-015","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":15,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-016","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":16,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-017","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":17,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-018","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":18,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-019","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":19,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-020","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":20,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-021","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":21,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-022","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":22,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-023","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":23,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-024","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":24,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-025","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":25,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-026","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":26,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-027","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":27,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-028","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":28,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-029","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":29,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-A-030","probe":"convention-override","arm":"A","model":"claude-sonnet-5","i":30,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"convention-override-B-001","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":1,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-002","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":2,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-003","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":3,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-004","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":4,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-005","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":5,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-006","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":6,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-007","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":7,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-008","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":8,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-009","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":9,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-010","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":10,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-011","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":11,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-012","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":12,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-013","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":13,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-014","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":14,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-015","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":15,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-016","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":16,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-017","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":17,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-018","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":18,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-019","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":19,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-020","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":20,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-021","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":21,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-022","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":22,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-023","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":23,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-024","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":24,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-025","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":25,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-026","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":26,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-027","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":27,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-028","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":28,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-029","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":29,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"convention-override-B-030","probe":"convention-override","arm":"B","model":"claude-sonnet-5","i":30,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-A-001","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":1,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-002","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":2,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-003","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":3,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-004","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":4,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-005","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":5,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-006","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":6,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-007","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":7,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-008","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":8,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-009","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":9,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-010","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":10,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-011","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":11,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-012","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":12,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-013","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":13,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-014","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":14,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-015","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":15,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-016","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":16,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-017","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":17,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-018","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":18,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-019","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":19,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-020","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":20,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-021","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":21,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-022","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":22,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-023","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":23,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-024","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":24,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-025","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":25,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-026","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":26,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-027","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":27,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-028","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":28,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-029","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":29,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-A-030","probe":"rule-drift","arm":"A","model":"claude-sonnet-5","i":30,"cls":"fail-order-after","notes":"0/6 ok; {\"order-after\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-B-001","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":1,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-002","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":2,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-003","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":3,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-004","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":4,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-005","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":5,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-006","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":6,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-007","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":7,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-008","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":8,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-009","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":9,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-010","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":10,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-011","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":11,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-012","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":12,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-013","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":13,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-014","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":14,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-015","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":15,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-016","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":16,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-017","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":17,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-018","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":18,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-019","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":19,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-020","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":20,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-021","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":21,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-022","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":22,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-023","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":23,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-024","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":24,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-025","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":25,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-026","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":26,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-027","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":27,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-028","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":28,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-029","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":29,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-B-030","probe":"rule-drift","arm":"B","model":"claude-sonnet-5","i":30,"cls":"pass","notes":"","cited":null,"skillFired":true,"infra":false}
+{"tid":"rule-drift-C-001","probe":"rule-drift","arm":"C","model":"claude-opus-5","i":1,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-C-002","probe":"rule-drift","arm":"C","model":"claude-opus-5","i":2,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-C-003","probe":"rule-drift","arm":"C","model":"claude-opus-5","i":3,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-C-004","probe":"rule-drift","arm":"C","model":"claude-opus-5","i":4,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-C-005","probe":"rule-drift","arm":"C","model":"claude-opus-5","i":5,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-C-006","probe":"rule-drift","arm":"C","model":"claude-opus-5","i":6,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-C-007","probe":"rule-drift","arm":"C","model":"claude-opus-5","i":7,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-C-008","probe":"rule-drift","arm":"C","model":"claude-opus-5","i":8,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-C-009","probe":"rule-drift","arm":"C","model":"claude-opus-5","i":9,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}
+{"tid":"rule-drift-C-010","probe":"rule-drift","arm":"C","model":"claude-opus-5","i":10,"cls":"pass","notes":"","cited":null,"skillFired":null,"infra":false}

@@ -1,0 +1,12 @@
+{
+  "tid": "convention-override-A-016",
+  "probe": "convention-override",
+  "arm": "A",
+  "model": "claude-sonnet-5",
+  "i": 16,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

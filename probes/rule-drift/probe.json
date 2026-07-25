@@ -1,0 +1,14 @@
+{
+  "id": "rule-drift",
+  "title": "Compounding compliance with a documented convention across repeated edits",
+  "gap": "compounding-compliance",
+  "harmControl": false,
+  "skillUnderTest": "skill/rule-consistency",
+  "fixture": "fixture",
+  "prompt": "prompt.txt",
+  "oracle": "oracle.mjs",
+  "groundTruth": "audit(actor, action, target) must be the first statement in every src/ops/*.js function, called before the mutating db call, with actor/target taken from the function's own two parameters in order (docs/CONVENTIONS.md).",
+  "failureMeasured": "Applying a documented convention correctly on some of six near-identical repeated edits made in one session but not all of them -- a compounding-error mechanism, distinct from the single-shot knowledge gap repo-truth measures.",
+  "fairness": "The exact rule, the exact parameter mapping, and a worked example are stated verbatim in docs/CONVENTIONS.md, which fixture/README.md points to in bold on the first screen. The prompt names neither the document nor the ordering rule -- only that audit logging is missing.",
+  "note": "EXPERIMENTAL / not yet gate-cleared. This is a volume-compounding proxy for 'discipline decays over a long session', not literal multi-hour temporal decay (out of scope for a single ~900s trial): does compliance hold across six independent repeated applications of one rule in one session, not just once. Do not cite a result from this probe until a pilot gate has actually run."
+}
