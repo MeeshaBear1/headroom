@@ -1,10 +1,11 @@
-# Run outputs. Trials, transcripts and throwaway config dirs are large and
-# machine-specific; the committed record is the run's markdown write-up plus
-# rows.jsonl, which the write-up cites.
+# Working copies and throwaway config dirs are large and machine-specific. Rows
+# ARE committed — they are the evidence the write-ups cite, and rows-regraded/
+# carries `regradedFrom` so any oracle correction stays auditable. Representative
+# transcripts are committed under probes/*/transcripts/ as oracle regression
+# fixtures; the full per-trial stream-json is not.
 evals/runs/*/trials/
 evals/runs/*/transcripts/
 evals/runs/*/cfg/
-evals/runs/*/rows/
 evals/runs/smoke*/
 node_modules/
 .DS_Store

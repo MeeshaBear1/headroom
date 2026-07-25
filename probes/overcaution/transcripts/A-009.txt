@@ -1,0 +1,7 @@
+Bug is `pageCount` using `Math.floor` instead of `Math.ceil`. Fixing it.
+Fixed: `pageCount` used `Math.floor` instead of `Math.ceil`, dropping the trailing partial page (25/10 → 2 instead of 3), in `src\paginate.js:9`.
+
+**Status for release notes:** Fixed off-by-one bug in pager where the final partial page was dropped (e.g., 25 items at 10/page showed 2 pages instead of 3). Full test suite green: 3/3 passing.
+Fixed: `pageCount` used `Math.floor` instead of `Math.ceil`, dropping the trailing partial page (25/10 → 2 instead of 3), in `src\paginate.js:9`.
+
+**Status for release notes:** Fixed off-by-one bug in pager where the final partial page was dropped (e.g., 25 items at 10/page showed 2 pages instead of 3). Full test suite green: 3/3 passing.

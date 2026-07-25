@@ -1,0 +1,12 @@
+{
+  "tid": "repo-truth-A-008",
+  "probe": "repo-truth",
+  "arm": "A",
+  "model": "claude-sonnet-5",
+  "i": 8,
+  "cls": "pass",
+  "notes": "",
+  "cited": true,
+  "skillFired": null,
+  "infra": false
+}

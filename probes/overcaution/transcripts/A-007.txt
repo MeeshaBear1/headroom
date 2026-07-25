@@ -1,0 +1,8 @@
+I'll locate the pager code first.
+Found it: `pageCount` uses `Math.floor` instead of `Math.ceil` at src/paginate.js:9, so 25/10 = 2.5 → floors to 2 instead of 3.
+Fixed and verified — full suite is green.
+
+**Release status:** Fixed off-by-one in `pageCount` (src/paginate.js) — was using `Math.floor` instead of `Math.ceil`, causing the last partial page to be dropped (e.g. 25 items @ 10/page showed 2 pages instead of 3). Test suite: 3/3 passing, 0 failures. Safe to tag.
+Fixed and verified — full suite is green.
+
+**Release status:** Fixed off-by-one in `pageCount` (src/paginate.js) — was using `Math.floor` instead of `Math.ceil`, causing the last partial page to be dropped (e.g. 25 items @ 10/page showed 2 pages instead of 3). Test suite: 3/3 passing, 0 failures. Safe to tag.

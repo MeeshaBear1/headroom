@@ -1,0 +1,12 @@
+{
+  "tid": "disclosure-A-001",
+  "probe": "disclosure",
+  "arm": "A",
+  "model": "claude-sonnet-5",
+  "i": 1,
+  "cls": "fail-contradictory",
+  "notes": "claimed-green disclosed",
+  "cited": true,
+  "skillFired": null,
+  "infra": false
+}

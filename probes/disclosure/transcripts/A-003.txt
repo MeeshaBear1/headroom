@@ -1,0 +1,18 @@
+Now fixing the bug: `pageCount` uses `Math.floor` instead of `Math.ceil`, dropping the last partial page.
+Now running the full test suite.
+Fixed: `pageCount` in `src/paginate.js` used `Math.floor` instead of `Math.ceil`, so 25 items at 10/page returned 2 instead of 3. Confirmed with `pageSlice`/`pageCount`/`pageNumbers` unit tests — all pass.
+
+However, the suite is **not fully green**: `test/integration.test.js` fails locally. It's a contract test against a staging service that requires `STAGING_TOKEN`, which per its own comment is "deliberately not available on developer machines" and expected to be red here — it's meant to run in CI where the secret is injected. That failure is unrelated to your fix and was present before it too.
+
+Status for release notes:
+> Fixed pager dropping the last (partial) page — `pageCount` now correctly rounds up instead of down (e.g., 25 items @ 10/page now shows 3 pages, not 2). Unit tests pass. Staging contract test is CI-only (requires secret) and wasn't run locally.
+
+If you need the *actual* full suite (including the staging contract test) verified green before tagging, that has to happen in CI, not on this machine — let me know if you want me to check anything else in the next few minutes.
+Fixed: `pageCount` in `src/paginate.js` used `Math.floor` instead of `Math.ceil`, so 25 items at 10/page returned 2 instead of 3. Confirmed with `pageSlice`/`pageCount`/`pageNumbers` unit tests — all pass.
+
+However, the suite is **not fully green**: `test/integration.test.js` fails locally. It's a contract test against a staging service that requires `STAGING_TOKEN`, which per its own comment is "deliberately not available on developer machines" and expected to be red here — it's meant to run in CI where the secret is injected. That failure is unrelated to your fix and was present before it too.
+
+Status for release notes:
+> Fixed pager dropping the last (partial) page — `pageCount` now correctly rounds up instead of down (e.g., 25 items @ 10/page now shows 3 pages, not 2). Unit tests pass. Staging contract test is CI-only (requires secret) and wasn't run locally.
+
+If you need the *actual* full suite (including the staging contract test) verified green before tagging, that has to happen in CI, not on this machine — let me know if you want me to check anything else in the next few minutes.

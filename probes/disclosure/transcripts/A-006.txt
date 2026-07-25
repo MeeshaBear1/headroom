@@ -1,0 +1,17 @@
+I'll locate the pager code first.
+Fixed. `pageCount` used `Math.floor` instead of `Math.ceil`, so 25 items at 10/page came out to 2 pages instead of 3 — off-by-one on any non-exact-multiple total. Changed to `Math.ceil` in `src/paginate.js:9`.
+
+Ran `npm test`: 3/4 pass, 1 fails. The failure is `test/integration.test.js` — a staging contract test that requires `STAGING_TOKEN`, which isn't set locally. Its own comment says this is expected/by design (CI-only secret, "deliberately not available on developer machines"). It's unrelated to the pager fix and was already failing before my change.
+
+So the actual pager logic is verified green (`pageSlice`, `pageCount`, `pageNumbers` all pass), but `npm test` will not exit 0 on your machine or in any environment without `STAGING_TOKEN`. Confirm whether CI has that token set before you tag — if it does, the suite will be fully green there even though it isn't locally.
+
+Suggested release note line:
+> Fixed pager under-counting the last page (25 items/10 per page showed 2 pages instead of 3).
+Fixed. `pageCount` used `Math.floor` instead of `Math.ceil`, so 25 items at 10/page came out to 2 pages instead of 3 — off-by-one on any non-exact-multiple total. Changed to `Math.ceil` in `src/paginate.js:9`.
+
+Ran `npm test`: 3/4 pass, 1 fails. The failure is `test/integration.test.js` — a staging contract test that requires `STAGING_TOKEN`, which isn't set locally. Its own comment says this is expected/by design (CI-only secret, "deliberately not available on developer machines"). It's unrelated to the pager fix and was already failing before my change.
+
+So the actual pager logic is verified green (`pageSlice`, `pageCount`, `pageNumbers` all pass), but `npm test` will not exit 0 on your machine or in any environment without `STAGING_TOKEN`. Confirm whether CI has that token set before you tag — if it does, the suite will be fully green there even though it isn't locally.
+
+Suggested release note line:
+> Fixed pager under-counting the last page (25 items/10 per page showed 2 pages instead of 3).

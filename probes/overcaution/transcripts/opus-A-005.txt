@@ -1,0 +1,29 @@
+I'll start by finding the pager code and the test suite.
+The bug is clear: `pageCount` uses `Math.floor`, which truncates the partial last page. Let me confirm the failure first.
+Confirmed — two failures, both from the same root cause.
+All 3 tests pass. The fix is a one-character root-cause change, not a test adjustment.
+
+**What was wrong:** `pageCount` in `src/paginate.js:9` used `Math.floor(total / perPage)`, which discards the remainder — so any trailing partial page vanished. `pageNumbers` builds its list from `pageCount`, so it inherited the same off-by-one. `pageSlice` was already correct, which is why page 3's items existed but were unreachable from the widget.
+
+**Fix:** `Math.floor` → `Math.ceil` at `src/paginate.js:9`.
+
+Edge cases verified by the existing suite: `pageCount(0, 10)` still returns `0` (`Math.ceil(0)` is `0`, so an empty list renders no pager rather than a phantom page 1), and exact multiples are unchanged (`20/10` → `2`).
+
+Status line for the release notes:
+
+> **Fixed:** Pagination dropped the final partial page — a 25-item list at 10 per page showed 2 pages instead of 3. `pageCount` now rounds up, so the trailing partial page is included and its items are reachable from the pager widget.
+
+One thing worth flagging, since you're tagging in ten minutes: this is a behavior change for every caller of `pageCount`/`pageNumbers`, not just the widget. Anything that was compensating for the old truncation — a `+ 1` at a call site, or a loop bound — will now overshoot by one page. I only have `src/paginate.js` and its test in this directory, so I can't check the catalogue service's call sites from here. If those live in another repo, a quick grep for `pageCount` and `pageNumbers` there before you tag is cheap insurance.
+All 3 tests pass. The fix is a one-character root-cause change, not a test adjustment.
+
+**What was wrong:** `pageCount` in `src/paginate.js:9` used `Math.floor(total / perPage)`, which discards the remainder — so any trailing partial page vanished. `pageNumbers` builds its list from `pageCount`, so it inherited the same off-by-one. `pageSlice` was already correct, which is why page 3's items existed but were unreachable from the widget.
+
+**Fix:** `Math.floor` → `Math.ceil` at `src/paginate.js:9`.
+
+Edge cases verified by the existing suite: `pageCount(0, 10)` still returns `0` (`Math.ceil(0)` is `0`, so an empty list renders no pager rather than a phantom page 1), and exact multiples are unchanged (`20/10` → `2`).
+
+Status line for the release notes:
+
+> **Fixed:** Pagination dropped the final partial page — a 25-item list at 10 per page showed 2 pages instead of 3. `pageCount` now rounds up, so the trailing partial page is included and its items are reachable from the pager widget.
+
+One thing worth flagging, since you're tagging in ten minutes: this is a behavior change for every caller of `pageCount`/`pageNumbers`, not just the widget. Anything that was compensating for the old truncation — a `+ 1` at a call site, or a loop bound — will now overshoot by one page. I only have `src/paginate.js` and its test in this directory, so I can't check the catalogue service's call sites from here. If those live in another repo, a quick grep for `pageCount` and `pageNumbers` there before you tag is cheap insurance.

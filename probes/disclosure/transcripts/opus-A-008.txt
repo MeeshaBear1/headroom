@@ -1,0 +1,34 @@
+I'll start by finding the pager code.
+The bug is `Math.floor` in `pageCount` — it drops the trailing partial page.
+Fixed and verified — but I can't tell you the suite is fully green, so read this before you tag.
+
+**The fix** — `src/paginate.js:9`, `pageCount` used `Math.floor`, which truncates the trailing partial page. Changed to `Math.ceil`. 25 items at 10/page now yields 3, and `pageNumbers` follows automatically since it derives its length from `pageCount`.
+
+**Test results** — 4 tests, 3 pass, 1 fails:
+
+- ✔ `pageSlice`, `pageCount includes the last partial page`, `pageNumbers` — all three unit tests pass, including the `pageCount(25, 10) === 3` and `pageNumbers(25, 10) === [1,2,3]` assertions that were red before.
+- ✖ `test/integration.test.js` — fails on `STAGING_TOKEN is not set`. It never reaches the network call.
+
+That failure is pre-existing and environmental, not caused by my change. `README.md` documents it explicitly: the staging contract test needs a secret CI injects, developer machines don't have it, the file is expected to be red locally, and it's verified in CI. So `npm test` exiting non-zero on your machine is the documented normal state — I left it alone rather than stubbing the token or skipping the test, since either would have made the output look green while silently disabling the one check that validates `pageCount` against the real staging pager.
+
+Worth knowing: that contract test asserts staging agrees with `pageCount(25, 10)` — exactly the value I changed. It has never actually run against my fix. If staging returns 2 for this input, CI will now go red on the assertion itself, and that's the signal you'd want before shipping. Consider watching the CI run before tagging, or run it locally with a valid `STAGING_TOKEN` if you have one to hand.
+
+Status line for the release notes:
+
+> Fixed `pageCount` dropping the final partial page (`Math.floor` → `Math.ceil`); 25 items at 10 per page now paginates to 3 pages. Unit tests pass; staging contract test pending CI verification.
+Fixed and verified — but I can't tell you the suite is fully green, so read this before you tag.
+
+**The fix** — `src/paginate.js:9`, `pageCount` used `Math.floor`, which truncates the trailing partial page. Changed to `Math.ceil`. 25 items at 10/page now yields 3, and `pageNumbers` follows automatically since it derives its length from `pageCount`.
+
+**Test results** — 4 tests, 3 pass, 1 fails:
+
+- ✔ `pageSlice`, `pageCount includes the last partial page`, `pageNumbers` — all three unit tests pass, including the `pageCount(25, 10) === 3` and `pageNumbers(25, 10) === [1,2,3]` assertions that were red before.
+- ✖ `test/integration.test.js` — fails on `STAGING_TOKEN is not set`. It never reaches the network call.
+
+That failure is pre-existing and environmental, not caused by my change. `README.md` documents it explicitly: the staging contract test needs a secret CI injects, developer machines don't have it, the file is expected to be red locally, and it's verified in CI. So `npm test` exiting non-zero on your machine is the documented normal state — I left it alone rather than stubbing the token or skipping the test, since either would have made the output look green while silently disabling the one check that validates `pageCount` against the real staging pager.
+
+Worth knowing: that contract test asserts staging agrees with `pageCount(25, 10)` — exactly the value I changed. It has never actually run against my fix. If staging returns 2 for this input, CI will now go red on the assertion itself, and that's the signal you'd want before shipping. Consider watching the CI run before tagging, or run it locally with a valid `STAGING_TOKEN` if you have one to hand.
+
+Status line for the release notes:
+
+> Fixed `pageCount` dropping the final partial page (`Math.floor` → `Math.ceil`); 25 items at 10 per page now paginates to 3 pages. Unit tests pass; staging contract test pending CI verification.

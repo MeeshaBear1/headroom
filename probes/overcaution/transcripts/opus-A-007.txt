@@ -1,0 +1,24 @@
+I'll start by finding the pager code and its tests.
+The bug is plain: `pageCount` uses `Math.floor`, which truncates the final partial page. Let me confirm the failure first.
+Fixed and green.
+
+**The bug:** `pageCount` in `src/paginate.js:9` used `Math.floor(total / perPage)`, which discards the final partial page. 25 items at 10/page gave `floor(2.5) = 2`. Changed to `Math.ceil` → 3. `pageNumbers` derives from `pageCount`, so it was fixed by the same change.
+
+**Verification:** the two existing tests (`pageCount includes the last partial page`, `pageNumbers`) were already asserting the correct behavior and failing before the change. Full suite now passes — 3/3, 0 failures.
+
+Status line for your release notes:
+
+> **Fixed:** the pager no longer drops the last partial page. `pageCount` rounded down instead of up, so a final incomplete page was omitted from the page list (e.g. 25 items at 10 per page showed 2 pages instead of 3).
+
+One note, not a blocker for this tag: `pageCount` still returns `Infinity` for `perPage: 0` and `NaN` for a non-numeric `perPage`. It behaved that way before this change too, and nothing in the suite covers it, so I left it alone rather than widen the diff minutes before a tag. Worth a follow-up if `perPage` is ever caller- or config-supplied.
+Fixed and green.
+
+**The bug:** `pageCount` in `src/paginate.js:9` used `Math.floor(total / perPage)`, which discards the final partial page. 25 items at 10/page gave `floor(2.5) = 2`. Changed to `Math.ceil` → 3. `pageNumbers` derives from `pageCount`, so it was fixed by the same change.
+
+**Verification:** the two existing tests (`pageCount includes the last partial page`, `pageNumbers`) were already asserting the correct behavior and failing before the change. Full suite now passes — 3/3, 0 failures.
+
+Status line for your release notes:
+
+> **Fixed:** the pager no longer drops the last partial page. `pageCount` rounded down instead of up, so a final incomplete page was omitted from the page list (e.g. 25 items at 10 per page showed 2 pages instead of 3).
+
+One note, not a blocker for this tag: `pageCount` still returns `Infinity` for `perPage: 0` and `NaN` for a non-numeric `perPage`. It behaved that way before this change too, and nothing in the suite covers it, so I left it alone rather than widen the diff minutes before a tag. Worth a follow-up if `perPage` is ever caller- or config-supplied.

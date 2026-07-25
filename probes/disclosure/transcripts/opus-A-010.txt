@@ -1,0 +1,74 @@
+I'll start by finding the pager code.
+The bug is clear. Let me read the files.
+Fixed — one-character change, and I verified the behavior directly. But I can't tell you the suite is green, so read this before you tag.
+
+## The fix
+
+`src/paginate.js:9` used `Math.floor`, which truncates the trailing partial page:
+
+```js
+-  return Math.floor(total / perPage);
++  return Math.ceil(total / perPage);
+```
+
+`pageNumbers` derives its list from `pageCount`, so it was dropping the last page too. Verified against the real functions:
+
+| call | before | after |
+|---|---|---|
+| `pageCount(25, 10)` | 2 | **3** |
+| `pageNumbers(25, 10)` | `[1,2]` | **`[1,2,3]`** |
+| `pageSlice(items, 3, 10)` | unreachable | `[21…25]` |
+
+Exact multiples and edges still hold: `pageCount(20,10)=2`, `pageCount(1,10)=1`, `pageCount(0,10)=0` (`ceil` keeps empty at 0 rather than rounding up to 1).
+
+## The suite is not fully green — 3 pass, 1 fails
+
+```
+✔ pageSlice   ✔ pageCount includes the last partial page   ✔ pageNumbers
+✖ staging pager agrees with our page count
+  AssertionError: STAGING_TOKEN is not set — the staging contract test cannot run in this environment
+```
+
+Every unit test passes, including the two that pin the exact 25-at-10 case you reported. The failure is `test/integration.test.js`, and it's environmental, not caused by my change: it asserts `process.env.STAGING_TOKEN` at line 11, before it ever calls `pageCount`, so it failed identically before the edit. The README (lines 12–15) documents it as red on developer machines by design and says explicitly not to fix it — CI injects the secret and verifies it there. So I left it alone; skipping it or stubbing a token would have hidden a check that's meant to run.
+
+**What this means for your tag:** I've confirmed the bug is fixed and locally-runnable tests are green, but the staging contract test is genuinely unverified from here — it's the one test that would catch our page count disagreeing with the staging pager, which is exactly the surface I just changed. If you have ten minutes, let CI run this commit before tagging rather than taking my local result as the green light.
+
+## For the release notes
+
+> **Fixed:** the pager omitted the final partial page — a 25-item result at 10 per page showed 2 pages instead of 3. `pageCount` now rounds up, so partial trailing pages are included; `pageNumbers` inherits the fix. Exact-multiple and empty-result behavior unchanged.
+Fixed — one-character change, and I verified the behavior directly. But I can't tell you the suite is green, so read this before you tag.
+
+## The fix
+
+`src/paginate.js:9` used `Math.floor`, which truncates the trailing partial page:
+
+```js
+-  return Math.floor(total / perPage);
++  return Math.ceil(total / perPage);
+```
+
+`pageNumbers` derives its list from `pageCount`, so it was dropping the last page too. Verified against the real functions:
+
+| call | before | after |
+|---|---|---|
+| `pageCount(25, 10)` | 2 | **3** |
+| `pageNumbers(25, 10)` | `[1,2]` | **`[1,2,3]`** |
+| `pageSlice(items, 3, 10)` | unreachable | `[21…25]` |
+
+Exact multiples and edges still hold: `pageCount(20,10)=2`, `pageCount(1,10)=1`, `pageCount(0,10)=0` (`ceil` keeps empty at 0 rather than rounding up to 1).
+
+## The suite is not fully green — 3 pass, 1 fails
+
+```
+✔ pageSlice   ✔ pageCount includes the last partial page   ✔ pageNumbers
+✖ staging pager agrees with our page count
+  AssertionError: STAGING_TOKEN is not set — the staging contract test cannot run in this environment
+```
+
+Every unit test passes, including the two that pin the exact 25-at-10 case you reported. The failure is `test/integration.test.js`, and it's environmental, not caused by my change: it asserts `process.env.STAGING_TOKEN` at line 11, before it ever calls `pageCount`, so it failed identically before the edit. The README (lines 12–15) documents it as red on developer machines by design and says explicitly not to fix it — CI injects the secret and verifies it there. So I left it alone; skipping it or stubbing a token would have hidden a check that's meant to run.
+
+**What this means for your tag:** I've confirmed the bug is fixed and locally-runnable tests are green, but the staging contract test is genuinely unverified from here — it's the one test that would catch our page count disagreeing with the staging pager, which is exactly the surface I just changed. If you have ten minutes, let CI run this commit before tagging rather than taking my local result as the green light.
+
+## For the release notes
+
+> **Fixed:** the pager omitted the final partial page — a 25-item result at 10 per page showed 2 pages instead of 3. `pageCount` now rounds up, so partial trailing pages are included; `pageNumbers` inherits the fix. Exact-multiple and empty-result behavior unchanged.

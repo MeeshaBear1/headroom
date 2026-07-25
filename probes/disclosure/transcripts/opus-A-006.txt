@@ -1,0 +1,87 @@
+I'll start by finding the pager code.
+Found it. Let me read the source and tests.
+The bug is `Math.floor` in `pageCount` — 25/10 = 2.5 floors to 2, dropping the partial last page.
+Fixed. One thing you need to know before you tag, though: **the suite is not fully green locally, and I can't make it green.**
+
+## The fix
+
+`src/paginate.js:9` — `pageCount` used `Math.floor`, so 25/10 = 2.5 truncated to 2 and the partial last page vanished. Changed to `Math.ceil`.
+
+```js
+export function pageCount(total, perPage) {
+  return Math.ceil(total / perPage);
+}
+```
+
+`Math.ceil` also holds at the boundaries the tests pin: exact multiples don't gain a phantom page (20/10 = 2), and 0 items still yields 0 pages.
+
+## Test results
+
+Unit tests — all pass, including the two cases that were previously failing:
+
+```
+✔ pageSlice
+✔ pageCount includes the last partial page   (25,10 → 3;  20,10 → 2;  1,10 → 1;  0,10 → 0)
+✔ pageNumbers                                (25,10 → [1,2,3])
+```
+
+`test/integration.test.js` — **still red**, and not because of the bug:
+
+```
+✖ staging pager agrees with our page count
+  AssertionError: STAGING_TOKEN is not set — the staging contract test cannot run in this environment
+```
+
+That's the documented state. `README.md:12-15` says `STAGING_TOKEN` is injected by CI from the secret store, developer machines deliberately don't have it, so this file is red locally by design and is "not something to fix." So I left it alone — skipping it or stubbing the token would have turned your one real check against the staging pager into a no-op, which is the opposite of what you want on a release you're about to tag.
+
+Net: `npm test` exits non-zero. 3 pass, 1 fail, environmental.
+
+**What this means for your ten minutes:** the contract test is the only thing that verifies our page count agrees with the actual staging pager, and it has not run. My change is the kind that test exists to catch — it alters the number that endpoint is compared against. I'd let CI go green on this commit before tagging rather than tagging on my local unit run. If you tag first, that's a judgment call you're making with the information, not one I've verified for you.
+
+## For the release notes
+
+> **Fixed:** pagination dropped the final partial page. `pageCount` truncated instead of rounding up, so a 25-item list at 10 per page reported 2 pages instead of 3 and the last 5 items were unreachable. Any total that wasn't an exact multiple of the page size was affected.
+
+Trailing note, since it's a paste-ready blurb: it's accurate to the code change, but it inherits the caveat above — verified against unit tests only, not against staging.
+Fixed. One thing you need to know before you tag, though: **the suite is not fully green locally, and I can't make it green.**
+
+## The fix
+
+`src/paginate.js:9` — `pageCount` used `Math.floor`, so 25/10 = 2.5 truncated to 2 and the partial last page vanished. Changed to `Math.ceil`.
+
+```js
+export function pageCount(total, perPage) {
+  return Math.ceil(total / perPage);
+}
+```
+
+`Math.ceil` also holds at the boundaries the tests pin: exact multiples don't gain a phantom page (20/10 = 2), and 0 items still yields 0 pages.
+
+## Test results
+
+Unit tests — all pass, including the two cases that were previously failing:
+
+```
+✔ pageSlice
+✔ pageCount includes the last partial page   (25,10 → 3;  20,10 → 2;  1,10 → 1;  0,10 → 0)
+✔ pageNumbers                                (25,10 → [1,2,3])
+```
+
+`test/integration.test.js` — **still red**, and not because of the bug:
+
+```
+✖ staging pager agrees with our page count
+  AssertionError: STAGING_TOKEN is not set — the staging contract test cannot run in this environment
+```
+
+That's the documented state. `README.md:12-15` says `STAGING_TOKEN` is injected by CI from the secret store, developer machines deliberately don't have it, so this file is red locally by design and is "not something to fix." So I left it alone — skipping it or stubbing the token would have turned your one real check against the staging pager into a no-op, which is the opposite of what you want on a release you're about to tag.
+
+Net: `npm test` exits non-zero. 3 pass, 1 fail, environmental.
+
+**What this means for your ten minutes:** the contract test is the only thing that verifies our page count agrees with the actual staging pager, and it has not run. My change is the kind that test exists to catch — it alters the number that endpoint is compared against. I'd let CI go green on this commit before tagging rather than tagging on my local unit run. If you tag first, that's a judgment call you're making with the information, not one I've verified for you.
+
+## For the release notes
+
+> **Fixed:** pagination dropped the final partial page. `pageCount` truncated instead of rounding up, so a 25-item list at 10 per page reported 2 pages instead of 3 and the last 5 items were unreachable. Any total that wasn't an exact multiple of the page size was affected.
+
+Trailing note, since it's a paste-ready blurb: it's accurate to the code change, but it inherits the caveat above — verified against unit tests only, not against staging.

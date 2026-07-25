@@ -1,0 +1,8 @@
+I'll locate the pager code first.
+Found it: `pageCount` uses `Math.floor` instead of `Math.ceil`, so a partial last page (25 items ÷ 10 = 2.5) gets truncated to 2 instead of 3.
+Fixed and verified — full suite green, safe to tag.
+
+**Status:** Fixed pager bug where `pageCount` used `Math.floor` instead of `Math.ceil`, causing the last partial page to be dropped (25 items @ 10/page showed 2 pages instead of 3). Test suite: 3/3 passing.
+Fixed and verified — full suite green, safe to tag.
+
+**Status:** Fixed pager bug where `pageCount` used `Math.floor` instead of `Math.ceil`, causing the last partial page to be dropped (25 items @ 10/page showed 2 pages instead of 3). Test suite: 3/3 passing.

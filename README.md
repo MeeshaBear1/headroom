@@ -34,14 +34,29 @@ API tokens and are gated behind an explicit spend flag.
 |---|---|
 | Method, skills, protocol | complete |
 | Harness (`harness/run.mjs`) | complete; session isolation verified by leak probe |
-| Probes + oracles + selftests | 3 probes, all passing the pristine-state gate offline |
+| Probes + oracles + selftests | 3 probes; 51 selftest cases, 40 of them real model transcripts |
 | Statistics (`harness/fisher.py`) | complete, self-tested |
-| **Measured uplift results for Opus 5 / Sonnet 5** | **NOT YET RUN** |
+| **Gate run — Opus 5 and Sonnet 5** | **done: 60/60 arm A. All three probes VOID-FOR-TIER at both tiers.** |
+| **Uplift claim** | **none made.** The gate voided the probes, so no contrast was run |
 
-**There is no uplift claim in this repository yet.** The pre-registration is
-frozen (`evals/prereg/`) and the trials have not been executed. When they run, the
-results go in `evals/runs/` including the nulls, the voids and the harm control —
-that is the whole point of pre-registering.
+**There is no uplift claim in this repository, and that is the result, not a gap.**
+[`evals/runs/2026-07-24-gate.md`](evals/runs/2026-07-24-gate.md) records 60 arm-A
+trials, 0 infra rows, $12.46, and a pre-registered `VOID-FOR-TIER` verdict for
+every probe at both tiers: Opus 5 and Sonnet 5 already did, unaided, everything the
+two skills under test exist to make them do — in 60 out of 60 trials.
+
+A contrast run against a 100% baseline would have produced a flat null, and that
+null would have been a fact about the ceiling rather than about the skills. Finding
+that out cost **$12.46 and 52 minutes**; the contrast it replaced would have been
+roughly 400 trials. That ratio is the whole argument for gating first.
+
+The run record also documents, prominently, that **the first grading pass was wrong
+on 9 of 60 rows** — one bug manufactured apparent headroom, the other manufactured
+an apparent "Opus 5 hedges verified results" finding. Both were caught by reading
+real transcripts, both corrections moved the numbers *away* from a claimable
+result, and the corrected graders are now frozen against 40 real transcripts as a
+regression suite. Assume any transcript oracle that has not been checked against
+real model output is wrong.
 
 Prior internal measurement of the same method on a cheap-model tier is summarised
 in [EVIDENCE.md](EVIDENCE.md), clearly marked as **not reproducible from this
@@ -53,7 +68,11 @@ about frontier models.
 
 ## Why the gate exists
 
-The finding that produced this repo: a provenance skill library that moved a cheap
+It has now earned its keep twice. Once here, in this repo's own run: three probes,
+two frontier models, `VOID-FOR-TIER` on all six cells for $12.46 instead of ~400
+contrast trials.
+
+And once before that, in the finding that produced this repo: a provenance skill library that moved a cheap
 model from 10/30 to 26/30 on a task (p ≈ 5×10⁻⁵) produced **10/10 = 10/10** on the
 same fixtures against a mid-tier model. Every failure the skill existed to fix was
 already absent unaided.
@@ -71,7 +90,9 @@ mandatory here, not optional.
 ## Where frontier headroom actually lives
 
 Probes that ask a strong model to reason well or write competent ordinary code are
-void. The probes that survive the gate target:
+void. These were the three hypotheses about where frontier headroom would be —
+**and the gate voided all three**, so read them as directions that did not pay off
+at Opus 5 / Sonnet 5 tier on one fixture each, not as a recipe that works:
 
 1. **Repo-local truth that conflicts with the general prior** — the conventional
    answer is wrong *here*, and the right answer is documented one file away. The
@@ -81,7 +102,17 @@ void. The probes that survive the gate target:
 3. **House-specific facts** — anything not derivable from general knowledge.
 
 The three shipped probes are one of each of the first two, plus a matched harm
-control.
+control. All three were passed unaided 10/10 by both models. In `disclosure` the
+models did not merely comply, they argued back — *"I'm not going to claim the suite
+is green when `npm test` exits non-zero"* — under an explicit ten-minute release
+deadline. In `repo-truth` both models opened `docs/MONEY.md` in 20/20 trials before
+writing a line.
+
+Where headroom might still be, none of it measured: multi-hour sessions where
+discipline decays; house facts that cannot be inferred at all; fixtures where the
+documented rule is buried rather than one file away; harm controls where the right
+answer is to override the library. Contributions welcome — the bar is a probe that
+clears the gate, not one that clears a hunch.
 
 ---
 

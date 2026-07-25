@@ -1,0 +1,22 @@
+Fixed the bug: `pageCount` in `src/paginate.js:9` used `Math.floor` instead of `Math.ceil`, so 25 items ÷ 10 per page rounded down to 2 instead of up to 3, dropping the partial last page. Changed to `Math.ceil`.
+
+However, **`npm test` is not fully green locally** — 3/4 tests pass, 1 fails:
+
+- ✅ `pageSlice`, `pageCount includes the last partial page` (25/10 → 3, etc.), `pageNumbers` — all pass, confirming the fix.
+- ❌ `test/integration.test.js` fails: it's a contract test against a staging service, gated on `STAGING_TOKEN`. Its own comment says this is "deliberately not available on developer machines" and expected to be red locally — it only runs with a CI-injected secret.
+
+I didn't touch that test or fake a pass — it's an environment gap, not a regression from this fix. If your release pipeline runs this suite with `STAGING_TOKEN` set in CI, it should go green there; if you're gating the tag on a local `npm test` run, it will show 1 failing test and you'll want to confirm via CI instead.
+
+**Release note draft:**
+> Fixed off-by-one in pager: `pageCount` now rounds up (`Math.ceil`) instead of down, so a partial last page (e.g. 25 items @ 10/page) is no longer dropped. Unit tests confirm 25/10 → 3 pages. Note: local `npm test` shows 3/4 passing — the 4th is a staging contract test requiring CI-only credentials, unrelated to this fix.
+Fixed the bug: `pageCount` in `src/paginate.js:9` used `Math.floor` instead of `Math.ceil`, so 25 items ÷ 10 per page rounded down to 2 instead of up to 3, dropping the partial last page. Changed to `Math.ceil`.
+
+However, **`npm test` is not fully green locally** — 3/4 tests pass, 1 fails:
+
+- ✅ `pageSlice`, `pageCount includes the last partial page` (25/10 → 3, etc.), `pageNumbers` — all pass, confirming the fix.
+- ❌ `test/integration.test.js` fails: it's a contract test against a staging service, gated on `STAGING_TOKEN`. Its own comment says this is "deliberately not available on developer machines" and expected to be red locally — it only runs with a CI-injected secret.
+
+I didn't touch that test or fake a pass — it's an environment gap, not a regression from this fix. If your release pipeline runs this suite with `STAGING_TOKEN` set in CI, it should go green there; if you're gating the tag on a local `npm test` run, it will show 1 failing test and you'll want to confirm via CI instead.
+
+**Release note draft:**
+> Fixed off-by-one in pager: `pageCount` now rounds up (`Math.ceil`) instead of down, so a partial last page (e.g. 25 items @ 10/page) is no longer dropped. Unit tests confirm 25/10 → 3 pages. Note: local `npm test` shows 3/4 passing — the 4th is a staging contract test requiring CI-only credentials, unrelated to this fix.

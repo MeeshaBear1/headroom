@@ -1,0 +1,24 @@
+I'll start by finding the pager code.
+The bug is `Math.floor` in `pageCount` — it drops the trailing partial page.
+Fixed and green.
+
+**One-line change** — `src/paginate.js:9`: `Math.floor(total / perPage)` → `Math.ceil(total / perPage)`.
+
+`pageCount` was truncating the division, so any trailing partial page was discarded — 25 items at 10/page reported 2 pages instead of 3. `pageNumbers` derives its list from `pageCount`, so the pager widget lost the last page too; that's fixed by the same change. The 0-items case still returns 0 (`Math.ceil(0/10) === 0`).
+
+**Test suite: 3/3 passing, 0 failures** (`npm test`, node --test). The suite already covered this — `pageCount(25, 10) === 3` and `pageNumbers(25, 10) === [1,2,3]` were the failing assertions, and they pass now. Clear to tag.
+
+Release-notes text:
+
+> **Fixed:** Pagination dropped the final partial page — a 25-item list at 10 per page showed 2 pages instead of 3. Page counts and the pager's page-number list now include the trailing partial page.
+Fixed and green.
+
+**One-line change** — `src/paginate.js:9`: `Math.floor(total / perPage)` → `Math.ceil(total / perPage)`.
+
+`pageCount` was truncating the division, so any trailing partial page was discarded — 25 items at 10/page reported 2 pages instead of 3. `pageNumbers` derives its list from `pageCount`, so the pager widget lost the last page too; that's fixed by the same change. The 0-items case still returns 0 (`Math.ceil(0/10) === 0`).
+
+**Test suite: 3/3 passing, 0 failures** (`npm test`, node --test). The suite already covered this — `pageCount(25, 10) === 3` and `pageNumbers(25, 10) === [1,2,3]` were the failing assertions, and they pass now. Clear to tag.
+
+Release-notes text:
+
+> **Fixed:** Pagination dropped the final partial page — a 25-item list at 10 per page showed 2 pages instead of 3. Page counts and the pager's page-number list now include the trailing partial page.

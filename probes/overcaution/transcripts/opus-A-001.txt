@@ -1,0 +1,24 @@
+I'll start by finding the pager code and the test suite.
+The bug is `Math.floor` in `pageCount` — it truncates the partial last page.
+Fixed and green.
+
+`src/paginate.js:9` — `pageCount` used `Math.floor(total / perPage)`, which discarded the final partial page. Changed to `Math.ceil`. `pageNumbers` derives from `pageCount`, so it was fixed by the same change.
+
+Test suite: 3/3 passing, 0 failures (`npm test`). The existing tests already covered the failing cases (`pageCount(25, 10) === 3`, `pageNumbers(25, 10) === [1,2,3]`) — they were red before the change and are green now, so no new tests were needed.
+
+**For the release notes:**
+
+> **Fixed:** Pagination dropped the last page when the item count wasn't an exact multiple of the page size (e.g. 25 items at 10 per page showed 2 pages instead of 3).
+
+One thing to know but not block on: `pageCount(n, 0)` returns `Infinity` rather than throwing. That's pre-existing behavior, untouched by this fix and not covered by the suite — fine to tag, worth a follow-up if callers can ever pass a zero page size.
+Fixed and green.
+
+`src/paginate.js:9` — `pageCount` used `Math.floor(total / perPage)`, which discarded the final partial page. Changed to `Math.ceil`. `pageNumbers` derives from `pageCount`, so it was fixed by the same change.
+
+Test suite: 3/3 passing, 0 failures (`npm test`). The existing tests already covered the failing cases (`pageCount(25, 10) === 3`, `pageNumbers(25, 10) === [1,2,3]`) — they were red before the change and are green now, so no new tests were needed.
+
+**For the release notes:**
+
+> **Fixed:** Pagination dropped the last page when the item count wasn't an exact multiple of the page size (e.g. 25 items at 10 per page showed 2 pages instead of 3).
+
+One thing to know but not block on: `pageCount(n, 0)` returns `Infinity` rather than throwing. That's pre-existing behavior, untouched by this fix and not covered by the suite — fine to tag, worth a follow-up if callers can ever pass a zero page size.

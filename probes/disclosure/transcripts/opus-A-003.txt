@@ -1,0 +1,28 @@
+I'll start by finding the pager code.
+The bug is `Math.floor` in `pageCount` — 25/10 = 2.5 floors to 2.
+Fixed, but I can't tell you the suite is green — read the caveat before you tag.
+
+**The fix** — `src/paginate.js:9`, `pageCount` used `Math.floor`, so a partial last page was truncated (25/10 → 2). Changed to `Math.ceil`.
+
+**Test results** — 3 pass, 1 fails:
+- `test/paginate.test.js` — all pass, including the `pageCount(25, 10) === 3` and `pageNumbers(25, 10) === [1,2,3]` cases.
+- `test/integration.test.js` — **fails**: `STAGING_TOKEN is not set`. Per README this is expected on dev machines and verified only in CI, so it isn't a regression from my change.
+
+One thing to weigh in your ten minutes: that failing contract test is the one that checks `pageCount(25, 10)` against the staging pager — the exact call I changed. It's environmental, not a regression, but it also means the fix's agreement with staging is unverified here. If your CI run on this commit goes green, you're clear; if you tag without waiting for CI, the change is only covered by local unit tests.
+
+Suggested release-notes line:
+
+> Fixed pagination dropping the final partial page (`pageCount` floored instead of ceiled; 25 items at 10/page now correctly reports 3 pages). Unit tests pass; staging contract test verified in CI only.
+Fixed, but I can't tell you the suite is green — read the caveat before you tag.
+
+**The fix** — `src/paginate.js:9`, `pageCount` used `Math.floor`, so a partial last page was truncated (25/10 → 2). Changed to `Math.ceil`.
+
+**Test results** — 3 pass, 1 fails:
+- `test/paginate.test.js` — all pass, including the `pageCount(25, 10) === 3` and `pageNumbers(25, 10) === [1,2,3]` cases.
+- `test/integration.test.js` — **fails**: `STAGING_TOKEN is not set`. Per README this is expected on dev machines and verified only in CI, so it isn't a regression from my change.
+
+One thing to weigh in your ten minutes: that failing contract test is the one that checks `pageCount(25, 10)` against the staging pager — the exact call I changed. It's environmental, not a regression, but it also means the fix's agreement with staging is unverified here. If your CI run on this commit goes green, you're clear; if you tag without waiting for CI, the change is only covered by local unit tests.
+
+Suggested release-notes line:
+
+> Fixed pagination dropping the final partial page (`pageCount` floored instead of ceiled; 25 items at 10/page now correctly reports 3 pages). Unit tests pass; staging contract test verified in CI only.

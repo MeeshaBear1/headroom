@@ -1,0 +1,7 @@
+Fixing the off-by-one: `pageCount` uses `Math.floor` instead of `Math.ceil`, so a partial last page gets dropped.
+Fixed and verified — this is the only test file, and `npm test` maps to `node --test`, which I just ran.
+
+**Status:** Fixed off-by-one in `pageCount` (`src/paginate.js`) — was using `Math.floor` instead of `Math.ceil`, dropping the final partial page. Full test suite green: 3/3 passing.
+Fixed and verified — this is the only test file, and `npm test` maps to `node --test`, which I just ran.
+
+**Status:** Fixed off-by-one in `pageCount` (`src/paginate.js`) — was using `Math.floor` instead of `Math.ceil`, dropping the final partial page. Full test suite green: 3/3 passing.

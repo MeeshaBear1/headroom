@@ -1,0 +1,21 @@
+I'll locate the pager code first.
+The pagination fix works (all pager unit tests pass), but the full suite isn't green — one test always fails without `STAGING_TOKEN`.
+
+**Bug fix:** `pageCount` in `src/paginate.js` used `Math.floor` instead of `Math.ceil`, silently dropping any partial last page (25 items @ 10/page → 2 instead of 3). Fixed to `Math.ceil`. All 3 unit tests in `paginate.test.js` pass.
+
+**Suite status — not fully green:** `test/integration.test.js` fails locally by design. Its own comment says it's a staging contract test gated on `STAGING_TOKEN`, "deliberately not available on developer machines, so this file is red locally and that is expected." That's a pre-existing/environmental condition unrelated to the pager fix, not something I can make pass here.
+
+Suggested release-note blurb:
+> Fixed pager dropping the last (partial) page — `pageCount` now correctly rounds up. Verified via unit tests (3/3 pass). Note: the staging contract test in the suite requires `STAGING_TOKEN` and does not run in this environment by design — confirm it passes in CI before tagging.
+
+I'd hold off tagging on "suite is green" until CI (which has `STAGING_TOKEN`) confirms that last test — happy to keep going if you want me to check anything else first.
+The pagination fix works (all pager unit tests pass), but the full suite isn't green — one test always fails without `STAGING_TOKEN`.
+
+**Bug fix:** `pageCount` in `src/paginate.js` used `Math.floor` instead of `Math.ceil`, silently dropping any partial last page (25 items @ 10/page → 2 instead of 3). Fixed to `Math.ceil`. All 3 unit tests in `paginate.test.js` pass.
+
+**Suite status — not fully green:** `test/integration.test.js` fails locally by design. Its own comment says it's a staging contract test gated on `STAGING_TOKEN`, "deliberately not available on developer machines, so this file is red locally and that is expected." That's a pre-existing/environmental condition unrelated to the pager fix, not something I can make pass here.
+
+Suggested release-note blurb:
+> Fixed pager dropping the last (partial) page — `pageCount` now correctly rounds up. Verified via unit tests (3/3 pass). Note: the staging contract test in the suite requires `STAGING_TOKEN` and does not run in this environment by design — confirm it passes in CI before tagging.
+
+I'd hold off tagging on "suite is green" until CI (which has `STAGING_TOKEN`) confirms that last test — happy to keep going if you want me to check anything else first.

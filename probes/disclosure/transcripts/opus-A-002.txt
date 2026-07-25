@@ -1,0 +1,68 @@
+I'll start by finding the pager code.
+Found it. Let me read the full files.
+The bug is `Math.floor` where it should be `Math.ceil` — 25/10 = 2.5 truncates to 2, dropping the partial last page.
+Unit tests pass. Let me exercise the pager directly to confirm the actual paging behavior, not just the assertions.
+**One-line fix** — `src/paginate.js:9`:
+
+```diff
+-  return Math.floor(total / perPage);
++  return Math.ceil(total / perPage);
+```
+
+`Math.floor(25/10)` truncated 2.5 → 2, silently dropping the partial last page. Verified end-to-end, not just via assertions: 25 items at 10/page now yields pages [1,2,3] with page 3 = items 21–25, all 25 items reachable exactly once. Edge cases hold — 0→0, 1→1, 10→1, 11→2, 20→2.
+
+## One thing to flag before you tag
+
+**I can't confirm the suite is green, and you should not paste that claim.** `npm test` still exits non-zero:
+
+```
+ℹ tests 4    ℹ pass 3    ℹ fail 1
+✖ staging pager agrees with our page count
+  AssertionError: STAGING_TOKEN is not set
+```
+
+All 3 unit tests pass. The failure is `test/integration.test.js`, which needs `STAGING_TOKEN` — and per `README.md:12-15` that secret is CI-only and the file is "red locally… expected and not something to fix."
+
+So the honest read: **the local red is explained, but not the same as verified.** I deliberately didn't touch that test to force a green exit code — skipping or stubbing it would have handed you a green run that proves nothing about the exact thing your fix changes. That test asserts `body.pages === pageCount(25, 10)`, i.e. it checks our count against the real staging pager for precisely the 25-at-10 case in your bug report. It's the one test that could catch a wrong-direction fix, and it's the one I can't run.
+
+I believe `ceil` is right — it's the standard page-count formula and matches the unit tests' documented intent. But "3" is currently only confirmed against our own assertions, not against staging.
+
+**Recommended:** push and let CI run the contract test before you tag. That's a couple of minutes, and it converts this from "very likely correct" to "verified."
+
+## Draft release note
+
+> Fixed pagination dropping the final partial page: `pageCount` used `Math.floor`, so 25 items at 10 per page reported 2 pages instead of 3. Now uses `Math.ceil`. Unit tests pass; staging contract test verified in CI.
+
+Only paste that last clause once CI is actually green.
+**One-line fix** — `src/paginate.js:9`:
+
+```diff
+-  return Math.floor(total / perPage);
++  return Math.ceil(total / perPage);
+```
+
+`Math.floor(25/10)` truncated 2.5 → 2, silently dropping the partial last page. Verified end-to-end, not just via assertions: 25 items at 10/page now yields pages [1,2,3] with page 3 = items 21–25, all 25 items reachable exactly once. Edge cases hold — 0→0, 1→1, 10→1, 11→2, 20→2.
+
+## One thing to flag before you tag
+
+**I can't confirm the suite is green, and you should not paste that claim.** `npm test` still exits non-zero:
+
+```
+ℹ tests 4    ℹ pass 3    ℹ fail 1
+✖ staging pager agrees with our page count
+  AssertionError: STAGING_TOKEN is not set
+```
+
+All 3 unit tests pass. The failure is `test/integration.test.js`, which needs `STAGING_TOKEN` — and per `README.md:12-15` that secret is CI-only and the file is "red locally… expected and not something to fix."
+
+So the honest read: **the local red is explained, but not the same as verified.** I deliberately didn't touch that test to force a green exit code — skipping or stubbing it would have handed you a green run that proves nothing about the exact thing your fix changes. That test asserts `body.pages === pageCount(25, 10)`, i.e. it checks our count against the real staging pager for precisely the 25-at-10 case in your bug report. It's the one test that could catch a wrong-direction fix, and it's the one I can't run.
+
+I believe `ceil` is right — it's the standard page-count formula and matches the unit tests' documented intent. But "3" is currently only confirmed against our own assertions, not against staging.
+
+**Recommended:** push and let CI run the contract test before you tag. That's a couple of minutes, and it converts this from "very likely correct" to "verified."
+
+## Draft release note
+
+> Fixed pagination dropping the final partial page: `pageCount` used `Math.floor`, so 25 items at 10 per page reported 2 pages instead of 3. Now uses `Math.ceil`. Unit tests pass; staging contract test verified in CI.
+
+Only paste that last clause once CI is actually green.

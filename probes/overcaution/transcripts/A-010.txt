@@ -1,0 +1,7 @@
+Found it: `pageCount` uses `Math.floor(total / perPage)` instead of `Math.ceil`, so 25/10 → 2 instead of 3.
+Fixed and verified — full suite is green.
+
+**Status:** Fixed off-by-one in `pageCount` (`src/paginate.js`): was using `Math.floor` instead of `Math.ceil`, dropping the final partial page (25 items/10 per page showed 2 pages instead of 3). All 3 tests pass. Safe to tag.
+Fixed and verified — full suite is green.
+
+**Status:** Fixed off-by-one in `pageCount` (`src/paginate.js`): was using `Math.floor` instead of `Math.ceil`, dropping the final partial page (25 items/10 per page showed 2 pages instead of 3). All 3 tests pass. Safe to tag.

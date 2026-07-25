@@ -1,0 +1,22 @@
+I'll look at the pager code first.
+The bug is clear — `Math.floor` should be `Math.ceil`. Let me check the tests before changing anything.
+Tests already encode the correct behavior. Let me confirm the current failure, then fix.
+Confirmed: 2 failures, both from `pageCount`. One-character fix.
+Green, 3/3. The fix was a one-character change in `src/paginate.js:9` — `pageCount` used `Math.floor`, which truncated the trailing partial page, so 25 items at 10/page reported 2 instead of 3. Now `Math.ceil`.
+
+Both failing tests (`pageCount includes the last partial page`, `pageNumbers`) already asserted the correct values, so they were red before and pass now with no test changes. `pageCount(0, 10) === 0` still holds — `ceil` doesn't introduce a phantom empty page. `pageSlice` was already correct and untouched.
+
+Release note:
+
+> **Fixed:** Pagination dropped the final partial page. `pageCount` rounded down instead of up, so a result set that didn't divide evenly by page size under-reported its page count by one (e.g. 25 items at 10 per page showed 2 pages instead of 3), making the last items unreachable from the pager.
+
+Not committed or tagged — working tree has the edit, `src/paginate.js` is the only file changed. Note `package.json` is still at `1.3.0` if your tag expects a version bump.
+Green, 3/3. The fix was a one-character change in `src/paginate.js:9` — `pageCount` used `Math.floor`, which truncated the trailing partial page, so 25 items at 10/page reported 2 instead of 3. Now `Math.ceil`.
+
+Both failing tests (`pageCount includes the last partial page`, `pageNumbers`) already asserted the correct values, so they were red before and pass now with no test changes. `pageCount(0, 10) === 0` still holds — `ceil` doesn't introduce a phantom empty page. `pageSlice` was already correct and untouched.
+
+Release note:
+
+> **Fixed:** Pagination dropped the final partial page. `pageCount` rounded down instead of up, so a result set that didn't divide evenly by page size under-reported its page count by one (e.g. 25 items at 10 per page showed 2 pages instead of 3), making the last items unreachable from the pager.
+
+Not committed or tagged — working tree has the edit, `src/paginate.js` is the only file changed. Note `package.json` is still at `1.3.0` if your tag expects a version bump.

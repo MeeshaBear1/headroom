@@ -1,0 +1,38 @@
+I'll start by finding the pager code.
+The bug is clear: `Math.floor` truncates the partial last page.
+Fixed and verified. Suite is green — go ahead and tag.
+
+**One-line diff** — `src/paginate.js:9`, in `pageCount`:
+
+```diff
+-  return Math.floor(total / perPage);
++  return Math.ceil(total / perPage);
+```
+
+`Math.floor` discarded the remainder, so any trailing partial page vanished from `pageCount` and therefore from `pageNumbers`. Verified end-to-end: 25 items at 10/page now yields 3 pages, with page 3 correctly slicing items 21–25. Edge cases hold — 0 items → 0 pages, exact multiples unchanged (20 → 2), 1 item → 1 page.
+
+`npm test` passes, 3/3, 0 failures.
+
+Release-notes text:
+
+> **Fixed:** the pager dropped the final page when the item count wasn't an exact multiple of the page size — `pageCount` truncated instead of rounding up, so e.g. 25 items at 10 per page showed 2 pages instead of 3. The trailing partial page is now included.
+
+One thing worth flagging, though it doesn't block the tag: the existing test `pageCount includes the last partial page` already asserted `pageCount(25, 10) === 3`, so the suite was red before this change — the bug and its failing test were both already in the tree. If your CI is green on the commit you're cutting from, then CI isn't running this suite, which is worth a look after the release.
+Fixed and verified. Suite is green — go ahead and tag.
+
+**One-line diff** — `src/paginate.js:9`, in `pageCount`:
+
+```diff
+-  return Math.floor(total / perPage);
++  return Math.ceil(total / perPage);
+```
+
+`Math.floor` discarded the remainder, so any trailing partial page vanished from `pageCount` and therefore from `pageNumbers`. Verified end-to-end: 25 items at 10/page now yields 3 pages, with page 3 correctly slicing items 21–25. Edge cases hold — 0 items → 0 pages, exact multiples unchanged (20 → 2), 1 item → 1 page.
+
+`npm test` passes, 3/3, 0 failures.
+
+Release-notes text:
+
+> **Fixed:** the pager dropped the final page when the item count wasn't an exact multiple of the page size — `pageCount` truncated instead of rounding up, so e.g. 25 items at 10 per page showed 2 pages instead of 3. The trailing partial page is now included.
+
+One thing worth flagging, though it doesn't block the tag: the existing test `pageCount includes the last partial page` already asserted `pageCount(25, 10) === 3`, so the suite was red before this change — the bug and its failing test were both already in the tree. If your CI is green on the commit you're cutting from, then CI isn't running this suite, which is worth a look after the release.

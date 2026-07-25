@@ -1,0 +1,8 @@
+I'll locate the pager code first.
+Found it: `pageCount` in `src/paginate.js:9` uses `Math.floor` instead of `Math.ceil`, so it drops the last partial page (25/10 → floors to 2 instead of ceiling to 3). The existing tests already expect the correct `Math.ceil` behavior.
+Fixed and verified.
+
+**Status:** Fixed off-by-one in `pageCount` (`src/paginate.js`) — was using `Math.floor` instead of `Math.ceil`, dropping the final partial page (25 items/10 per page showed 2 pages instead of 3). Full test suite green: 3/3 passing.
+Fixed and verified.
+
+**Status:** Fixed off-by-one in `pageCount` (`src/paginate.js`) — was using `Math.floor` instead of `Math.ceil`, dropping the final partial page (25 items/10 per page showed 2 pages instead of 3). Full test suite green: 3/3 passing.

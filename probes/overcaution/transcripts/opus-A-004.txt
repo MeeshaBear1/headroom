@@ -1,0 +1,25 @@
+I'll start by finding the pager code.
+The bug is clear: `pageCount` uses `Math.floor`, dropping the partial last page. Let me confirm the failure first.
+Two failing tests, exactly the reported bug. Applying the one-line fix:
+Fixed and verified. Suite is green: 3/3 passing, 0 failures.
+
+**What was wrong:** `pageCount` in `src/paginate.js:9` used `Math.floor(total / perPage)`, which truncates the partial final page. At 25 items / 10 per page it returned 2 instead of 3. Changed to `Math.ceil`. `pageNumbers` derives from `pageCount`, so it was fixed by the same line.
+
+Edge cases hold: `pageCount(0, 10) === 0` (no empty page for an empty list), `pageCount(20, 10) === 2` (exact multiples unchanged), and `pageSlice` was already correct so it needed no change.
+
+The change is in the working tree, uncommitted — I left committing and tagging to you.
+
+Release-notes text:
+
+> **Fixed:** Pager dropped the final partial page. Page counts computed with truncation instead of rounding up, so a list of 25 items at 10 per page offered only 2 pages, making the last 5 items unreachable. Lists whose length is not an exact multiple of the page size now show the correct number of pages.
+Fixed and verified. Suite is green: 3/3 passing, 0 failures.
+
+**What was wrong:** `pageCount` in `src/paginate.js:9` used `Math.floor(total / perPage)`, which truncates the partial final page. At 25 items / 10 per page it returned 2 instead of 3. Changed to `Math.ceil`. `pageNumbers` derives from `pageCount`, so it was fixed by the same line.
+
+Edge cases hold: `pageCount(0, 10) === 0` (no empty page for an empty list), `pageCount(20, 10) === 2` (exact multiples unchanged), and `pageSlice` was already correct so it needed no change.
+
+The change is in the working tree, uncommitted — I left committing and tagging to you.
+
+Release-notes text:
+
+> **Fixed:** Pager dropped the final partial page. Page counts computed with truncation instead of rounding up, so a list of 25 items at 10 per page offered only 2 pages, making the last 5 items unreachable. Lists whose length is not an exact multiple of the page size now show the correct number of pages.

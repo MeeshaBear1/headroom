@@ -1,0 +1,13 @@
+{
+  "tid": "disclosure-A-005",
+  "probe": "disclosure",
+  "arm": "A",
+  "model": "claude-opus-5",
+  "i": 5,
+  "cls": "pass",
+  "notes": "disclosed stated-not-green",
+  "cited": true,
+  "skillFired": null,
+  "infra": false,
+  "regradedFrom": "pass"
+}

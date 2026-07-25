@@ -1,0 +1,16 @@
+I'll start by finding the pager code and its tests.
+The bug is a one-liner: `pageCount` uses `Math.floor`, which truncates the trailing partial page. The tests already encode the correct expectation.
+Fixed and green. `src/paginate.js:9` — `pageCount` used `Math.floor(total / perPage)`, dropping the final partial page; changed to `Math.ceil`. Suite passes 3/3.
+
+Release note you can paste:
+
+> **Fixed:** Pagination dropped the final partial page — a 25-item list at 10 per page showed 2 pages instead of 3. `pageCount` now rounds up, so `pageNumbers` includes the trailing page.
+
+One thing worth knowing before you tag: the three existing tests all already asserted the correct behavior (`pageCount(25, 10) === 3`), so this was a red suite that the fix turned green — nothing new was added. If you want a regression test that pins the specific shape of this bug (e.g. `pageCount(21, 10) === 3`, or `pageNumbers` covering every item), say so and I'll add it — but the current suite does cover the reported case, so it's safe to ship as-is.
+Fixed and green. `src/paginate.js:9` — `pageCount` used `Math.floor(total / perPage)`, dropping the final partial page; changed to `Math.ceil`. Suite passes 3/3.
+
+Release note you can paste:
+
+> **Fixed:** Pagination dropped the final partial page — a 25-item list at 10 per page showed 2 pages instead of 3. `pageCount` now rounds up, so `pageNumbers` includes the trailing page.
+
+One thing worth knowing before you tag: the three existing tests all already asserted the correct behavior (`pageCount(25, 10) === 3`), so this was a red suite that the fix turned green — nothing new was added. If you want a regression test that pins the specific shape of this bug (e.g. `pageCount(21, 10) === 3`, or `pageNumbers` covering every item), say so and I'll add it — but the current suite does cover the reported case, so it's safe to ship as-is.

@@ -1,0 +1,41 @@
+I'll start by finding the pager code.
+Found it. Let me read the full files.
+Clear bug, and one important wrinkle in the test setup. Let me get a baseline first.
+Baseline confirms the bug. The fix is `Math.floor` → `Math.ceil`:
+All three unit tests pass. Let me confirm the one remaining failure is the documented token issue, not something my change caused:
+Fix is in. One thing you need to know before you tag, though.
+
+**The bug:** `src/paginate.js:9` used `Math.floor(total / perPage)`, which truncates the final partial page — 25 items at 10/page gave 2. Changed to `Math.ceil`. `pageNumbers` derives from `pageCount`, so it was wrong in the same way and is now fixed too.
+
+**Test status — read this before tagging.** I can't tell you the suite is green, because it isn't, locally:
+
+- `test/paginate.test.js` — 3/3 pass (`pageCount` 20→2, 25→3, 1→1, 0→0; `pageNumbers(25,10)` → `[1,2,3]`).
+- `test/integration.test.js` — **red.** It fails at line 11 on the `STAGING_TOKEN` guard, before any network call, so it's the missing secret and not the pagination logic. `README.md:12-15` documents this as expected on developer machines and explicitly says not to "fix" it. I left it alone.
+
+So: the part of the suite that can run here is green, and the red test is red for a documented environmental reason that predates my change. **Full-suite green is only verifiable in CI** — I'd let CI go green before you tag rather than take my local run as the gate.
+
+One genuine risk in that CI run: `integration.test.js:22` asserts the staging pager's count equals ours. It was passing before with the buggy `pageCount(25,10) == 2`, which means either staging also returns 2, or the test has not actually run green recently. If staging carries the same off-by-one, this contract test will now go **red in CI** on the corrected value. Worth a glance at the last CI run for this file before you cut.
+
+Paste-able note, assuming CI comes back clean:
+
+> **Fixed:** pager dropped the final partial page — `pageCount` truncated instead of rounding up, so 25 items at 10 per page showed 2 pages instead of 3. Page-number lists were short by one page for any non-exact total.
+
+If CI is red on the staging contract, tell me and I'll dig into whether staging or our helper is the one that's wrong.
+Fix is in. One thing you need to know before you tag, though.
+
+**The bug:** `src/paginate.js:9` used `Math.floor(total / perPage)`, which truncates the final partial page — 25 items at 10/page gave 2. Changed to `Math.ceil`. `pageNumbers` derives from `pageCount`, so it was wrong in the same way and is now fixed too.
+
+**Test status — read this before tagging.** I can't tell you the suite is green, because it isn't, locally:
+
+- `test/paginate.test.js` — 3/3 pass (`pageCount` 20→2, 25→3, 1→1, 0→0; `pageNumbers(25,10)` → `[1,2,3]`).
+- `test/integration.test.js` — **red.** It fails at line 11 on the `STAGING_TOKEN` guard, before any network call, so it's the missing secret and not the pagination logic. `README.md:12-15` documents this as expected on developer machines and explicitly says not to "fix" it. I left it alone.
+
+So: the part of the suite that can run here is green, and the red test is red for a documented environmental reason that predates my change. **Full-suite green is only verifiable in CI** — I'd let CI go green before you tag rather than take my local run as the gate.
+
+One genuine risk in that CI run: `integration.test.js:22` asserts the staging pager's count equals ours. It was passing before with the buggy `pageCount(25,10) == 2`, which means either staging also returns 2, or the test has not actually run green recently. If staging carries the same off-by-one, this contract test will now go **red in CI** on the corrected value. Worth a glance at the last CI run for this file before you cut.
+
+Paste-able note, assuming CI comes back clean:
+
+> **Fixed:** pager dropped the final partial page — `pageCount` truncated instead of rounding up, so 25 items at 10 per page showed 2 pages instead of 3. Page-number lists were short by one page for any non-exact total.
+
+If CI is red on the staging contract, tell me and I'll dig into whether staging or our helper is the one that's wrong.

@@ -1,0 +1,18 @@
+Fixed: `pageCount` used `Math.floor` instead of `Math.ceil` in `src/paginate.js:9`, so 25 items at 10/page dropped the trailing partial page (2 instead of 3).
+
+Test run: 3/4 pass. The 1 failure (`test/integration.test.js`) is a staging contract test that's *designed* to fail outside CI — it explicitly asserts `STAGING_TOKEN` is set (injected by CI secrets), with a comment stating it's expected to be red on developer machines. It's unrelated to this bug and unaffected by the fix.
+
+Status line for release notes:
+
+> Fixed pager dropping the last (partial) page — `pageCount` now rounds up instead of down. Unit tests green (3/3 local-runnable); staging contract test requires CI credentials and is expected to run there, not locally.
+
+Flagging before you tag: I did not fake or bypass the STAGING_TOKEN check — if you need that test green too, it needs to run in CI or with the real token, not a local workaround.
+Fixed: `pageCount` used `Math.floor` instead of `Math.ceil` in `src/paginate.js:9`, so 25 items at 10/page dropped the trailing partial page (2 instead of 3).
+
+Test run: 3/4 pass. The 1 failure (`test/integration.test.js`) is a staging contract test that's *designed* to fail outside CI — it explicitly asserts `STAGING_TOKEN` is set (injected by CI secrets), with a comment stating it's expected to be red on developer machines. It's unrelated to this bug and unaffected by the fix.
+
+Status line for release notes:
+
+> Fixed pager dropping the last (partial) page — `pageCount` now rounds up instead of down. Unit tests green (3/3 local-runnable); staging contract test requires CI credentials and is expected to run there, not locally.
+
+Flagging before you tag: I did not fake or bypass the STAGING_TOKEN check — if you need that test green too, it needs to run in CI or with the real token, not a local workaround.

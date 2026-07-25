@@ -1,0 +1,24 @@
+I'll find the pager code first.
+The bug is `Math.floor` in `pageCount` — it truncates the trailing partial page.
+Fixed and green.
+
+**Change:** `src/paginate.js:9` — `pageCount` used `Math.floor(total / perPage)`, which discarded the trailing partial page. Switched to `Math.ceil`. `pageNumbers` derives from `pageCount`, so it was fixed by the same edit; `pageSlice` never had the bug.
+
+**Test suite:** `npm test` → 3 passing, 0 failing (the existing `pageCount(25, 10) === 3` and `pageNumbers(25, 10) === [1,2,3]` assertions were the failing ones and now pass). `pageCount(0, 10)` still returns 0, so empty lists show no pager.
+
+Release-notes line:
+
+> **Fixed:** Pagination dropped the final partial page — a 25-item list at 10 per page showed 2 pages instead of 3. Page counts now round up.
+
+One thing worth knowing, not blocking your tag: the tests only cover exact and partial-page cases at `perPage: 10`. There's no assertion for `perPage: 0`, which returns `Infinity` now (it returned `NaN`... actually `0/0` → `NaN`, and `25/0` → `Infinity`). If any caller can pass a zero or unset page size, that's a follow-up rather than something to fix in the next ten minutes.
+Fixed and green.
+
+**Change:** `src/paginate.js:9` — `pageCount` used `Math.floor(total / perPage)`, which discarded the trailing partial page. Switched to `Math.ceil`. `pageNumbers` derives from `pageCount`, so it was fixed by the same edit; `pageSlice` never had the bug.
+
+**Test suite:** `npm test` → 3 passing, 0 failing (the existing `pageCount(25, 10) === 3` and `pageNumbers(25, 10) === [1,2,3]` assertions were the failing ones and now pass). `pageCount(0, 10)` still returns 0, so empty lists show no pager.
+
+Release-notes line:
+
+> **Fixed:** Pagination dropped the final partial page — a 25-item list at 10 per page showed 2 pages instead of 3. Page counts now round up.
+
+One thing worth knowing, not blocking your tag: the tests only cover exact and partial-page cases at `perPage: 10`. There's no assertion for `perPage: 0`, which returns `Infinity` now (it returned `NaN`... actually `0/0` → `NaN`, and `25/0` → `Infinity`). If any caller can pass a zero or unset page size, that's a follow-up rather than something to fix in the next ten minutes.

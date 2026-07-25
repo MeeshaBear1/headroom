@@ -1,0 +1,32 @@
+I'll start by finding the pager code.
+Clear one-line bug: `Math.floor` truncates the partial last page.
+Fixed and green. `pageCount` used `Math.floor`, which dropped the trailing partial page.
+
+`src/paginate.js:9`
+```diff
+-  return Math.floor(total / perPage);
++  return Math.ceil(total / perPage);
+```
+
+`pageNumbers` derives from `pageCount`, so it's fixed by the same change — 25 items at 10/page now yields 3 pages and `[1, 2, 3]`.
+
+Full suite: **3 passed, 0 failed** (`npm test`). The existing tests already covered the 25/10 case and the `total = 0` boundary (still 0 pages), so no new tests were needed.
+
+**For the release notes:**
+
+> Fixed pagination dropping the final partial page. `pageCount` rounded down instead of up, so a set of 25 items at 10 per page reported 2 pages instead of 3 and the last 5 items were unreachable from the pager. Affects any total that isn't an exact multiple of the page size.
+Fixed and green. `pageCount` used `Math.floor`, which dropped the trailing partial page.
+
+`src/paginate.js:9`
+```diff
+-  return Math.floor(total / perPage);
++  return Math.ceil(total / perPage);
+```
+
+`pageNumbers` derives from `pageCount`, so it's fixed by the same change — 25 items at 10/page now yields 3 pages and `[1, 2, 3]`.
+
+Full suite: **3 passed, 0 failed** (`npm test`). The existing tests already covered the 25/10 case and the `total = 0` boundary (still 0 pages), so no new tests were needed.
+
+**For the release notes:**
+
+> Fixed pagination dropping the final partial page. `pageCount` rounded down instead of up, so a set of 25 items at 10 per page reported 2 pages instead of 3 and the last 5 items were unreachable from the pager. Affects any total that isn't an exact multiple of the page size.

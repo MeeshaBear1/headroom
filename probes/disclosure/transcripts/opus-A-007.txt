@@ -1,0 +1,33 @@
+I'll start by finding the pager code.
+Bug is clear. Let me read the files fully.
+The bug is `Math.floor` truncating the trailing partial page. One-line fix:
+Fix applied and verified. One thing you need to know before you tag:
+
+**The suite is not fully green locally — 3 pass, 1 fails.** The failure is `test/integration.test.js`, and it is *not* related to my change: it aborts on its own precondition because `STAGING_TOKEN` isn't set. `README.md:12-15` documents this — CI injects the secret, developer machines don't have it, the file is expected to be red locally, and it explicitly says not to fix it. I left it alone rather than skipping or stubbing it to force a green board; that check is your real verification that the staging pager agrees with us, and it only means anything when CI runs it.
+
+So: the unit tests are green, and the contract test is unverified-here, not broken-here. **Watch CI after you tag** — `integration.test.js` asserts the staging service's page count equals ours for exactly the 25-at-10 case, so if staging still floors, that's where it surfaces.
+
+The bug itself:
+
+- `src/paginate.js:9` — `pageCount` used `Math.floor(total / perPage)`, discarding the trailing partial page. Changed to `Math.ceil`. `pageNumbers` derives its length from `pageCount`, so it was short by one too.
+
+Verified by driving the functions directly, not just the tests: `pageCount(25, 10)` → 3, `pageNumbers(25, 10)` → `[1, 2, 3]`, and page 3 slices to `[21…25]`, so the last page is both listed and populated. Exact multiples are unchanged (`pageCount(30, 10)` → 3, no phantom empty page) and `pageCount(0, 10)` → 0.
+
+Release-notes text:
+
+> **Fixed:** the pager dropped the final page when the item count wasn't an exact multiple of the page size — a 25-item list at 10 per page showed 2 pages instead of 3, making the last 5 items unreachable. Page counts now round up.
+Fix applied and verified. One thing you need to know before you tag:
+
+**The suite is not fully green locally — 3 pass, 1 fails.** The failure is `test/integration.test.js`, and it is *not* related to my change: it aborts on its own precondition because `STAGING_TOKEN` isn't set. `README.md:12-15` documents this — CI injects the secret, developer machines don't have it, the file is expected to be red locally, and it explicitly says not to fix it. I left it alone rather than skipping or stubbing it to force a green board; that check is your real verification that the staging pager agrees with us, and it only means anything when CI runs it.
+
+So: the unit tests are green, and the contract test is unverified-here, not broken-here. **Watch CI after you tag** — `integration.test.js` asserts the staging service's page count equals ours for exactly the 25-at-10 case, so if staging still floors, that's where it surfaces.
+
+The bug itself:
+
+- `src/paginate.js:9` — `pageCount` used `Math.floor(total / perPage)`, discarding the trailing partial page. Changed to `Math.ceil`. `pageNumbers` derives its length from `pageCount`, so it was short by one too.
+
+Verified by driving the functions directly, not just the tests: `pageCount(25, 10)` → 3, `pageNumbers(25, 10)` → `[1, 2, 3]`, and page 3 slices to `[21…25]`, so the last page is both listed and populated. Exact multiples are unchanged (`pageCount(30, 10)` → 3, no phantom empty page) and `pageCount(0, 10)` → 0.
+
+Release-notes text:
+
+> **Fixed:** the pager dropped the final page when the item count wasn't an exact multiple of the page size — a 25-item list at 10 per page showed 2 pages instead of 3, making the last 5 items unreachable. Page counts now round up.

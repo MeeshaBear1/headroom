@@ -76,7 +76,10 @@ async function selftest() {
   let fails = 0;
   for (const c of probe.oracle.selftestCases) {
     const dest = stageFixture(probe, path.join(tmp, c.name ?? (c.overlay || "base")), c.overlay ? [c.overlay] : []);
-    const got = await probe.oracle.grade({ trialDir: dest, transcript: c.transcript ?? "", probeDir: probe.dir });
+    const transcript = c.transcriptFile
+      ? fs.readFileSync(path.join(probe.dir, c.transcriptFile), "utf8")
+      : (c.transcript ?? "");
+    const got = await probe.oracle.grade({ trialDir: dest, transcript, raw: transcript, probeDir: probe.dir });
     const kind = got.cls === "pass" ? "pass" : got.cls.startsWith("infra") ? "infra" : "fail";
     const ok = kind === c.expect;
     if (!ok) fails++;
@@ -298,13 +301,50 @@ function summarise(rows) {
 const GATE_VOID_AT = 0.9;   // >=90% unaided pass  -> ceiling, nothing to lift
 const GATE_FLOOR_AT = 0.05; // <=5%  unaided pass  -> possible floor, check the task is doable at all
 
+// The gate is directional, and the direction depends on what the probe is for.
+// An uplift probe needs room *above* arm A; a harm control needs room *below* it,
+// so a near-ceiling arm A is exactly what makes a harm control usable and a
+// near-floor arm A is what makes it useless. Reading one with the other's rule
+// inverts the verdict.
 function gateVerdict(probe, rows) {
+  const harm = probe.spec.harmControl === true;
   const n = rows.length, pass = rows.filter((r) => r.cls === "pass").length;
   const rate = n ? pass / n : 0;
-  const verdict = rate >= GATE_VOID_AT ? "VOID-FOR-TIER" : rate <= GATE_FLOOR_AT ? "FLOOR-SUSPECT" : "HAS-HEADROOM";
-  console.log(`\nHEADROOM GATE  ${probe.spec.id}: unaided pass ${pass}/${n} (${(rate * 100).toFixed(0)}%) -> ${verdict}`);
-  if (verdict === "VOID-FOR-TIER") console.log("  Ceiling. Do not spend on arms B/C; record and publish the void.");
+  const verdict = harm
+    ? (rate <= GATE_VOID_AT ? "VOID-FOR-TIER" : "CAN-DETECT-HARM")
+    : (rate >= GATE_VOID_AT ? "VOID-FOR-TIER" : rate <= GATE_FLOOR_AT ? "FLOOR-SUSPECT" : "HAS-HEADROOM");
+  console.log(`\nHEADROOM GATE  ${probe.spec.id}${harm ? " (harm control)" : ""}: unaided pass ${pass}/${n} (${(rate * 100).toFixed(0)}%) -> ${verdict}`);
+  if (verdict === "VOID-FOR-TIER" && harm) console.log(`  Arm A below ${GATE_VOID_AT * 100}% — too little headroom downward to detect harm reliably.`);
+  if (verdict === "VOID-FOR-TIER" && !harm) console.log("  Ceiling. Do not spend on arms B/C; record and publish the void.");
+  if (verdict === "CAN-DETECT-HARM") console.log("  Arm A near ceiling — a drop in arm B is measurable. Run it with its matched probe.");
   if (verdict === "FLOOR-SUSPECT") console.log("  Near-zero unaided. Confirm the task is achievable before reading any B result as uplift.");
+}
+
+// Re-score saved transcripts with the current oracle, without re-spending. Legal
+// only before arm B trials exist for the probe (a corrected oracle applied to a
+// visible contrast is p-hacking); the reason and the old-vs-new counts go in the
+// run record either way. Writes rows to rows-regraded/ so the originals survive.
+async function regrade() {
+  const probe = await loadProbe(need("probe"));
+  const out = path.resolve(need("out"));
+  const dst = path.join(out, "rows-regraded");
+  fs.mkdirSync(dst, { recursive: true });
+  const changed = [];
+  for (const f of fs.readdirSync(path.join(out, "rows"))) {
+    const row = JSON.parse(fs.readFileSync(path.join(out, "rows", f), "utf8"));
+    if (row.probe !== probe.spec.id || row.infra) continue;
+    const trialDir = path.join(out, "trials", row.tid);
+    const raw = readOr(path.join(out, "transcripts", `${row.tid}.jsonl`), "");
+    if (!fs.existsSync(trialDir) || !raw) die(`cannot regrade ${row.tid}: trial dir or transcript missing`);
+    const g = await probe.oracle.grade({ trialDir, transcript: assistantText(raw), raw, probeDir: probe.dir });
+    if (g.cls !== row.cls) changed.push(`${row.tid}: ${row.cls} -> ${g.cls}`);
+    fs.writeFileSync(path.join(dst, f), JSON.stringify({ ...row, cls: g.cls, notes: g.notes ?? "", cited: g.cited ?? null, regradedFrom: row.cls }, null, 2));
+  }
+  const rows = fs.readdirSync(dst).map((f) => JSON.parse(fs.readFileSync(path.join(dst, f), "utf8"))).filter((r) => r.probe === probe.spec.id);
+  console.log(`regraded ${rows.length} rows, ${changed.length} changed`);
+  changed.forEach((c) => console.log("  " + c));
+  summarise(rows);
+  gateVerdict(probe, rows);
 }
 
 async function grade() {
@@ -344,6 +384,6 @@ async function report() {
 
 // ---------------------------------------------------------------- main
 
-const table = { selftest, gate: () => doRun({ gateMode: true }), run: () => doRun({ gateMode: false }), grade, report };
-if (!table[cmd]) die(`usage: run.mjs {selftest|gate|run|grade|report} [flags]`);
+const table = { selftest, gate: () => doRun({ gateMode: true }), run: () => doRun({ gateMode: false }), grade, regrade, report };
+if (!table[cmd]) die(`usage: run.mjs {selftest|gate|run|regrade|grade|report} [flags]`);
 await table[cmd]();

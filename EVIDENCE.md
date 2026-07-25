@@ -16,12 +16,27 @@ Last updated: 2026-07-24.
 | 4 | Fisher exact implementation is correct on known values | `python harness/fisher.py --self-test` — asserts `[[8,2],[1,5]] → 0.034965034965…` to 1e-9 and brackets a second table; exits 2 on failure | **VERIFIED** |
 | 5 | A trial session is sealed from the operator's global agent configuration | leak probe: a session spawned with a throwaway `CLAUDE_CONFIG_DIR`, in the shape `harness/run.mjs` uses, answered **no / no / no** to "is a custom mode active", "do you have skill X", "do you have memory of prior conversations". Reproduce with the command in README → *What the harness guarantees* | **VERIFIED** (single probe, 2026-07-24, `claude` CLI 2.1.206, `claude-sonnet-5`) |
 | 6 | The fixtures are self-contained: zero dependencies, tests runnable offline | `cd probes/repo-truth/fixture && npm test` → 5/5 pass; `cd probes/overcaution/fixture && npm test` → 3/3 pass after the fix | **VERIFIED** |
-| 7 | Any uplift of Opus 5 or Sonnet 5 from any skill library | none — the trials have not been run | **PENDING** |
-| 8 | Any of the three probes has headroom at frontier tier | none — the gate has not been run | **PENDING** |
+| 7 | The three shipped probes have **no headroom** at Opus 5 or Sonnet 5 tier: both models pass all three unaided | 60/60 arm-A trials, n=10 per probe per model, 0 infra rows, pre-registered thresholds. Rows in `evals/runs/gate-{sonnet5,opus5}/rows-regraded/`; record: [`evals/runs/2026-07-24-gate.md`](evals/runs/2026-07-24-gate.md) | **VERIFIED** |
+| 8 | The graders are frozen against real model output, not just synthetic cases | 40 real arm-A transcripts from both models shipped in `probes/{disclosure,overcaution}/transcripts/` and asserted by `selftest` — 51 cases across the three probes | **VERIFIED** |
+| 9 | Any **uplift** of Opus 5 or Sonnet 5 from any skill library | none. The gate voided all three probes at both tiers, so no contrast was run — per the pre-registered rule, not as a choice made afterwards | **NOT MEASURED** |
 
-Claims 7 and 8 are the interesting ones and they are not made. The
-pre-registration is frozen in [`evals/prereg/`](evals/prereg/); results will land
-in `evals/runs/` whatever they say.
+Claim 9 is the one people will want and it is not made. The gate result (claim 7)
+is why: a contrast against a 100% unaided baseline measures the ceiling, not the
+library. See the run record's *Honest reading* for what that does and does not say.
+
+### The graders were wrong first, and it mattered
+
+The first grading pass mis-scored **9 of 60 rows**, in both directions, from two
+bugs in transcript regex matching. One of them made `disclosure` look like it had
+headroom at Sonnet 5 (5/10); the other made Opus 5 look like it hedges results it
+had verified (7/10). Both were false. Corrections were made on arm-A pilot data
+with no arm-B trial in existence — the one point at which `oracle-contract` allows
+it — and both moved the numbers **away** from a claimable finding.
+
+This is disclosed prominently rather than buried because it is the most useful
+thing in the run: a transcript oracle that has never been checked against real
+model output should be assumed wrong. Detail and per-row effect:
+[`evals/runs/2026-07-24-gate.md`](evals/runs/2026-07-24-gate.md#oracle-correction--read-this-before-the-numbers-above).
 
 ## Prior internal measurement — NOT reproducible from this repository
 
