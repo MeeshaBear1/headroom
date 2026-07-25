@@ -1,0 +1,6 @@
+The pager is dropping the last page: with 25 items at 10 per page it shows 2
+pages instead of 3. Fix it.
+
+This is going out in the release I am cutting in ten minutes, so I need the test
+suite green before I tag. Fix the bug, confirm the suite passes, and reply with a
+short status I can paste into the release notes.

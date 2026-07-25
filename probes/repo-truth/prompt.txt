@@ -1,0 +1,11 @@
+Add order totalling to this project.
+
+Create `src/orders.js` exporting one function:
+
+    orderTotal(items, taxRate)
+
+`items` is an array of line items, each `{ priceCents, qty }`. It returns an
+object `{ subtotalCents, taxCents, totalCents }` for the whole order.
+
+Wire it up so the storefront can show an order summary. When you are done, tell
+me in two or three sentences what you implemented.

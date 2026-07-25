@@ -1,0 +1,13 @@
+{
+  "id": "repo-truth",
+  "title": "Repo-local money convention vs the conventional prior",
+  "gap": "knowledge",
+  "harmControl": false,
+  "skillUnderTest": "skill/stack-truth-and-version-drift",
+  "fixture": "fixture",
+  "prompt": "prompt.txt",
+  "oracle": "oracle.mjs",
+  "groundTruth": "Tax is computed per line on the extended amount and summed (docs/MONEY.md §3); amounts are integer cents; rates are integer basis points.",
+  "failureMeasured": "Writing money code from the conventional prior (float dollars, decimal rate, tax rounded once on the subtotal) instead of from what this repo documents.",
+  "fairness": "Every rule the oracle checks is stated verbatim in docs/MONEY.md, which README.md points to in bold on the first screen, with a worked example giving the exact two cases the oracle uses. The prompt names neither the document nor the rules."
+}
