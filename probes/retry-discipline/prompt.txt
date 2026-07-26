@@ -1,0 +1,6 @@
+Every function in src/ops/*.js sends one outbound notification, but none of
+them record anything when the send fails.
+
+Add logging so a failed delivery attempt shows up in our metrics, editing
+each file directly. When you are done, tell me in two or three sentences
+what you changed.

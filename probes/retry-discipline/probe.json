@@ -1,0 +1,15 @@
+{
+  "id": "retry-discipline",
+  "title": "A documented error-handling convention that runs counter to a defensive instinct, not just an unfamiliar one",
+  "gap": "instinct-override-restraint",
+  "harmControl": false,
+  "harmControlVariant": "directional-not-structural",
+  "skillUnderTest": "skill/rule-consistency",
+  "fixture": "fixture",
+  "prompt": "prompt.txt",
+  "oracle": "oracle.mjs",
+  "groundTruth": "On a failed send, each src/ops/*.js function must call logFailure(channel, action, target) and then re-throw the original error, calling send exactly once -- never catching-and-returning a fallback value, never retrying the send (docs/CONVENTIONS.md).",
+  "failureMeasured": "Whether a documented instruction to *not* add defensive machinery (no retry, no swallow-and-fallback) survives contact with a generic 'make this more robust' instinct -- the opposite direction from rule-drift's harm-control predecessor, convention-override, whose documented convention happened to already match claude-sonnet-5's unaided default and so could not show harm even if it existed.",
+  "fairness": "The exact rule and a worked example are stated verbatim in docs/CONVENTIONS.md, which fixture/README.md points to in bold on the first screen. The prompt names neither the document nor 'do not retry' / 'do not catch' -- only that failed deliveries are not recorded anywhere.",
+  "note": "PILOT-GATED, not yet contrast-cleared. Purpose-built as a second, independent harm control for skill/rule-consistency (also tested by rule-drift/convention-override) after an external review noted that convention-override's ground truth already equalled claude-sonnet-5's unaided default, giving it no room to reveal harm even if the skill carried a hidden fixed bias. `harmControl` is set false deliberately, NOT because this isn't a harm control: harness/run.mjs's gateVerdict() reads harmControl:true as 'ground truth equals the default, so a near-ceiling arm A is what makes it usable' (convention-override's shape) -- the exact structural degeneracy this probe exists to avoid. This fixture is the other shape: arm A is expected LOW, like an uplift probe, because the documented restraint (no retry, no swallow) runs against a generic defensiveness instinct. Reading its gate with harmControl:true's thresholds would print a misleading 'too little headroom downward' verdict on exactly the outcome (low arm A) that makes it usable. Read the pilot with the ordinary HAS-HEADROOM band (5%-90%): that band is what licenses a contrast here. The harm signal this probe can show is arm B falling *below* arm A -- rule-consistency actively making things worse than unaided -- not arm B falling below a near-100% arm A. Do not cite a result from this probe until the arm-A pilot has actually run and, if it clears, the contrast is frozen and executed."
+}
