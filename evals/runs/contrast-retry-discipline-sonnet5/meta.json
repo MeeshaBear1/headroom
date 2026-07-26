@@ -7,6 +7,14 @@
       "n": 30,
       "mode": "run",
       "timeoutS": 900
+    },
+    {
+      "probe": "retry-discipline",
+      "arm": "B",
+      "model": "claude-sonnet-5",
+      "n": 30,
+      "mode": "run",
+      "timeoutS": 900
     }
   ],
   "cli": "2.1.206 (Claude Code)",
