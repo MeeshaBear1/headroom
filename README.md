@@ -2,6 +2,9 @@
 
 **A framework for finding out whether your agent skills actually do anything.**
 
+New here? [`REPORT.md`](REPORT.md) walks through what this proves and why, for
+both non-engineers and engineers. This README is the terse technical reference.
+
 Skill libraries, prompt packs and "rules files" are claims about behaviour. Almost
 none of them are measured. The ones that are usually get measured against a cheap
 model, show a large effect, and get presented as a general improvement — and then
