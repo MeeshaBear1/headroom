@@ -37,6 +37,15 @@ That is one honestly-earned uplift claim, with its cost (the harm control)
 published in the same table. The six methodology skills are what made it
 possible to trust the number instead of just wanting to.
 
+An external review then checked that claim the same way it checks anything
+else: line by line, against the actual data. It found a real gap (an
+unenforced fixture-integrity assumption, now fixed) and a fair question (did
+the skill just quote the answer?). We reran the experiment with the wording
+that made that question askable removed. **The effect's content held exactly
+— 100%, unchanged — every time the revised skill was actually opened; what
+dropped was how often Sonnet 5 opened it at all.** See *An external review,
+and what it changed* below.
+
 ---
 
 ## Part 1 — For neophytes: what this is and why it's hard
@@ -199,7 +208,8 @@ Nothing is claimed here beyond what that ledger marks VERIFIED.
 | 8 | The graders are frozen against 40 real model transcripts, not just synthetic cases | VERIFIED |
 | 9 | Uplift from any of the three *original* probes | **NOT MEASURED** — the gate voided all three, so no contrast was run, per the pre-registered rule |
 | 10 | **Sonnet 5 follows a documented ordering convention 37% of the time unaided (11/30) and 100% of the time with `rule-consistency` present (30/30)** — closing the full gap to an unaided Opus 5 ceiling (10/10) | VERIFIED, p = 5.34×10⁻⁸ |
-| 11 | **The same skill, on a matched fixture with the rule inverted, produces zero measurable change** (30/30 both arms) | VERIFIED, p = 1.0, no harm |
+| 11 | **The same skill, on a matched fixture with the rule inverted, produces zero measurable change** (30/30 both arms) — though this control cannot distinguish "no harm" from "no room to show harm" (arm A is already at ceiling) | VERIFIED, p = 1.0, no harm; structurally limited |
+| 12 | **A de-leaked version of the skill (fixture domain and quoted rationale removed) still hits 100% whenever actually opened (11/11)** — but generalizing the description cut adoption from 100% to 37% | VERIFIED, raw p = 0.019; not-fired subset indistinguishable from baseline (p = 0.376) |
 
 Claim 9 is listed as a **null result, published on purpose** — it is exactly
 the kind of finding `uplift-eval-core` says must be reported, not buried,
@@ -258,14 +268,60 @@ in [`evals/runs/2026-07-24-contrast-rule-drift.md`](evals/runs/2026-07-24-contra
 
 ---
 
+## An external review, and what it changed
+
+An outside audit of this repository found two real gaps and one genuinely
+hard question, and rather than argue with it, we tested it.
+
+1. **Nothing checked that a trial hadn't disabled the failure-injection
+   mechanism the oracle depends on.** `docs/CONVENTIONS.md` forbids editing
+   `src/db.js`; nothing enforced that. Fixed with a fixture-integrity guard —
+   the same pattern `probes/disclosure` already used — and all 130 of the
+   original contrast's trials were regraded against it. **Zero
+   classifications changed:** no trial in that run touched the file, so the
+   fix is confirmed inert on the real data, not just assumed to be.
+2. **The skill named its own fixture's domain and quoted its rationale
+   closely enough to raise a fair question**: was 37%→100% general judgement,
+   or a hint dressed as one? We built a revised skill — same reasoning, the
+   fixture-specific wording and the domain name removed from its own
+   description — and reran arm B (n=30, fresh trials, the original arm A
+   reused since nothing about it could have changed). **Result: when the
+   de-leaked skill is actually opened, it hits 100% — the same number,
+   independently — but generalizing its description cut how often Sonnet 5
+   opens it at all, from 100% down to 37%.** The content transfers; the
+   discoverability took a real hit from being made less domain-specific. Full
+   breakdown, including the transcripts, in
+   [`evals/runs/2026-07-26-retest-deleak.md`](evals/runs/2026-07-26-retest-deleak.md).
+3. **The harm control can't distinguish "no harm" from "no room to show
+   harm,"** because `claude-sonnet-5`'s unaided default already equals
+   `convention-override`'s correct answer (30/30 arm A). This is a genuine,
+   unresolved limitation, stated plainly below rather than glossed over —
+   building a harm control where the model's default is actually wrong is a
+   real probe-design task this repository has not yet completed.
+
+None of this reverses claim 10 or 11. It replaces "we measured an effect" with
+a more precise, harder-to-attack version of the same claim, plus an honest
+flag on what remains open.
+
+---
+
 ## Scope and limits — read this before citing any number above
 
 - **`rule-consistency` is a new skill**, authored in this repository to close
   this specific gap. It is not a validation of any pre-existing skill suite,
   the fleet's or anyone else's.
 - **One fixture, one domain (audit-logging ordering), one model tier
-  (Sonnet 5), one skill wording.** The result does not establish that this
-  generalizes to other conventions, other domains, or other models.
+  (Sonnet 5), one skill wording family.** The result does not establish that
+  this generalizes to other conventions, other domains, or other models.
+- **`rule-drift`'s "compounding across six sites" framing is an untested
+  hypothesis, not a confirmed mechanism.** Zero of 70 real trials showed a
+  partial failure — every trial applied one judgement uniformly to all six
+  functions. The AND-of-six gate is real and doesn't weaken the headline
+  numbers, but nothing here shows compliance decaying *within* a session.
+- **The harm control's null (claim 11) is weaker than "no room to show
+  harm" would suggest** — see above. Read it as "the skill did not override
+  the model's own correct default," not as "the skill was tested under
+  conditions where it could have caused harm and didn't."
 - **The three original probes remain void at both tiers measured.** That is a
   real, separately-useful finding — it says frontier models already handle
   those three failure modes unaided — and it is not overturned or diminished
@@ -309,12 +365,6 @@ contrast recipe are both in [README.md](README.md#reproduce).
 | [`EVIDENCE.md`](EVIDENCE.md) | The claims ledger — the one rule and the only source of truth for "what's proven" |
 
 GitHub: `https://github.com/MeeshaBear1/headroom`
-
-Local (VSCode workspace-relative): [github/headroom/](github/headroom/)
-
-```
-C:\Users\nileh\github\headroom
-```
 
 ---
 

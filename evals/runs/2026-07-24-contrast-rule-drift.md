@@ -63,6 +63,21 @@ any statistic. If anything, 37% is the more conservative — and more
 credible — starting point, which makes the 100% in arm B a larger, not
 smaller, confirmed effect than the pilot suggested.
 
+## Correction, added 2026-07-26: the "compounding" framing is not supported
+
+`rule-drift`'s `probe.json` frames this as measuring whether compliance holds
+across six independent applications of one rule *within a session* — a proxy
+for compounding drift, distinct from a single-shot knowledge gap. An external
+review checked this against the actual row data and it does not hold: across
+all 70 real trials in this run (30 arm A, 30 arm B, 10 arm C), **zero rows
+were `fail-partial-*`.** Every failing trial applied the wrong order to all
+six functions uniformly; none applied it correctly on some and incorrectly on
+others. The AND-of-six gate is real and does not weaken the 37%/100%/100%
+numbers above, but the *mechanism* is a single binary judgement made once and
+replicated by pattern, not a judgement that degrades partway through the
+task. Read "compounding-compliance" in `probe.json`'s `gap` field as an
+untested hypothesis this run did not confirm, not as a second finding.
+
 ## What this does and does not show
 
 **Shows:** on this one fixture, `claude-sonnet-5` complies with a documented,

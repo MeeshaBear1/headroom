@@ -1,0 +1,22 @@
+{
+  "runs": [
+    {
+      "probe": "rule-drift-deleak",
+      "arm": "B",
+      "model": "claude-sonnet-5",
+      "n": 30,
+      "mode": "run",
+      "timeoutS": 900
+    },
+    {
+      "probe": "convention-override-deleak",
+      "arm": "B",
+      "model": "claude-sonnet-5",
+      "n": 30,
+      "mode": "run",
+      "timeoutS": 900
+    }
+  ],
+  "cli": "2.1.206 (Claude Code)",
+  "node": "v24.16.0"
+}

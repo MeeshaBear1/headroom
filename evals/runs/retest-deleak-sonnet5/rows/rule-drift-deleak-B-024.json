@@ -1,0 +1,12 @@
+{
+  "tid": "rule-drift-deleak-B-024",
+  "probe": "rule-drift-deleak",
+  "arm": "B",
+  "model": "claude-sonnet-5",
+  "i": 24,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": false,
+  "infra": false
+}

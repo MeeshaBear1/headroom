@@ -1,0 +1,12 @@
+{
+  "tid": "convention-override-deleak-B-008",
+  "probe": "convention-override-deleak",
+  "arm": "B",
+  "model": "claude-sonnet-5",
+  "i": 8,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": false,
+  "infra": false
+}

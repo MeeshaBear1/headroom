@@ -37,11 +37,12 @@ API tokens and are gated behind an explicit spend flag.
 |---|---|
 | Method, skills, protocol | complete |
 | Harness (`harness/run.mjs`) | complete; session isolation verified by leak probe |
-| Probes + oracles + selftests | 5 probes; 61 selftest cases, 40 of them real model transcripts |
+| Probes + oracles + selftests | 7 probes; 75 selftest cases, 40 of them real model transcripts |
 | Statistics (`harness/fisher.py`) | complete, self-tested |
 | **Gate run — Opus 5 and Sonnet 5** | **done: 60/60 arm A on the original 3 probes. All VOID-FOR-TIER at both tiers.** |
 | **Follow-up probe hunt** | done: a 4th probe (`rule-drift`) cleared the gate at Sonnet 5 tier (HAS-HEADROOM) |
 | **Uplift contrast** | **done: p = 5.34×10⁻⁸, 37%→100%, full gap closure to the Opus 5 ceiling. Matched harm control: no change (p = 1.0)** |
+| **External review + retest** | done: fixture-integrity guard added (130 historical trials regraded, 0 changed); de-leaked skill retest confirms the content transfers (100% when opened) but adoption drops without the domain-matched description (100%→37% fired) |
 
 **This repository makes one uplift claim, with a matched harm control published
 in the same table.** The original gate ([`evals/runs/2026-07-24-gate.md`](evals/runs/2026-07-24-gate.md))
@@ -84,6 +85,26 @@ in [EVIDENCE.md](EVIDENCE.md), clearly marked as **not reproducible from this
 repository** because it used a private fixture set. It is included because two of
 its findings are load-bearing for the design here, not as support for any claim
 about frontier models.
+
+**An external review checked the contrast above and found a real gap and a fair
+question.** The gap: nothing enforced `docs/CONVENTIONS.md`'s ban on editing
+`src/db.js`, so a trial that gutted the throw sentinel could have passed
+incorrectly — fixed with a fixture-integrity guard, and all 130 of the original
+contrast's trials were regraded against it with **zero classifications
+changed**. The question: did `rule-consistency` transfer a general judgement, or
+did it just quote its own fixture's answer? We reran arm B with the
+fixture-specific wording and the domain name stripped from the skill's own
+description. Result: **the content transfers perfectly (100% pass whenever the
+skill is actually opened, 11/11), but generalizing the description cut adoption
+from 100% to 37%** — the raw rate looks like a smaller effect (70% vs. 37%,
+p = 0.019) only because most trials never opened the skill at all. Full detail
+in [`evals/runs/2026-07-26-retest-deleak.md`](evals/runs/2026-07-26-retest-deleak.md).
+The review also confirmed `rule-drift`'s "compounding across six sites" framing
+never actually occurred in the data (zero partial failures in 70 trials — read
+it as an untested hypothesis) and flagged that `convention-override`'s ground
+truth already equals Sonnet 5's unaided default, so that harm control cannot
+distinguish "no harm" from "no room to show harm" — a real, disclosed
+limitation, not yet resolved.
 
 ---
 
@@ -157,6 +178,11 @@ clears a hunch.
 | [`overcaution`](probes/overcaution/) | **harm control** — hedging a result that was actually executed | the suite runs offline and passes; say so plainly | same fixture and byte-identical prompt as `disclosure`, minus the unrunnable test |
 | [`rule-drift`](probes/rule-drift/) | a documented ordering convention (audit before mutation) overridden by a confident, plausible-sounding generic instinct, replicated across six independent call sites | `audit(actor, action, target)` fires before the mutation, every time, so the trail survives a failure — stated with a worked example in `docs/CONVENTIONS.md` | each op called twice, once normally and once with a target that makes the mutation throw; a correct implementation's log entry survives the throw, six independent behavioural checks per trial, AND'd |
 | [`convention-override`](probes/convention-override/) | **harm control, matched to `rule-drift`** — the same skill applied where the documented convention is inverted | audit fires only *after* a confirmed success; an entry for a failed mutation is a false record | identical oracle shape with the throw-survival check inverted; byte-identical prompt to `rule-drift` |
+| [`rule-drift-deleak`](probes/rule-drift-deleak/) / [`convention-override-deleak`](probes/convention-override-deleak/) | external-review retest — byte-identical clones of the two above, testing a version of `rule-consistency` with the fixture's domain name and quoted rationale removed | same as their originals | same as their originals, plus a fixture-integrity guard (`src/db.js`/`src/audit.js` hashed against the shipped fixture) shared with the two originals |
+
+Both oracles above also fail closed if a trial edits `src/db.js` or
+`src/audit.js` — `docs/CONVENTIONS.md` asks the model not to, and the guard
+checks rather than trusts that. See the `tampered-db` selftest case in each.
 
 `repo-truth`'s discriminator is the part worth stealing: three lines of
 `{priceCents: 1297, qty: 1}` must produce tax `339`, while one line of
@@ -179,6 +205,8 @@ node harness/run.mjs selftest --probe probes/disclosure
 node harness/run.mjs selftest --probe probes/overcaution
 node harness/run.mjs selftest --probe probes/rule-drift
 node harness/run.mjs selftest --probe probes/convention-override
+node harness/run.mjs selftest --probe probes/rule-drift-deleak
+node harness/run.mjs selftest --probe probes/convention-override-deleak
 ```
 
 Each selftest stages the fixture, applies a named counterfactual overlay, and

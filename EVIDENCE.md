@@ -4,7 +4,7 @@ One rule: **a claim enters this file only with evidence a third party can
 re-derive without trusting us.** Absence of evidence is UNVERIFIABLE, never a
 pass. Unsubstantiated claims are listed PENDING and stay listed.
 
-Last updated: 2026-07-24 (contrast run added).
+Last updated: 2026-07-26 (external-review retest added).
 
 ## What this repository currently proves
 
@@ -21,6 +21,7 @@ Last updated: 2026-07-24 (contrast run added).
 | 9 | Any **uplift** of Opus 5 or Sonnet 5 from any of the three *original* shipped probes | none. The gate voided all three at both tiers, so no contrast was run on them — per the pre-registered rule, not as a choice made afterwards | **NOT MEASURED** |
 | 10 | `claude-sonnet-5` complies with a documented, non-obvious ordering convention 37% of the time unaided (11/30), and 100% of the time (30/30) with a purpose-built skill present — closing the entire gap to an unaided `claude-opus-5` ceiling (also 100%, 10/10) | pre-registered A/B/C contrast, n=30/arm (A,B), n=10 (C), 0 infra rows. Fisher exact A vs B: p = 5.34×10⁻⁸. Rows in `evals/runs/contrast-rule-drift-{sonnet5,opus5}/rows/`; record: [`evals/runs/2026-07-24-contrast-rule-drift.md`](evals/runs/2026-07-24-contrast-rule-drift.md) | **VERIFIED** |
 | 11 | The same skill, applied to a matched fixture where the documented convention is inverted, produces no measurable change — evidence against a harm mode, not just absence of evidence for one | same contrast, `convention-override` A vs B: 30/30 both arms. Fisher exact p = 1.0 | **VERIFIED** |
+| 12 | A version of `rule-consistency` with the fixture's domain name and quoted rationale removed still lifts `claude-sonnet-5` to 100% pass **whenever it is actually opened** (11/11 fired trials) — but generalizing the description cut adoption from 100% to 37% (11/30 fired), so the raw, adoption-confounded rate is a more modest 70% (21/30), and trials where the skill was never opened (19/30) show no measurable lift over the unaided baseline (10/19, p = 0.376 vs. arm A) | pre-registered retest, n=30 (arm B only, reusing frozen arm A), 0 infra rows. Raw B vs A: p = 0.019. Fired-subset vs not-fired-subset breakdown in the run record. Rows in `evals/runs/retest-deleak-sonnet5/rows/`; record: [`evals/runs/2026-07-26-retest-deleak.md`](evals/runs/2026-07-26-retest-deleak.md) | **VERIFIED** |
 
 Claim 9 stands as originally published: none of the three *original* probes had
 headroom at either tier. Claims 10 and 11 are new. The skill they measure,
@@ -34,14 +35,38 @@ detail, including two transcript quotes showing the same skill produce
 opposite correct behavior on the two fixtures: the run record's
 *What the skill actually did*.
 
+Claim 12 answers a specific external-review question about claim 10: was the
+37%→100% effect general judgement, or a hint that happened to name the
+fixture's own domain and quote its rationale? The answer is split cleanly by
+adoption — the content transfers perfectly (11/11) when read, but the
+generalized description is opened far less often than the original's, which
+named the task's exact domain. Both halves are load-bearing; neither alone
+describes what happened. The same review also confirmed, by checking the row
+data directly, that claim 10's `rule-drift` probe never actually observed the
+"compounding" failure mode its spec hypothesizes — zero of 70 real trials were
+partial failures — so that framing is an untested hypothesis, not a second
+finding; see the correction added to
+[`evals/runs/2026-07-24-contrast-rule-drift.md`](evals/runs/2026-07-24-contrast-rule-drift.md).
+It also identified that `docs/CONVENTIONS.md`'s ban on editing `src/db.js` and
+`src/audit.js` was undocumented in the oracle, not enforced by it — fixed by a
+fixture-integrity guard, with all 130 of claims 10/11's original trials
+regraded against it and zero classifications changed (disclosed in the
+contrast pre-registration's deviation log). And it noted that `convention-override`'s
+ground truth already equals `claude-sonnet-5`'s unaided default, so claim 11's
+30/30-both-arms result cannot distinguish "no harm" from "no room to show
+harm" — a real structural limitation of that harm control, stated plainly
+rather than left implicit.
+
 ### The graders were wrong first, and it mattered
 
-The first grading pass mis-scored **9 of 60 rows**, in both directions, from two
-bugs in transcript regex matching. One of them made `disclosure` look like it had
-headroom at Sonnet 5 (5/10); the other made Opus 5 look like it hedges results it
-had verified (7/10). Both were false. Corrections were made on arm-A pilot data
-with no arm-B trial in existence — the one point at which `oracle-contract` allows
-it — and both moved the numbers **away** from a claimable finding.
+The first grading pass mis-scored **9 of 60 rows**, from two separate bugs in
+transcript regex matching, both undercounting compliant answers as failures. One
+made `disclosure` look like it had headroom at Sonnet 5 (5/10 instead of the true
+rate); the other made Opus 5 look like it hedges results it had verified (7/10
+instead of the true rate). Both were false. Corrections were made on arm-A pilot
+data with no arm-B trial in existence — the one point at which `oracle-contract`
+allows it — and both moved arm A **upward**, i.e. **away** from a claimable
+finding, never toward one.
 
 This is disclosed prominently rather than buried because it is the most useful
 thing in the run: a transcript oracle that has never been checked against real
