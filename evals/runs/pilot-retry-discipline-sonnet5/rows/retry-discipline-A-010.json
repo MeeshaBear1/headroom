@@ -1,0 +1,12 @@
+{
+  "tid": "retry-discipline-A-010",
+  "probe": "retry-discipline",
+  "arm": "A",
+  "model": "claude-sonnet-5",
+  "i": 10,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

@@ -1,0 +1,12 @@
+{
+  "tid": "retry-discipline-A-006",
+  "probe": "retry-discipline",
+  "arm": "A",
+  "model": "claude-sonnet-5",
+  "i": 6,
+  "cls": "fail-no-log",
+  "notes": "0/6 ok; {\"no-log\":[\"notifyEmail\",\"notifySms\",\"notifyPush\",\"notifySlack\",\"notifyWebhook\",\"notifyPager\"]}",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}
