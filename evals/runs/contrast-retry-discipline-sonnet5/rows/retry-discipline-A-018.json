@@ -1,0 +1,12 @@
+{
+  "tid": "retry-discipline-A-018",
+  "probe": "retry-discipline",
+  "arm": "A",
+  "model": "claude-sonnet-5",
+  "i": 18,
+  "cls": "fail-wrong-args",
+  "notes": "0/6 ok; {\"wrong-args\":[\"notifyEmail\",\"notifySms\",\"notifyPush\",\"notifySlack\",\"notifyWebhook\",\"notifyPager\"]}",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}
