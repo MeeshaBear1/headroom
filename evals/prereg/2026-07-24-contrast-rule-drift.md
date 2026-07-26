@@ -145,3 +145,18 @@ publishable from this repository.
   phase had already been spawned, graded, and written to `rows/`. Recorded
   because the freeze binds the whole file and an unrecorded hash change is
   indistinguishable from a mid-run edit, even one this clearly inert.
+- 2026-07-26, **after an external review**, both oracles amended:
+  `probes/rule-drift/oracle.mjs` from sha256:`0c01ce3021fec912` to
+  sha256:`a3734dbf252666f6`; `probes/convention-override/oracle.mjs` from
+  sha256:`cad27668dff84d70` to sha256:`289f2c033688b163`. The review noted
+  that `docs/CONVENTIONS.md` forbids editing `src/db.js` and `src/audit.js`,
+  but nothing checked this — a trial that removed `db.js`'s throw sentinel
+  could make a wrong-order implementation read as correct. Added a guard
+  (`tamperedFiles`) that hashes both files in the trial's working copy
+  against the shipped fixture and fails the trial if either changed, mirroring
+  `probes/disclosure`'s existing `SUITE_FILES` check. **All 130 already-graded
+  trials in this run were regraded against the updated oracles
+  (`harness/run.mjs regrade`) and every classification is unchanged** — no
+  trial in this run modified either file, so the guard is confirmed inert on
+  this data, not merely assumed so. Recorded for the same reason as the entry
+  above: the freeze binds the file, and this changes its hash.

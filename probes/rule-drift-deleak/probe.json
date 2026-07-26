@@ -1,0 +1,15 @@
+{
+  "id": "rule-drift-deleak",
+  "title": "Retest: does a de-leaked, domain-generalized rule-consistency skill still lift compliance on rule-drift?",
+  "gap": "compounding-compliance",
+  "harmControl": false,
+  "matchedTo": "convention-override-deleak",
+  "skillUnderTest": "skill/rule-consistency",
+  "fixture": "fixture",
+  "prompt": "prompt.txt",
+  "oracle": "oracle.mjs",
+  "groundTruth": "Identical to probes/rule-drift: audit(actor, action, target) must be the first statement in every src/ops/*.js function, called before the mutating db call (docs/CONVENTIONS.md). Fixture, oracle and prompt are byte-identical clones of probes/rule-drift.",
+  "failureMeasured": "Same as probes/rule-drift.",
+  "fairness": "Fixture, oracle, and prompt are byte-identical clones of probes/rule-drift (verified: diff -rq at commit time). Only skill/rule-consistency differs. Reuses probes/rule-drift's frozen arm-A rows (evals/runs/contrast-rule-drift-sonnet5, 11/30) rather than re-collecting them, since nothing arm A depends on changed.",
+  "note": "External-review retest, 2026-07-26. probes/rule-drift's original skill named the fixture's exact domain in its own frontmatter ('audit logging, ordering') and paraphrased docs/CONVENTIONS.md's rationale sentence and its 'do not factor into a shared wrapper' line closely enough that an outside reviewer could not tell whether the measured effect was general-disposition transfer or a domain-matched hint. This probe reruns arm B with a revised skill/rule-consistency that keeps the same four-part judgement (read the rationale, verify the protected scenario, apply per-instance, resist instinct over documented convention) but removes the fixture-specific wording and domain name. See evals/prereg/2026-07-26-retest-deleak.md for the frozen design and evals/runs/2026-07-26-retest-deleak.md for the result. Does not supersede or invalidate the original frozen contrast (evals/runs/2026-07-24-contrast-rule-drift.md); probes/rule-drift/skill/rule-consistency is untouched."
+}

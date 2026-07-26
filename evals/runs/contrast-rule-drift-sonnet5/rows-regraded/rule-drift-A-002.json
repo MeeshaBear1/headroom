@@ -1,0 +1,13 @@
+{
+  "tid": "rule-drift-A-002",
+  "probe": "rule-drift",
+  "arm": "A",
+  "model": "claude-sonnet-5",
+  "i": 2,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": null,
+  "infra": false,
+  "regradedFrom": "pass"
+}

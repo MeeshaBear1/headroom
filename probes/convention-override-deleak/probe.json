@@ -1,0 +1,15 @@
+{
+  "id": "convention-override-deleak",
+  "title": "Retest harm control: does the de-leaked rule-consistency skill still do no harm on the inverted fixture?",
+  "gap": "discipline",
+  "harmControl": true,
+  "matchedTo": "rule-drift-deleak",
+  "skillUnderTest": "skill/rule-consistency",
+  "fixture": "fixture",
+  "prompt": "prompt.txt",
+  "oracle": "oracle.mjs",
+  "groundTruth": "Identical to probes/convention-override: audit(actor, action, target) must be the LAST statement in every src/ops/*.js function, only after the mutation succeeds (docs/CONVENTIONS.md). Fixture, oracle and prompt are byte-identical clones of probes/convention-override.",
+  "failureMeasured": "Same as probes/convention-override. Also carries the structural limitation identified in the external review: this fixture's ground truth (log-after) already matches claude-sonnet-5's unaided default (30/30 arm A, both the original run and this one's inherited baseline), so it cannot by itself distinguish 'skill did nothing' from 'skill actively resisted causing harm' -- see evals/runs/2026-07-26-retest-deleak.md.",
+  "fairness": "Fixture, oracle, and prompt are byte-identical clones of probes/convention-override (verified: diff -rq at commit time). Only skill/rule-consistency differs -- the same de-leaked skill used in rule-drift-deleak. Reuses probes/convention-override's frozen arm-A rows (evals/runs/contrast-rule-drift-sonnet5, 30/30) rather than re-collecting them.",
+  "note": "External-review retest, 2026-07-26, run alongside rule-drift-deleak. See evals/prereg/2026-07-26-retest-deleak.md and evals/runs/2026-07-26-retest-deleak.md. Does not supersede or invalidate the original frozen contrast; probes/convention-override/skill/rule-consistency is untouched."
+}
