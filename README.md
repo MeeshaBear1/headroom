@@ -44,6 +44,10 @@ API tokens and are gated behind an explicit spend flag.
 | **Uplift contrast** | **done: p = 5.34×10⁻⁸, 37%→100%, full gap closure to the Opus 5 ceiling. Matched harm control: no change (p = 1.0)** |
 | **External review + retest** | done: fixture-integrity guard added (130 historical trials regraded, 0 changed); de-leaked skill retest confirms the content transfers (100% when opened) but adoption drops without the domain-matched description (100%→37% fired) |
 | **Second harm control (`retry-discipline`)** | done: no harm across 70 trials, but underpowered — a pilot showing real headroom (80%) froze a contrast whose arm A then landed at 97%, disclosed as a pilot-vs-freeze gap rather than a clean result |
+| **Token accounting (post-hoc)** | done: on the fixture where the skill worked, skill sessions were ~7% cheaper and 2.9× cheaper per correct result; where the model didn't need the skill, it added ~16% per session for nothing ([record](evals/runs/2026-07-27-token-accounting.md), `harness/tokens.py`) |
+
+A beginner-facing summary of the whole result set, every number cited back
+to a run record, is in [`MARKETING.md`](MARKETING.md).
 
 **This repository makes one uplift claim, with a matched harm control published
 in the same table.** The original gate ([`evals/runs/2026-07-24-gate.md`](evals/runs/2026-07-24-gate.md))
