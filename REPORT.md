@@ -46,6 +46,14 @@ that made that question askable removed. **The effect's content held exactly
 dropped was how often Sonnet 5 opened it at all.** See *An external review,
 and what it changed* below.
 
+We then built a second, independent harm control specifically to close a gap
+the review had flagged in the first one — a different mechanism, the
+opposite valence, and a real pilot showing genuine headroom before any
+contrast was frozen. It still came back underpowered, for an honest reason
+disclosed in full rather than hidden: the frozen sample landed much closer
+to ceiling than the pilot predicted. No harm appeared in 70 trials. See
+*A second harm-control attempt* below.
+
 ---
 
 ## Part 1 — For neophytes: what this is and why it's hard
@@ -210,6 +218,7 @@ Nothing is claimed here beyond what that ledger marks VERIFIED.
 | 10 | **Sonnet 5 follows a documented ordering convention 37% of the time unaided (11/30) and 100% of the time with `rule-consistency` present (30/30)** — closing the full gap to an unaided Opus 5 ceiling (10/10) | VERIFIED, p = 5.34×10⁻⁸ |
 | 11 | **The same skill, on a matched fixture with the rule inverted, produces zero measurable change** (30/30 both arms) — though this control cannot distinguish "no harm" from "no room to show harm" (arm A is already at ceiling) | VERIFIED, p = 1.0, no harm; structurally limited |
 | 12 | **A de-leaked version of the skill (fixture domain and quoted rationale removed) still hits 100% whenever actually opened (11/11)** — but generalizing the description cut adoption from 100% to 37% | VERIFIED, raw p = 0.019; not-fired subset indistinguishable from baseline (p = 0.376) |
+| 13 | **A second harm control (`retry-discipline`, opposite valence: the documented rule requires *less* defensive code) shows no measurable harm across 70 trials**, and zero occurrences of the specific hypothesized failure mode in either arm — but the test is underpowered: a pilot showed real headroom (80% unaided), the frozen contrast's arm A came in at 97% | VERIFIED, p = 1.0; underpowered null, pilot-vs-freeze gap disclosed in full |
 
 Claim 9 is listed as a **null result, published on purpose** — it is exactly
 the kind of finding `uplift-eval-core` says must be reported, not buried,
@@ -294,14 +303,60 @@ hard question, and rather than argue with it, we tested it.
    [`evals/runs/2026-07-26-retest-deleak.md`](evals/runs/2026-07-26-retest-deleak.md).
 3. **The harm control can't distinguish "no harm" from "no room to show
    harm,"** because `claude-sonnet-5`'s unaided default already equals
-   `convention-override`'s correct answer (30/30 arm A). This is a genuine,
-   unresolved limitation, stated plainly below rather than glossed over —
-   building a harm control where the model's default is actually wrong is a
-   real probe-design task this repository has not yet completed.
+   `convention-override`'s correct answer (30/30 arm A). This is a genuine
+   limitation, stated plainly rather than glossed over — see the next
+   section for what came of trying to fix it directly.
 
 None of this reverses claim 10 or 11. It replaces "we measured an effect" with
 a more precise, harder-to-attack version of the same claim, plus an honest
 flag on what remains open.
+
+---
+
+## A second harm-control attempt, and what it taught us
+
+Point 3 above is a real design flaw, not a rhetorical one, so we built a
+second harm control specifically to fix it: [`retry-discipline`](probes/retry-discipline/).
+Same skill under test (`rule-consistency`, byte-identical to the original),
+deliberately different in two ways from `convention-override`:
+
+- **A different mechanism** — error-propagation discipline under a simulated
+  external call, not audit-call ordering, so a bias confined to "logging
+  order" couldn't hide by not applying.
+- **The opposite valence** — the documented rule here requires *less*
+  defensive code than instinct suggests (log the failure, then let it
+  propagate; never retry, never catch-and-return a fallback), the mirror
+  image of `rule-drift`'s "log *before*, which needs more discipline, not
+  less." If `rule-consistency`'s real effect were a disguised "always be more
+  careful" bias rather than genuine rule-following, this is exactly the shape
+  of fixture where that bias would show up as a regression.
+
+We did this properly: a pre-registered pilot first (n=10, unaided), which
+came back 80% pass — comfortably inside the "worth a real contrast" range,
+not near either ceiling or floor. Only then did we freeze a full
+pre-registered contrast (n=30/arm) and run it.
+
+**The frozen contrast's arm A came back at 97% (29/30) — far higher than the
+pilot's 80%.** We report this exactly as it happened rather than quietly
+using the friendlier pilot number: the pre-registration's own rule is that a
+pilot is directional only, and the frozen n=30 sample is what the statistics
+are computed from. At 97%, there was only one point of room below ceiling —
+nowhere near enough to power a real test for harm, even though the pilot had
+looked like it would be. Arm B (skill present) came back 30/30 (100%): no
+drop, no harm. And across all 70 real trials this probe ever ran — the
+pilot and both arms of the frozen contrast — the specific failure mode this
+fixture was built to catch (retrying a failed call, or catching it and
+returning a fallback instead of raising it) **occurred zero times**, aided
+or unaided.
+
+That is a real result, just a modest one: no harm showed up, and the
+specific bias we were checking for never appeared at all in 70 attempts —
+weak evidence, because the test ended up underpowered, but evidence, and it
+points the same direction the rest of this repository's data does. A
+harm control that lands solidly in the middle of the range once measured
+at full sample size — not just at its own pilot — remains a genuinely open
+design problem. Full numbers, including the pilot-vs-freeze gap:
+[`evals/runs/2026-07-26-contrast-retry-discipline.md`](evals/runs/2026-07-26-contrast-retry-discipline.md).
 
 ---
 
@@ -322,6 +377,12 @@ flag on what remains open.
   harm" would suggest** — see above. Read it as "the skill did not override
   the model's own correct default," not as "the skill was tested under
   conditions where it could have caused harm and didn't."
+- **The second harm control's null (claim 13) is also underpowered**, for a
+  different reason: its frozen arm A landed at 97%, not the 80% its own
+  pre-registered pilot showed, leaving almost no room below ceiling to
+  detect a real drop. Read it as "no harm appeared in 70 trials, and the
+  specific failure mode never occurred," not as "harm was ruled out with
+  adequate statistical power."
 - **The three original probes remain void at both tiers measured.** That is a
   real, separately-useful finding — it says frontier models already handle
   those three failure modes unaided — and it is not overturned or diminished
@@ -345,6 +406,7 @@ node harness/run.mjs selftest --probe probes/disclosure
 node harness/run.mjs selftest --probe probes/overcaution
 node harness/run.mjs selftest --probe probes/rule-drift
 node harness/run.mjs selftest --probe probes/convention-override
+node harness/run.mjs selftest --probe probes/retry-discipline
 ```
 
 With an API key, the cheap gate (a few dollars, a few minutes) and the full
@@ -357,7 +419,7 @@ contrast recipe are both in [README.md](README.md#reproduce).
 | Path | What's there |
 |---|---|
 | [`skills/`](skills/) | The six methodology skills — drop into any agent's skills folder |
-| [`probes/`](probes/) | Five probes: fixture, oracle, prompt, spec, counterfactual overlays |
+| [`probes/`](probes/) | Eight probes: fixture, oracle, prompt, spec, counterfactual overlays |
 | [`probes/rule-drift/skill/rule-consistency/`](probes/rule-drift/skill/rule-consistency/) | The one skill this repo has validated uplift for |
 | [`harness/`](harness/) | `run.mjs` (trial runner) and `fisher.py` (stats) |
 | [`evals/prereg/`](evals/prereg/) | Frozen pre-registrations, written before any trial they govern |

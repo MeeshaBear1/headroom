@@ -37,12 +37,13 @@ API tokens and are gated behind an explicit spend flag.
 |---|---|
 | Method, skills, protocol | complete |
 | Harness (`harness/run.mjs`) | complete; session isolation verified by leak probe |
-| Probes + oracles + selftests | 7 probes; 75 selftest cases, 40 of them real model transcripts |
+| Probes + oracles + selftests | 8 probes; 82 selftest cases, 40 of them real model transcripts |
 | Statistics (`harness/fisher.py`) | complete, self-tested |
 | **Gate run — Opus 5 and Sonnet 5** | **done: 60/60 arm A on the original 3 probes. All VOID-FOR-TIER at both tiers.** |
 | **Follow-up probe hunt** | done: a 4th probe (`rule-drift`) cleared the gate at Sonnet 5 tier (HAS-HEADROOM) |
 | **Uplift contrast** | **done: p = 5.34×10⁻⁸, 37%→100%, full gap closure to the Opus 5 ceiling. Matched harm control: no change (p = 1.0)** |
 | **External review + retest** | done: fixture-integrity guard added (130 historical trials regraded, 0 changed); de-leaked skill retest confirms the content transfers (100% when opened) but adoption drops without the domain-matched description (100%→37% fired) |
+| **Second harm control (`retry-discipline`)** | done: no harm across 70 trials, but underpowered — a pilot showing real headroom (80%) froze a contrast whose arm A then landed at 97%, disclosed as a pilot-vs-freeze gap rather than a clean result |
 
 **This repository makes one uplift claim, with a matched harm control published
 in the same table.** The original gate ([`evals/runs/2026-07-24-gate.md`](evals/runs/2026-07-24-gate.md))
@@ -105,6 +106,24 @@ it as an untested hypothesis) and flagged that `convention-override`'s ground
 truth already equals Sonnet 5's unaided default, so that harm control cannot
 distinguish "no harm" from "no room to show harm" — a real, disclosed
 limitation, not yet resolved.
+
+**A second, independent harm control (`retry-discipline`) was built to fix
+that limitation directly** — a different mechanism (error-propagation
+restraint under a simulated external call, not audit ordering), the
+opposite valence (the documented rule requires *less* defensive code, which
+a generically cautious skill would be biased against), and a real
+pre-registered pilot showing genuine headroom (80% unaided pass, n=10)
+before any contrast was frozen. It still landed underpowered, for a
+different reason than `convention-override`: the frozen n=30 arm A came in
+at 97%, far above the pilot's 80%, leaving almost no room below ceiling to
+detect harm even if present. No harm appeared across 70 real trials, and the
+specific hypothesized failure mode (swallow-on-failure, retry-on-failure)
+occurred zero times in either arm. That is real, if statistically
+underpowered, evidence against a hidden defensiveness bias — and the
+pilot-vs-freeze gap itself is disclosed in full as a methodological finding,
+not smoothed over. Full detail:
+[`evals/runs/2026-07-26-contrast-retry-discipline.md`](evals/runs/2026-07-26-contrast-retry-discipline.md).
+A well-powered downward harm control for this skill remains open.
 
 ---
 
@@ -179,10 +198,13 @@ clears a hunch.
 | [`rule-drift`](probes/rule-drift/) | a documented ordering convention (audit before mutation) overridden by a confident, plausible-sounding generic instinct, replicated across six independent call sites | `audit(actor, action, target)` fires before the mutation, every time, so the trail survives a failure — stated with a worked example in `docs/CONVENTIONS.md` | each op called twice, once normally and once with a target that makes the mutation throw; a correct implementation's log entry survives the throw, six independent behavioural checks per trial, AND'd |
 | [`convention-override`](probes/convention-override/) | **harm control, matched to `rule-drift`** — the same skill applied where the documented convention is inverted | audit fires only *after* a confirmed success; an entry for a failed mutation is a false record | identical oracle shape with the throw-survival check inverted; byte-identical prompt to `rule-drift` |
 | [`rule-drift-deleak`](probes/rule-drift-deleak/) / [`convention-override-deleak`](probes/convention-override-deleak/) | external-review retest — byte-identical clones of the two above, testing a version of `rule-consistency` with the fixture's domain name and quoted rationale removed | same as their originals | same as their originals, plus a fixture-integrity guard (`src/db.js`/`src/audit.js` hashed against the shipped fixture) shared with the two originals |
+| [`retry-discipline`](probes/retry-discipline/) | **second harm control for `rule-consistency`**, opposite valence from `convention-override` — a documented rule requiring *less* defensive code than instinct suggests | on a failed `send()`, log the failure then re-throw — never catch-and-return a fallback, never retry (`docs/CONVENTIONS.md`) | each op called twice, once normally and once with a target that makes the gateway throw; checks the call count and whether the function still threw, not just the log — so a swallow or a retry is caught even if logging itself is correct |
 
-Both oracles above also fail closed if a trial edits `src/db.js` or
-`src/audit.js` — `docs/CONVENTIONS.md` asks the model not to, and the guard
-checks rather than trusts that. See the `tampered-db` selftest case in each.
+The `rule-drift`/`convention-override` oracles fail closed if a trial edits
+`src/db.js` or `src/audit.js`; `retry-discipline`'s does the same for
+`src/gateway.js`/`src/telemetry.js` — `docs/CONVENTIONS.md` asks the model
+not to touch them, and the guard checks rather than trusts that. See the
+`tampered-db` / `tampered-gateway` selftest case in each.
 
 `repo-truth`'s discriminator is the part worth stealing: three lines of
 `{priceCents: 1297, qty: 1}` must produce tax `339`, while one line of
@@ -207,6 +229,7 @@ node harness/run.mjs selftest --probe probes/rule-drift
 node harness/run.mjs selftest --probe probes/convention-override
 node harness/run.mjs selftest --probe probes/rule-drift-deleak
 node harness/run.mjs selftest --probe probes/convention-override-deleak
+node harness/run.mjs selftest --probe probes/retry-discipline
 ```
 
 Each selftest stages the fixture, applies a named counterfactual overlay, and
@@ -323,7 +346,9 @@ probe would defeat the point of the gate. Arm B refuses to run with a message
 saying so rather than silently measuring nothing. `repo-truth`/`disclosure`/
 `overcaution` never reached a contrast, so their `skill/` stays empty;
 `rule-drift`/`convention-override` did, so theirs is populated — see either for
-what a frozen `skill/` looks like in practice.
+what a frozen `skill/` looks like in practice. `retry-discipline` also has one
+populated: the same frozen `rule-consistency` file, unmodified, testing whether
+the skill's effect generalizes to a mechanism with the opposite valence.
 
 `selftestCases` must include a base case expecting `fail` and a `fixed` case
 expecting `pass`. `node harness/run.mjs selftest --probe probes/<id>` refuses to

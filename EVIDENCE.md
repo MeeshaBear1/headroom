@@ -22,6 +22,7 @@ Last updated: 2026-07-26 (external-review retest added).
 | 10 | `claude-sonnet-5` complies with a documented, non-obvious ordering convention 37% of the time unaided (11/30), and 100% of the time (30/30) with a purpose-built skill present — closing the entire gap to an unaided `claude-opus-5` ceiling (also 100%, 10/10) | pre-registered A/B/C contrast, n=30/arm (A,B), n=10 (C), 0 infra rows. Fisher exact A vs B: p = 5.34×10⁻⁸. Rows in `evals/runs/contrast-rule-drift-{sonnet5,opus5}/rows/`; record: [`evals/runs/2026-07-24-contrast-rule-drift.md`](evals/runs/2026-07-24-contrast-rule-drift.md) | **VERIFIED** |
 | 11 | The same skill, applied to a matched fixture where the documented convention is inverted, produces no measurable change — evidence against a harm mode, not just absence of evidence for one | same contrast, `convention-override` A vs B: 30/30 both arms. Fisher exact p = 1.0 | **VERIFIED** |
 | 12 | A version of `rule-consistency` with the fixture's domain name and quoted rationale removed still lifts `claude-sonnet-5` to 100% pass **whenever it is actually opened** (11/11 fired trials) — but generalizing the description cut adoption from 100% to 37% (11/30 fired), so the raw, adoption-confounded rate is a more modest 70% (21/30), and trials where the skill was never opened (19/30) show no measurable lift over the unaided baseline (10/19, p = 0.376 vs. arm A) | pre-registered retest, n=30 (arm B only, reusing frozen arm A), 0 infra rows. Raw B vs A: p = 0.019. Fired-subset vs not-fired-subset breakdown in the run record. Rows in `evals/runs/retest-deleak-sonnet5/rows/`; record: [`evals/runs/2026-07-26-retest-deleak.md`](evals/runs/2026-07-26-retest-deleak.md) | **VERIFIED** |
+| 13 | A second, independent harm-control fixture for `rule-consistency` (`retry-discipline` — opposite valence from `convention-override`: the documented rule requires *less* defensive code, not more) shows no measurable harm across 70 real trials, and zero occurrences of the specific hypothesized failure mode (swallow-on-failure, retry-on-failure) in any trial, aided or unaided — but the test is underpowered: a pre-registered n=10 pilot showed 80% unaided pass (HAS-HEADROOM, licensing a full contrast), while the frozen n=30 arm A came in at 97%, leaving almost no room below ceiling to detect harm even if present | pre-registered pilot (n=10) then contrast (n=30/arm), 0 infra rows. Frozen arm A 29/30, arm B 30/30, skill fired 18/30. Fisher exact 30/0 vs 29/1: p = 1.0. Rows in `evals/runs/{pilot,contrast}-retry-discipline-sonnet5/rows/`; records: [`evals/prereg/2026-07-26-pilot-retry-discipline.md`](evals/prereg/2026-07-26-pilot-retry-discipline.md), [`evals/runs/2026-07-26-contrast-retry-discipline.md`](evals/runs/2026-07-26-contrast-retry-discipline.md) | **VERIFIED (underpowered null)** |
 
 Claim 9 stands as originally published: none of the three *original* probes had
 headroom at either tier. Claims 10 and 11 are new. The skill they measure,
@@ -56,6 +57,22 @@ ground truth already equals `claude-sonnet-5`'s unaided default, so claim 11's
 30/30-both-arms result cannot distinguish "no harm" from "no room to show
 harm" — a real structural limitation of that harm control, stated plainly
 rather than left implicit.
+
+Claim 13 is a follow-on attempt to fix exactly that limitation with a
+purpose-built second harm control (`retry-discipline`), avoiding
+`convention-override`'s specific flaw by construction: a different
+mechanism (error-propagation restraint, not audit ordering), the opposite
+valence (the documented rule requires *less* defensive code, which a
+generically cautious skill would be biased against), and a real,
+headroom-showing n=10 pilot (80% unaided pass) before any contrast was
+frozen. It still ended up underpowered, for a different and more mundane
+reason: the frozen n=30 arm A came in at 97%, far above the pilot's 80% —
+disclosed in full in the run record as a real pilot-vs-freeze gap, not
+smoothed over. No harm appeared in 70 trials, and the specific hypothesized
+failure mode (swallow-on-failure, retry-on-failure) appeared zero times in
+either arm — real, if statistically underpowered, evidence against a hidden
+defensiveness bias in `rule-consistency`. A well-powered downward harm
+control for this skill remains an open task.
 
 ### The graders were wrong first, and it mattered
 
