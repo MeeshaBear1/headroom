@@ -1,0 +1,12 @@
+{
+  "tid": "motion-undocumented-A-006",
+  "probe": "motion-undocumented",
+  "arm": "A",
+  "model": "claude-opus-5",
+  "i": 6,
+  "cls": "fail-no-reveal",
+  "notes": "chromium(atRest 0/4, afterScroll 0) firefox(atRest 0/4, afterScroll 0)",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

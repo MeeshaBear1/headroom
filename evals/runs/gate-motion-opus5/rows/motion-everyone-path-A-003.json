@@ -1,0 +1,12 @@
+{
+  "tid": "motion-everyone-path-A-003",
+  "probe": "motion-everyone-path",
+  "arm": "A",
+  "model": "claude-opus-5",
+  "i": 3,
+  "cls": "pass",
+  "notes": "chromium(atRest 4/4, afterScroll 0) firefox(atRest 4/4, afterScroll 0)",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

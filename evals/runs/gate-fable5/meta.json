@@ -1,0 +1,22 @@
+{
+  "runs": [
+    {
+      "probe": "rule-drift",
+      "arm": "A",
+      "model": "claude-fable-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900
+    },
+    {
+      "probe": "rule-drift",
+      "arm": "B",
+      "model": "claude-fable-5",
+      "n": 10,
+      "mode": "run",
+      "timeoutS": 900
+    }
+  ],
+  "cli": "2.1.206 (Claude Code)",
+  "node": "v24.16.0"
+}

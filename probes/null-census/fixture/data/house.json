@@ -1,0 +1,9 @@
+{
+  "contractVersion": "print-catalog/v1",
+  "pieces": [
+    { "slug": "wanderer-above-the-fog", "imageWidth": 4000, "imageHeight": 6000, "maxPrintSize": "8x10" },
+    { "slug": "nocturne-in-black-and-gold", "imageWidth": null, "imageHeight": null, "maxPrintSize": "24x36" },
+    { "slug": "the-tempest", "imageWidth": 2000, "imageHeight": 3000, "maxPrintSize": "24x36" },
+    { "slug": "great-wave", "imageWidth": 5400, "imageHeight": 3600, "maxPrintSize": "24x36" }
+  ]
+}

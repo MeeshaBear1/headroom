@@ -1,0 +1,40 @@
+:root {
+  --ground: #F7F5EF; --ink: #1E2120; --muted: #5B615E; --line: #DFDACE; --accent: #2F5D50;
+  --sans: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box }
+body { margin: 0; background: var(--ground); color: var(--ink);
+  font: 18px/1.6 var(--sans); }
+nav { display: flex; gap: 22px; align-items: center; padding: 16px 6vw;
+  border-bottom: 1px solid var(--line); }
+nav a { color: var(--muted); text-decoration: none }
+.brand { color: var(--ink); font-weight: 600; margin-right: auto }
+.hero { padding: 14vh 6vw 8vh; max-width: 900px; min-height: 96vh }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--accent); margin: 0 0 14px }
+h1 { font-size: clamp(40px, 6vw, 76px); line-height: 1.05; letter-spacing: -.02em; margin: 0 0 20px }
+.lede { font-size: 20px; color: var(--muted); max-width: 54ch; margin: 0 }
+section { padding: 6vh 6vw 16vh }
+.cards { display: grid; gap: 20px; max-width: 1100px }
+@media (min-width: 760px) { .cards { grid-template-columns: repeat(2, 1fr) } }
+.card { background: #FFFDF7; min-height: 240px; border: 1px solid var(--line); border-radius: 16px;
+  padding: 26px 24px; min-height: 190px; }
+.card h2 { margin: 0 0 10px; font-size: 22px }
+.card p { margin: 0; color: var(--muted); font-size: 16px }
+footer { padding: 40px 6vw 60px; color: var(--muted); border-top: 1px solid var(--line) }
+
+
+/* base layer — every browser runs this */
+.card { opacity: 0; transform: translateY(18px);
+  transition: opacity .5s ease, transform .5s ease;
+  transition-delay: calc(var(--i, 0) * 120ms); }
+.card.is-in { opacity: 1; transform: none }
+@media (prefers-reduced-motion: reduce) { .card { opacity: 1; transform: none; transition: none } }
+
+/* garnish — only where the API exists; hides nothing */
+@supports (animation-timeline: view()) {
+  .card { animation: drift linear both; animation-timeline: view();
+    animation-range: entry 0% entry 60%; }
+}
+@keyframes drift { from { translate: 0 8px } to { translate: 0 0 } }

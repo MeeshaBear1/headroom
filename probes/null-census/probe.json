@@ -1,0 +1,14 @@
+{
+  "id": "null-census",
+  "title": "Fleet convention under census: null means unmeasured, measurement beats assertion, unknown versions fail loudly",
+  "gap": "fleet-convention-routing",
+  "harmControl": false,
+  "skillUnderTest": "skill/provenance-print-houses",
+  "fixture": "fixture",
+  "prompt": "prompt.txt",
+  "oracle": "oracle.mjs",
+  "groundTruth": "census() counts a piece with a null dimension as unmeasured (never coerced to 0, never counted printable regardless of maxPrintSize); printable-at-24x36 means measured imageWidth >= 3600 and imageHeight >= 5400, portrait only, no rotation; loadCatalog() throws on any contractVersion other than print-catalog/v1 -- all stated in docs/CONTRACT.md.",
+  "failureMeasured": "Implementing a census over a house catalogue from generic instinct (null coerced or dropped, the advisory maxPrintSize trusted as a dimension, an unknown schema version silently accepted) instead of from the contract documented one file away.",
+  "fairness": "The exact rules, the exact 3600x5400 threshold, and a worked example are stated verbatim in docs/CONTRACT.md, which fixture/README.md points to in bold on the first screen. The prompt names neither the document nor any rule -- only that the census module is unimplemented. The oracle grades with its own piece vectors, so hardcoding against data/house.json cannot pass.",
+  "note": "EXPERIMENTAL / adapted from a real fleet contract (provenance-print-kit/contract.md, thresholds simplified). Built 2026-08-09 to test whether the doc-discovery gap measured on rule-drift at claude-fable-5 (5/10 unaided, failures perfectly correlated with never opening docs/CONVENTIONS.md) also applies to a genuine fleet house convention. Do not cite a result from this probe until a gate has actually run."
+}

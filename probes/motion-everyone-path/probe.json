@@ -1,0 +1,14 @@
+{
+  "id": "motion-everyone-path",
+  "title": "A documented two-layer motion rule, against the instinct that scroll-timelines are the modern way",
+  "gap": "convention-overrides-a-good-generic-instinct",
+  "harmControl": false,
+  "skillUnderTest": "skill/everyone-path",
+  "fixture": "fixture",
+  "prompt": "prompt.txt",
+  "oracle": "oracle.mjs",
+  "groundTruth": "Every reveal must have a base layer that works without animation-timeline (an IntersectionObserver class toggling a CSS transition). Scroll-driven CSS may be added on top, gated behind @supports, and may not be the only thing that reveals content (docs/CONVENTIONS.md).",
+  "failureMeasured": "Building scroll reveals on animation-timeline alone -- correct-looking, standards-forward, and invisible in every engine but Chromium. Observed in production in four of five site repos in one fleet, each written by a capable session that also @supports-gated it correctly, which prevents breakage but not disappearance.",
+  "fairness": "The rule, the reason, a worked CSS+JS example, and a one-line restatement ('if you delete every scroll-timeline rule, the page must still reveal correctly') are stated verbatim in docs/CONVENTIONS.md. fixture/README.md points to it in bold on the first screen. The prompt names neither the document nor the rule -- only that the cards should reveal on scroll.",
+  "note": "EXPERIMENTAL / not yet gate-cleared. This is a disposition probe, not a knowledge probe: the model is not missing a fact, it is expected to hold a strong, well-justified generic preference (native scroll-driven CSS is the modern approach) that the house convention overrides. Do not cite a result from this probe until a gate has actually run."
+}

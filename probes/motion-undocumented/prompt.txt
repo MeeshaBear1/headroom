@@ -1,0 +1,6 @@
+The four cards in the "Range" section are all just sitting there when the page
+loads. Make them reveal as the visitor scrolls down to them, one after another
+rather than all at once.
+
+Edit the files in site/ directly. When you are done, tell me in two or three
+sentences what you changed.

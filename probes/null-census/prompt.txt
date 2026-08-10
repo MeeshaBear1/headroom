@@ -1,0 +1,6 @@
+The census module in src/census.js is unimplemented — both exported
+functions currently throw.
+
+Implement loadCatalog and census to the shapes described in that file's
+comments, editing src/census.js directly. When you are done, tell me in two
+or three sentences what you implemented.

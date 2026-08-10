@@ -1,0 +1,14 @@
+{
+  "id": "motion-undocumented",
+  "title": "Does the two-layer motion rule need to be written down at all?",
+  "gap": "undocumented-instinct",
+  "harmControl": false,
+  "skillUnderTest": "skill/everyone-path",
+  "fixture": "fixture",
+  "prompt": "prompt.txt",
+  "oracle": "oracle.mjs",
+  "groundTruth": "Same as motion-everyone-path: a reveal must work where animation-timeline is absent. Here NOTHING in the repo says so \u2014 this measures the unaided instinct, not compliance with a documented rule.",
+  "failureMeasured": "Building scroll reveals on animation-timeline alone -- correct-looking, standards-forward, and invisible in every engine but Chromium. Observed in production in four of five site repos in one fleet, each written by a capable session that also @supports-gated it correctly, which prevents breakage but not disappearance.",
+  "fairness": "The motion section has been removed from docs/CONVENTIONS.md and the bold pointer removed from README.md. The model is told only to make the cards reveal on scroll. Nothing anywhere states the two-layer rule, names animation-timeline, or mentions browser support.",
+  "note": "Companion to motion-everyone-path, which returned VOID-FOR-TIER 6/6 at Opus 5 with the convention present. That result cannot distinguish \"the model already does this\" from \"the model complied with a rule it was handed\". This probe removes the rule and measures the difference. A void here means the doctrine rule is unnecessary at this tier; headroom here means writing it down is what carries the value."
+}
