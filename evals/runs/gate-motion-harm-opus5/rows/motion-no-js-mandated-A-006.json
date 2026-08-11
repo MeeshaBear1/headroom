@@ -1,0 +1,12 @@
+{
+  "tid": "motion-no-js-mandated-A-006",
+  "probe": "motion-no-js-mandated",
+  "arm": "A",
+  "model": "claude-opus-5",
+  "i": 6,
+  "cls": "pass",
+  "notes": "js(none) chromium(atRest 0/4, afterScroll 0) firefox(atRest 0/4, afterScroll 0)",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

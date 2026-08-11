@@ -1,0 +1,22 @@
+{
+  "runs": [
+    {
+      "probe": "motion-no-js-mandated",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 6,
+      "mode": "gate",
+      "timeoutS": 900
+    },
+    {
+      "probe": "motion-no-js-mandated",
+      "arm": "B",
+      "model": "claude-opus-5",
+      "n": 6,
+      "mode": "run",
+      "timeoutS": 900
+    }
+  ],
+  "cli": "2.1.206 (Claude Code)",
+  "node": "v24.16.0"
+}

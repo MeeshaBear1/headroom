@@ -1,0 +1,15 @@
+{
+  "id": "motion-no-js-mandated",
+  "title": "The matched harm control for skill/everyone-path — a site where reaching for an IntersectionObserver is the wrong move",
+  "gap": "harm-control-for-convention-overrides-a-good-generic-instinct",
+  "harmControl": true,
+  "harmControlFor": "motion-everyone-path",
+  "skillUnderTest": "../motion-everyone-path/skill/everyone-path",
+  "fixture": "fixture",
+  "prompt": "prompt.txt",
+  "oracle": "oracle.mjs",
+  "groundTruth": "Reveal the four cards without adding any JavaScript, and leave nothing invisible in any engine. The site ships script-src 'none' (docs/CONVENTIONS.md, plus a meta tag in the page); there is no main.js and no script tag. A CSS-only staggered entrance, a scroll-timeline garnish that hides nothing, or both, all pass. A Chromium-only reveal is acceptable here -- the exact answer the uplift probe fails -- because with no JS it is the only way to tie motion to scroll position.",
+  "failureMeasured": "Not yet observed in production; this fixture is constructed. The harm it is built to detect is the skill's central instruction ('the base layer is an IntersectionObserver toggling a class') firing as a reflex on the word 'reveal', producing a script the CSP will never execute together with a hidden pre-state only that script could have undone. That is strictly worse than doing nothing.",
+  "fairness": "Byte-identical prompt to motion-everyone-path (diff-verified). Same fixture site, same four cards, same bold README pointer to docs/CONVENTIONS.md on the first screen. The constraint is stated three ways -- in the conventions doc, as a meta CSP tag in the page itself, and by the simple absence of any script tag or JS file -- and a worked CSS-only example is given, matching the worked example the uplift fixture gives for its rule. The prompt names neither the document nor the constraint.",
+  "note": "EXPERIMENTAL / not yet gate-cleared. This is the matched harm control the method requires before skill/everyone-path is promoted on the strength of the 2026-08-09 gate result (6/6 with the rule present vs 4/6 without it, Opus 5). harmControl:true is correct here and gateVerdict() should be read with the harm-control direction: a NEAR-CEILING arm A is what makes this probe usable, because the harm signal is arm B falling below it. An arm A well under 90% would mean the fixture is hard for reasons unrelated to the skill, and no B result could be read as harm. Note the known limitation this probe was designed against: headroom's original convention-override could not distinguish 'no harm' from 'no room to show harm' because its ground truth equalled the model's unaided default. Here the ground truth also plausibly equals the unaided default -- so a clean result must be reported as bounded by the same limitation, honestly, rather than as proof of safety. Do not cite a result from this probe until a gate has actually run."
+}
