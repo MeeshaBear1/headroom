@@ -1,0 +1,12 @@
+{
+  "tid": "null-census-A-001",
+  "probe": "null-census",
+  "arm": "A",
+  "model": "claude-fable-5",
+  "i": 1,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}
