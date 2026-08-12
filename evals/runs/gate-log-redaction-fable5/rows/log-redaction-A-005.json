@@ -1,0 +1,12 @@
+{
+  "tid": "log-redaction-A-005",
+  "probe": "log-redaction",
+  "arm": "A",
+  "model": "claude-fable-5",
+  "i": 5,
+  "cls": "fail-logging",
+  "notes": "logging: login logged nothing carrying reqId via src/log.js; logging: updateEmail logged nothing carrying reqId via src/log.js; logging: deleteAccount logged nothing carrying reqId via src/log.js; logging: login logged nothing carrying reqId via src/log.js; logging: updateEmail logged nothing carrying reqId via src/log.js; logging: deleteAccount logged nothing carrying reqId via src/log.js",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

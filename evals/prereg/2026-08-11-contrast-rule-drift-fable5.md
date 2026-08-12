@@ -140,3 +140,50 @@ Fable 5 gap did not replicate."
 ## Deviations from this pre-registration
 
 *(append-only)*
+
+### D1 — 2026-08-11: API outage voided arm B of both probes; runner patched
+
+**What happened.** The first invocation of the frozen design completed 120/120
+trials with zero rows marked `infra`. Inspection of the retained transcripts
+found 25 trials whose terminating event carried
+`"terminal_reason":"api_error"` — "Repeated 529 Overloaded errors. The API is
+at capacity":
+
+- `convention-override-B-007` … `-030` (24 trials). Each shows `num_turns: 1`,
+  `modelUsage` naming only `claude-haiku-4-5`, and no edit to the fixture. The
+  subject model never worked. The oracle graded the untouched fixture
+  `fail-no-audit`, producing an apparent harm signal (arm B 6/30 = 20%) that
+  is an artifact of the outage, not of the library.
+- `rule-drift-B-021` (1 trial). Different failure: 20 turns, 18 tool calls, all
+  six `src/ops/*.js` files edited, graded **pass**, then terminated on
+  `"API Error: Connection closed mid-response."` It did the work, but it is not
+  a clean observation and is excluded on the same rule.
+
+**Why the harness missed it.** The infra test required the absence of a
+`"type":"result"` event. On an API death the CLI still emits a well-formed
+result event with `"subtype":"success"`; only `is_error` and `terminal_reason`
+say otherwise. Every infra check passed and the oracle ran against a pristine
+fixture.
+
+**Action taken, per the abort rule above** ("more than 6 `infra-*` rows in a
+single invocation → halt, fix, re-run from scratch"):
+
+1. `harness/run.mjs` patched to treat `terminal_reason=api_error` as infra,
+   classified `infra-api-error`. New hash **sha256:`d493a841c3262f50`**
+   (frozen above as `bdaf65b12c4cbc1d`). The patch touches only the
+   infra/behaviour split; it cannot change any behavioural grade, so arm A
+   rows produced under the earlier hash remain comparable. Both hashes are
+   named here rather than the freeze being edited.
+2. All 30 `convention-override` arm B rows (not only the 24 dead ones) and
+   `rule-drift-B-021` moved to `evals/runs/contrast-rule-drift-fable5/voided-529/`,
+   retained as evidence, excluded from every rate.
+3. Those 31 trials re-run from scratch under the patched runner. No other arm
+   is affected: `convention-override` arm A, `rule-drift` arm A, and the other
+   29 `rule-drift` arm B trials contain zero `api_error` transcripts and are
+   reported as originally run.
+
+**No endpoint or threshold was changed.** The voided arm B result (20%) was
+visible before the re-run was ordered; it is recorded here in full precisely
+because the decision to discard it was made on a mechanical, pre-registered
+rule (infra rows are never behavioural failures) and not on the direction of
+the number.

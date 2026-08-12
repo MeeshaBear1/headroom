@@ -3,8 +3,18 @@
 # carries `regradedFrom` so any oracle correction stays auditable. Representative
 # transcripts are committed under probes/*/transcripts/ as oracle regression
 # fixtures; the full per-trial stream-json is not.
+#
+# Exception: the `rule-drift` arm A transcripts from the 2026-08-11 Fable 5
+# contrast (1.6 MB). The M1 mechanism claim IS a string match over those files
+# — `doc-read` := transcript contains `CONVENTIONS.md` — so a reader who cannot
+# read them cannot check the repository's strongest result. `mechanism.tsv` in
+# each run dir is the derived table; these are what it derives from.
+# (The pattern is `transcripts/*`, not `transcripts/`: git will not descend into
+# an excluded directory, so a negation inside one never matches.)
 evals/runs/*/trials/
-evals/runs/*/transcripts/
+evals/runs/*/transcripts/*
+!evals/runs/contrast-rule-drift-fable5/transcripts/rule-drift-A-*.jsonl
+!evals/runs/gate-log-redaction-fable5/transcripts/*
 evals/runs/*/cfg/
 evals/runs/smoke*/
 node_modules/

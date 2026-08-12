@@ -1,0 +1,12 @@
+{
+  "tid": "convention-override-B-025",
+  "probe": "convention-override",
+  "arm": "B",
+  "model": "claude-fable-5",
+  "i": 25,
+  "cls": "fail-no-audit",
+  "notes": "0/6 ok; {\"no-audit\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}",
+  "cited": null,
+  "skillFired": false,
+  "infra": false
+}

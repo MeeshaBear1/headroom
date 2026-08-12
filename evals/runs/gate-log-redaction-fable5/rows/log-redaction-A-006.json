@@ -1,0 +1,12 @@
+{
+  "tid": "log-redaction-A-006",
+  "probe": "log-redaction",
+  "arm": "A",
+  "model": "claude-fable-5",
+  "i": 6,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

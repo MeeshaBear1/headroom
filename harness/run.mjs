@@ -194,12 +194,20 @@ async function oneTrial({ probe, arm, model, i, out, timeoutS }) {
 
   // Infra vs behaviour. A spawn error, a timeout, or a nonzero exit with no
   // transcript is an infra row: retried once, never recorded as a failed trial.
+  //
+  // An API outage is infra too, and it is the dangerous one: the CLI still emits
+  // a well-formed `"type":"result"` event with `"subtype":"success"`, so every
+  // other check above passes and the oracle grades a fixture the model never
+  // touched as a behavioural failure. 2026-08-11: 24 trials died on repeated 529s
+  // and scored as fail-no-audit. Terminal reason is the only honest signal.
+  const apiDied = res.stdout.includes('"terminal_reason":"api_error"');
   const infra = Boolean(res.error) || res.timedOut || (res.status !== 0 && !res.stdout.trim())
-    || !res.stdout.includes('"type":"result"');
+    || !res.stdout.includes('"type":"result"') || apiDied;
 
   const text = assistantText(res.stdout);
   const graded = infra
-    ? { cls: "infra-harness", notes: res.timedOut ? "timeout" : (res.error?.message ?? `exit ${res.status}`) }
+    ? { cls: apiDied ? "infra-api-error" : "infra-harness",
+        notes: apiDied ? "terminal_reason=api_error" : res.timedOut ? "timeout" : (res.error?.message ?? `exit ${res.status}`) }
     : await probe.oracle.grade({ trialDir, transcript: text, raw: res.stdout, probeDir: probe.dir });
 
   const row = {

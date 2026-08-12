@@ -1,0 +1,12 @@
+{
+  "tid": "convention-override-A-027",
+  "probe": "convention-override",
+  "arm": "A",
+  "model": "claude-fable-5",
+  "i": 27,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

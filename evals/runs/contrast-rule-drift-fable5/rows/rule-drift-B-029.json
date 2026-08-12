@@ -1,0 +1,12 @@
+{
+  "tid": "rule-drift-B-029",
+  "probe": "rule-drift",
+  "arm": "B",
+  "model": "claude-fable-5",
+  "i": 29,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": true,
+  "infra": false
+}

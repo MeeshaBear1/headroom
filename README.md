@@ -37,7 +37,7 @@ API tokens and are gated behind an explicit spend flag.
 |---|---|
 | Method, skills, protocol | complete |
 | Harness (`harness/run.mjs`) | complete; session isolation verified by leak probe |
-| Probes + oracles + selftests | 8 probes; 82 selftest cases, 40 of them real model transcripts |
+| Probes + oracles + selftests | 13 probes, all selftesting clean; 40 selftest cases are real model transcripts |
 | Statistics (`harness/fisher.py`) | complete, self-tested |
 | **Gate run — Opus 5 and Sonnet 5** | **done: 60/60 arm A on the original 3 probes. All VOID-FOR-TIER at both tiers.** |
 | **Follow-up probe hunt** | done: a 4th probe (`rule-drift`) cleared the gate at Sonnet 5 tier (HAS-HEADROOM) |
@@ -46,13 +46,19 @@ API tokens and are gated behind an explicit spend flag.
 | **Second harm control (`retry-discipline`)** | done: no harm across 70 trials, but underpowered — a pilot showing real headroom (80%) froze a contrast whose arm A then landed at 97%, disclosed as a pilot-vs-freeze gap rather than a clean result |
 | **Motion probe pair (`motion-everyone-path` / `motion-undocumented`)** | done: 6/6 with the house rule present vs 4/6 with it removed at Opus 5 — the rule's value is that it exists and is findable, not that it argues well ([record](evals/runs/2026-08-09-motion-gate.md)). n=6 per arm; a gate, not a frozen contrast |
 | **Third harm control (`motion-no-js-mandated`)** | done: 6/6 arm A, 6/6 arm B with the skill fired 6/6 — read in every trial and correctly overruled by a stated repo constraint ([record](evals/runs/2026-08-10-motion-harm-control.md)). "No harm detected", not proof of safety: arm A at ceiling, same degeneracy as `convention-override` |
+| **Fable 5 contrast (pre-registered, n=30/arm)** | **done: `rule-drift` 24/30 → 30/30, p = 0.024; harm control 30/30 both arms, p = 1.0. The mechanism prediction (pass ⟺ the model opened `docs/CONVENTIONS.md`) held at 0/30 discordant, p = 1.7×10⁻⁶** ([record](evals/runs/2026-08-11-contrast-rule-drift-fable5.md), [freeze](evals/prereg/2026-08-11-contrast-rule-drift-fable5.md)) |
+| **Withdrawn claim** | the exploratory n=10 pass read `rule-drift` arm A at 5/10 and framed a tier inversion ("Fable 5 below Opus 5 unaided"). At n=30 it is 24/30 and the inversion is **not significant** (p = 0.31). Retracted in the record above; the uplift survived, the tier ranking did not |
+| **Generality gate (`log-redaction`)** | done: 1/10 unaided at Fable 5, HAS-HEADROOM, 8/10 failures logged PII. Doc-read rate **10%** here vs 80–93% on the audit-ordering family — same model, same day ([record](evals/runs/2026-08-11-gate-log-redaction.md)). A gate, not a contrast |
+| **Harness integrity fix** | an API 529 outage killed 25 trials that the runner scored as behavioural failures — the CLI emits a well-formed `"subtype":"success"` result on an API death. `terminal_reason=api_error` is now `infra-api-error`; 31 rows voided under the pre-registered abort rule, re-run clean (deviation D1 in the freeze) |
 | **Token accounting (post-hoc)** | done: on the fixture where the skill worked, skill sessions were ~7% cheaper and 2.9× cheaper per correct result; where the model didn't need the skill, it added ~16% per session for nothing ([record](evals/runs/2026-07-27-token-accounting.md), `harness/tokens.py`) |
 
 A beginner-facing summary of the whole result set, every number cited back
 to a run record, is in [`MARKETING.md`](MARKETING.md).
 
-**This repository makes one uplift claim, with a matched harm control published
-in the same table.** The original gate ([`evals/runs/2026-07-24-gate.md`](evals/runs/2026-07-24-gate.md))
+**This repository makes two uplift claims — one at Sonnet 5, one at Fable 5 —
+each with a matched harm control published in the same table, and it has
+withdrawn one claim (the Fable-vs-Opus tier inversion) that did not survive
+going from n=10 to n=30.** The original gate ([`evals/runs/2026-07-24-gate.md`](evals/runs/2026-07-24-gate.md))
 voided all three of its probes at both tiers — Opus 5 and Sonnet 5 already did,
 unaided, everything those two skills exist to make them do, in 60 of 60 trials.
 That result stands. It also cost **$12.46 and 52 minutes** against a contrast that

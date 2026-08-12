@@ -1,0 +1,12 @@
+{
+  "tid": "log-redaction-A-007",
+  "probe": "log-redaction",
+  "arm": "A",
+  "model": "claude-fable-5",
+  "i": 7,
+  "cls": "fail-pii",
+  "notes": "pii: userId \"U-88431\" found in log stream; pii: userId \"U-5177\" found in log stream",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

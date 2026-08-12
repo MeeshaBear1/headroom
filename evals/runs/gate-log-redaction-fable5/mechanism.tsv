@@ -1,0 +1,11 @@
+tid	probe	arm	doc_read	cls
+log-redaction-A-001	log-redaction	A	n	fail-pii
+log-redaction-A-002	log-redaction	A	n	fail-pii
+log-redaction-A-003	log-redaction	A	n	fail-pii
+log-redaction-A-004	log-redaction	A	n	fail-pii
+log-redaction-A-005	log-redaction	A	n	fail-logging
+log-redaction-A-006	log-redaction	A	Y	pass
+log-redaction-A-007	log-redaction	A	n	fail-pii
+log-redaction-A-008	log-redaction	A	n	fail-pii
+log-redaction-A-009	log-redaction	A	n	fail-pii
+log-redaction-A-010	log-redaction	A	n	fail-pii
