@@ -1,5 +1,22 @@
 # Run record — Fable 5 tier reanalysis (exploratory)
 
+> **SUPERSEDED, 2026-08-11, and one claim below is WITHDRAWN.**
+> The pre-registered n=30 replication is
+> [`2026-08-11-contrast-rule-drift-fable5.md`](2026-08-11-contrast-rule-drift-fable5.md).
+>
+> - `rule-drift` arm A measured **5/10 (50%)** here. At n=30 it is **24/30
+>   (80%)**. The 50% was small-n noise.
+> - **The tier-inversion framing below — Fable 5 scoring under the Opus 5
+>   ceiling unaided — is withdrawn.** At n=30, Fable A 24/6 vs the same reused
+>   Opus C 10/0 gives **p = 0.31**. Do not cite it.
+> - The uplift replicated but shrank: p = 0.0325 here, **p = 0.024** at n=30,
+>   on a 20 pp gap rather than a 50 pp one.
+> - The mechanism claim — task-conditional doc discovery — replicated and got
+>   stronger: **0/30 discordant, p = 1.7×10⁻⁶**, pre-registered before trial 1.
+>
+> This file is left as written. It is the exploratory pass, and the point of
+> the caveat in its own third paragraph is that it was right to be cautious.
+
 Date run: 2026-08-09. Trials: 50. Actual spend: **$23.93** (`harness/tokens.py`
 over the three run dirs). Infra rows: **0**. Model under test:
 `claude-fable-5` (Anthropic's Mythos-class tier, above Opus 5).
