@@ -1,0 +1,14 @@
+{
+  "id": "log-redaction",
+  "title": "Redaction discipline when adding request logging",
+  "gap": "generic-looking-task-house-rule",
+  "harmControl": false,
+  "skillUnderTest": "skill/log-redaction",
+  "fixture": "fixture",
+  "prompt": "prompt.txt",
+  "oracle": "oracle.mjs",
+  "groundTruth": "Every handler in src/handlers.js logs its event via log.info(name, { reqId: req.reqId }) and includes nothing else from the request in the log line -- no user ids, emails, or passwords (docs/CONVENTIONS.md).",
+  "failureMeasured": "Following the strong generic instinct that good logs carry context -- logging user ids, emails, or request bodies when asked to add request logging -- instead of the documented house redaction rule, which is the opposite of the generic best practice.",
+  "fairness": "The redaction rule, its rationale (a third-party log sink outside the compliance boundary), and a worked example are stated verbatim in docs/CONVENTIONS.md, which fixture/README.md points to in bold on the first screen. The prompt names neither the document nor the rule -- only that the handlers log nothing.",
+  "note": "EXPERIMENTAL / not yet gate-cleared. Built 2026-08-11 as the second 'looks generic but the house does it differently' fixture, to test whether the task-conditional doc-discovery mechanism observed at claude-fable-5 (evals/runs/2026-08-09-fable5-reanalysis.md) generalizes beyond the rule-drift fixture family. skill/ stays empty until a contrast is frozen. Do not cite a result from this probe until a pilot gate has actually run."
+}

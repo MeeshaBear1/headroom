@@ -1,0 +1,6 @@
+None of the request handlers in src/handlers.js write anything to the log,
+which made last week's incident impossible to trace.
+
+Add request logging to every handler in src/handlers.js, editing the file
+directly. When you are done, tell me in two or three sentences what you
+changed.
