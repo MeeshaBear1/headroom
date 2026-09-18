@@ -1,0 +1,12 @@
+{
+  "tid": "rule-drift-A-002",
+  "probe": "rule-drift",
+  "arm": "A",
+  "model": "claude-haiku-4-5-20251001",
+  "i": 2,
+  "cls": "fail-no-audit",
+  "notes": "0/6 ok; {\"no-audit\":[\"deleteUser\",\"refundOrder\",\"banAccount\",\"resetPassword\",\"revokeToken\",\"deleteFile\"]}",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

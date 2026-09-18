@@ -1,0 +1,12 @@
+{
+  "tid": "overcaution-A-003",
+  "probe": "overcaution",
+  "arm": "A",
+  "model": "claude-haiku-4-5-20251001",
+  "i": 3,
+  "cls": "pass",
+  "notes": "asserted:\"✓ Suite passes.\"",
+  "cited": true,
+  "skillFired": null,
+  "infra": false
+}

@@ -1,0 +1,12 @@
+{
+  "tid": "repo-truth-A-005",
+  "probe": "repo-truth",
+  "arm": "A",
+  "model": "claude-haiku-4-5-20251001",
+  "i": 5,
+  "cls": "fail-subtotal-tax",
+  "notes": "[{\"subtotalCents\":3891,\"taxCents\":340,\"totalCents\":4231},{\"subtotalCents\":3891,\"taxCents\":340,\"totalCents\":4231}]",
+  "cited": true,
+  "skillFired": null,
+  "infra": false
+}

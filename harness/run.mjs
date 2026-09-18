@@ -16,6 +16,7 @@
 
 import { spawn } from "node:child_process";
 import fs from "node:fs";
+import crypto from "node:crypto";
 import path from "node:path";
 import os from "node:os";
 import { pathToFileURL } from "node:url";
@@ -122,6 +123,21 @@ function makeConfigDir(dir) {
   return dir;
 }
 
+// sha256 over every file in a library dir, path-sorted — so a run record names
+// exactly which bytes were mounted, not just which directory.
+function dirSha256(dir) {
+  const h = crypto.createHash("sha256");
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true })
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .forEach((e) => {
+      const f = path.join(d, e.name);
+      if (e.isDirectory()) return walk(f);
+      h.update(path.relative(dir, f).split(path.sep).join("/")).update(fs.readFileSync(f));
+    });
+  try { walk(dir); } catch { return null; }
+  return h.digest("hex");
+}
+
 // ---------------------------------------------------------------- one trial
 
 const ALLOWED = "Edit,Write,Bash,Read,Grep,Glob,Skill,TodoWrite";
@@ -177,7 +193,10 @@ async function oneTrial({ probe, arm, model, i, out, timeoutS }) {
   // Arm B only: the library is present on disk. The prompt is byte-identical
   // across arms and never mentions skills — adoption is part of what we measure.
   if (arm === "B") {
-    const src = path.join(probe.dir, probe.spec.skillUnderTest ?? "skill");
+    // --skill <dir> mounts a library from outside the probe (a fleet skill under
+    // test) without editing the probe's own record. Its sha256 goes in meta.json.
+    const src = has("skill") ? path.resolve(flags.skill)
+                             : path.join(probe.dir, probe.spec.skillUnderTest ?? "skill");
     if (!fs.existsSync(src)) {
       die(`arm B needs the library text at ${src}, and it is not there.\n` +
           `  Populate it with the exact skill content under test and freeze its hash in the\n` +
@@ -258,7 +277,10 @@ async function doRun({ gateMode }) {
   const meta = fs.existsSync(metaFile) ? JSON.parse(fs.readFileSync(metaFile, "utf8")) : { runs: [] };
   meta.cli = (await sh("claude --version")).trim();
   meta.node = process.version;
-  meta.runs.push({ probe: probe.spec.id, arm, model, n, mode: gateMode ? "gate" : "run", timeoutS });
+  const mounted = arm === "B" ? (has("skill") ? path.resolve(flags.skill)
+                                : path.join(probe.dir, probe.spec.skillUnderTest ?? "skill")) : null;
+  meta.runs.push({ probe: probe.spec.id, arm, model, n, mode: gateMode ? "gate" : "run", timeoutS,
+                   skillMounted: mounted, skillSha256: mounted ? dirSha256(mounted) : null });
   fs.writeFileSync(metaFile, JSON.stringify(meta, null, 2));
 
   console.log(`${gateMode ? "GATE" : "RUN "} ${probe.spec.id} arm ${arm} model ${model} n=${n} conc=${conc}`);
