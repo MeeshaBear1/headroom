@@ -159,6 +159,9 @@ than silently corrected.
 - Platform: Windows 11, `win32`
 - Models named by exact id, never date-suffixed: `claude-opus-5`,
   `claude-sonnet-5`, `claude-haiku-4-5`
+| 18 | **A trial can read the operator's filesystem, and 54 of 140 did.** The `CLAUDE_CONFIG_DIR` seal stops the operator's skills being *loaded*; nothing stops `ls ~/.claude`. Trials run with `Bash` and `Read` allowed, `--permission-mode acceptEdits`, and no sandbox; `GIT_CEILING_DIRECTORIES` bounds git traversal only | `node harness/reachcheck.mjs evals/runs/frontier-tier-opus5/transcripts` — exits 1, reporting 54/140. Worst on the three motion probes (10/10, 9/10, 9/10); **clean at 0/10** on `disclosure`, `log-redaction`, `overcaution`, `retry-discipline`. Record: [`2026-09-18-gate-frontier-tier-census.md`](evals/runs/2026-09-18-gate-frontier-tier-census.md) § Defect 5 | **VERIFIED** (the defect, not a fix — no fix is applied) |
+| 19 | On `motion-undocumented`, **19 trials read `slipway:motion`'s `SKILL.md`** — the operator's own motion doctrine — and the read preceded the first edit to the fixture. So the probe's `fairness` claim that "nothing anywhere states the two-layer rule" holds inside the fixture and **not** in the condition the trial actually ran in | tool-call order in `frontier-tier-opus5/transcripts/motion-undocumented-A-001.jsonl`: `ls ~/.claude` at call 8, `AESTHETIC.md` at 9, the motion `SKILL.md` at 14, **first fixture edit at 22**. Of the 9 trials that read it, 8 implemented its CSS-only guard and failed; the 1 trial that never looked outside passed | **VERIFIED** |
+| 20 | No trial reached this repository's own probe tree, so arm A never saw an answer key | `grep -lF 'skill/everyone-path' evals/runs/frontier-tier-opus5/transcripts/*.jsonl` → **0 of 140**; same for `probes/motion` and `github/headroom` | **VERIFIED** |
 
 ## How to disprove anything here
 
