@@ -26,6 +26,14 @@ and their verdicts stand unqualified; the rest carry the qualifier.
 
 ## Defect 5 — the fixture was sealed from the operator's config, not from the operator's disk
 
+> **Note added after Phase C.** The numbers in this section are the census's own,
+> measured over its 140 transcripts. The contrast that followed wrote 110 more
+> trials into the same `--out` directory, so re-running `reachcheck.mjs` against
+> [`frontier-tier-opus5/transcripts`](frontier-tier-opus5/transcripts) now reports
+> **102 / 250** rather than 54 / 140. Both figures are correct for their scope;
+> the per-arm breakdown is in the
+> [contrast record](2026-09-18-contrast-motion-undocumented-opus5.md).
+
 `harness/run.mjs` gives every trial a throwaway `CLAUDE_CONFIG_DIR`, strips
 `CLAUDE*` and `ANTHROPIC_*` from the child environment, scrubs secret-shaped
 variables, and sets `GIT_CEILING_DIRECTORIES`. Every one of those works. Together
