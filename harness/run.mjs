@@ -87,6 +87,17 @@ async function selftest() {
     console.log(`${ok ? "ok  " : "FAIL"}  ${(c.name ?? c.overlay ?? "base").padEnd(22)} expect=${c.expect} got=${got.cls}`);
   }
   fs.rmSync(tmp, { recursive: true, force: true });
+
+  // The adoption detector gets checked too. It is graded on every arm-B row and
+  // nothing else exercises it, which is how it shipped searching for the wrong
+  // name for a whole phase. A real Skill load must read true for the mounted
+  // library and false for a library that was not mounted.
+  const load = JSON.stringify({ type: "assistant", message: { content: [
+    { type: "tool_use", name: "Skill", input: { command: "mounted-lib" } }] } });
+  if (!skillFired(load, "mounted-lib")) { console.log("FAIL  skillFired missed a real load"); fails++; }
+  if (skillFired(load, "not-mounted-lib")) { console.log("FAIL  skillFired fired on an unmounted name"); fails++; }
+  console.log(`ok    ${"skillFired".padEnd(22)} true for the mounted name, false for an unmounted one`);
+
   if (fails) die(`${fails} selftest case(s) failed — probe is not gradeable, do not run trials`, 1);
   console.log(`\nselftest OK — ${probe.spec.id}: oracle fails at base, passes at pristine fix`);
 }
@@ -182,6 +193,14 @@ function assistantText(streamJson) {
   return out.join("\n");
 }
 
+// Adoption. The name searched for must be the name of the library actually
+// MOUNTED, which `--skill` can make different from the one probe.json declares.
+// 2026-09-18: it wasn't. This read `probe.spec.skillUnderTest` while the mount
+// read `--skill`, so every `--skill` run searched the transcript for a string
+// only the unmounted library could contain and returned false by construction.
+// The one affected run (desc-swap, Haiku 4.5) had cross-checked its zero by
+// grep, so no published number moved — but E4 there was the primary endpoint
+// and its detector could only ever return zero. Guarded in selftest() now.
 function skillFired(streamJson, skillName) {
   return new RegExp(`"(name|skill)"\\s*:\\s*"(Skill|${skillName})"`).test(streamJson)
     && streamJson.includes(skillName);
@@ -198,6 +217,7 @@ async function oneTrial({ probe, arm, model, i, out, timeoutS }) {
 
   // Arm B only: the library is present on disk. The prompt is byte-identical
   // across arms and never mentions skills — adoption is part of what we measure.
+  let mountedName = null;
   if (arm === "B") {
     // --skill <dir> mounts a library from outside the probe (a fleet skill under
     // test) without editing the probe's own record. Its sha256 goes in meta.json.
@@ -208,7 +228,8 @@ async function oneTrial({ probe, arm, model, i, out, timeoutS }) {
           `  Populate it with the exact skill content under test and freeze its hash in the\n` +
           `  contrast pre-registration before running any B trial.`);
     }
-    const dest = path.join(trialDir, ".claude", "skills", path.basename(src));
+    mountedName = path.basename(src);
+    const dest = path.join(trialDir, ".claude", "skills", mountedName);
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.cpSync(src, dest, { recursive: true });
   }
@@ -239,7 +260,7 @@ async function oneTrial({ probe, arm, model, i, out, timeoutS }) {
     tid, probe: probe.spec.id, arm, model, i,
     cls: graded.cls, notes: graded.notes ?? "",
     cited: graded.cited ?? null,
-    skillFired: arm === "B" ? skillFired(res.stdout, path.basename(probe.spec.skillUnderTest ?? "skill")) : null,
+    skillFired: arm === "B" ? skillFired(res.stdout, mountedName) : null,
     infra,
   };
   fs.mkdirSync(path.dirname(rowFile), { recursive: true });
