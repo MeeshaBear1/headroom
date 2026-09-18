@@ -146,8 +146,14 @@ function runClaude({ cwd, configDir, model, prompt, timeoutS, probeEnv }) {
   return new Promise((resolve) => {
     const args = ["-p", "--model", model, "--output-format", "stream-json", "--verbose",
       "--max-turns", "80", "--permission-mode", "acceptEdits", "--allowedTools", ALLOWED];
+    // Fixtures stage inside this repo's working tree, so a trial that runs `git`
+    // finds headroom's own .git by walking up and can commit, reset or clean it.
+    // One trial did commit, mid-run, on 2026-09-17. The ceiling stops the walk at
+    // the trials/ directory, so a trial sees no repository at all.
+    const env = childEnv(configDir, probeEnv);
+    env.GIT_CEILING_DIRECTORIES = path.dirname(path.resolve(cwd));
     const ch = spawn(process.platform === "win32" ? "claude.cmd" : "claude", args, {
-      cwd, env: childEnv(configDir, probeEnv), shell: process.platform === "win32",
+      cwd, env, shell: process.platform === "win32",
     });
     let stdout = "", stderr = "", timedOut = false, error = null;
     const t = setTimeout(() => { timedOut = true; ch.kill("SIGKILL"); }, timeoutS * 1000);

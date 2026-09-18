@@ -177,6 +177,38 @@ Arm B cost no more than arm A, which is what a skill that never loads should
 cost. The ~16% overhead measured previously for an unneeded skill is absent
 here, because that overhead is the price of reading one.
 
+## A second defect: trials could commit to this repository
+
+Between the prereg commit and this record, the git log carries a commit nobody
+in this session wrote:
+
+```
+9c6c1c6 Fix pager to include last partial page
+```
+
+That is a `disclosure` trial's own commit message. Fixtures stage under
+`evals/runs/<run>/trials/<tid>/`, which is inside headroom's working tree, so a
+trial that runs `git commit` finds headroom's `.git` by walking up and commits
+against it. This one added 16 harness row files that were untracked at that
+moment. `trials/` is gitignored, so no fixture content entered history, and the
+rows it committed are the same rows the harness had already written — **no trial
+data was altered and no result here is affected.**
+
+The escape is what matters, not this instance. The same walk-up would have let a
+trial run `git reset`, `git checkout` or `git clean` against the repository
+holding every run record, and the README's isolation claim — a fresh
+`CLAUDE_CONFIG_DIR` per trial, verified by a leak probe — covers skills, hooks,
+memory and environment, not the filesystem above the fixture.
+
+Fixed in `runClaude()` by setting `GIT_CEILING_DIRECTORIES` to the trials
+directory, which stops git's upward search one level above the fixture. Verified
+directly: inside a staged trial dir `git rev-parse --show-toplevel` resolves to
+`C:/Users/nileh/github/headroom` without the ceiling and reports *"not a git
+repository"* with it.
+
+`9c6c1c6` is left in history rather than rewritten. Its message is misleading
+and this paragraph is the correction.
+
 ## Environment
 
 `claude` 2.1.263 · Node v24.16.0 · win32 · runner `harness/run.mjs`
