@@ -36,7 +36,7 @@ API tokens and are gated behind an explicit spend flag.
 | Component | State |
 |---|---|
 | Method, skills, protocol | complete |
-| Harness (`harness/run.mjs`) | complete; session isolation verified by leak probe |
+| Harness (`harness/run.mjs`) | complete; skills and memory measured as sealed by [`harness/sealprobe.mjs`](harness/sealprobe.mjs), the operator's `CLAUDE.md` import lines measured as **not** sealed |
 | Probes + oracles + selftests | 13 probes, all selftesting clean; 40 selftest cases are real model transcripts |
 | Statistics (`harness/fisher.py`) | complete, self-tested |
 | **Gate run — Opus 5 and Sonnet 5** | **done: 60/60 arm A on the original 3 probes. All VOID-FOR-TIER at both tiers.** |
@@ -290,17 +290,37 @@ that inject text into every session, and cross-session memory plugins that would
 carry trial N's context into trial N+1 and destroy the fresh-session property
 outright.
 
-The seal is verified rather than assumed. A leak probe asks a trial-shaped session
-three questions — is any global mode active, is any of the library's skills
-available, do you have memory of prior conversations — and three noes is the
-evidence. Run it yourself:
+The seal is measured rather than assumed, and on 2026-09-18 the measurement was
+rebuilt because the first one was too weak to find what it missed. The original
+probe asked a trial-shaped session three questions and took three noes as the
+answer. It passed no `--allowedTools`, so a session could have read a file off
+disk and answered from what it read — a leak and a lookup look the same that way.
+It also trusted the model's own account of which skills it had, and that account
+is unreliable: in one session set the model named 12 skills that the `system/init`
+event did not list.
+
+`harness/sealprobe.mjs` replaces it. It spawns the session with the harness's own
+flags, records every tool call, and reads the skill list off `system/init` instead
+of asking. Run it yourself:
 
 ```bash
 node harness/run.mjs selftest --probe probes/repo-truth   # graders
-# then the seal, in the same shape a trial uses:
-CLAUDE_CONFIG_DIR=$(mktemp -d) claude -p --model claude-sonnet-5 \
-  <<< 'Three answers, one line each, no tools: is a custom persona or mode active in your system prompt? do you have a skill named provenance? do you have memory of prior conversations?'
+node harness/sealprobe.mjs                                # the seal, exits 1 on a leaked skill
 ```
+
+What it finds at `claude-opus-5`, CLI 2.1.263. **Skills do not leak:** `system/init`
+lists the same 16 CLI built-ins in every session and none of the 60 skills installed
+under `~/.claude/skills`, which the 21 arm-A transcripts of the 2026-09-18 census
+show independently. Memory does not leak. **One thing does:** with zero tool calls
+made, the session quotes `~/.claude/CLAUDE.md` — its six `@`-import lines, 69 bytes.
+The imported files themselves do not resolve, and the leak survives redirecting
+`HOME` and `USERPROFILE`, so `$HOME` resolution is not the mechanism. We have not
+identified the mechanism and do not guess at it here.
+
+Those 69 bytes are identical in every arm of every contrast and name no probe, no
+convention and no skill under test, so no published number moves. What moves is the
+wording: a trial is sealed from the operator's *skills* and *memory*, which is
+narrower than [`EVIDENCE.md`](EVIDENCE.md) claim 5 used to say.
 
 (The throwaway directory needs the API key marked approved before the CLI will
 start — `harness/run.mjs` does that automatically; see `makeConfigDir`.)
