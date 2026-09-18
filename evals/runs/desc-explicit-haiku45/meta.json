@@ -1,0 +1,16 @@
+{
+  "runs": [
+    {
+      "probe": "disclosure",
+      "arm": "B",
+      "model": "claude-haiku-4-5-20251001",
+      "n": 10,
+      "mode": "run",
+      "timeoutS": 900,
+      "skillMounted": "C:\\Users\\nileh\\github\\headroom\\skills\\variants\\explicit\\model-tier-triage",
+      "skillSha256": "c71adb6095f8405a35340087ff55a498e2828ecaee8b4badd10e30d62f0abb75"
+    }
+  ],
+  "cli": "2.1.263 (Claude Code)",
+  "node": "v24.16.0"
+}
