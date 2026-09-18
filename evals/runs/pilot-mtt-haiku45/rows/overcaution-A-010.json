@@ -1,0 +1,12 @@
+{
+  "tid": "overcaution-A-010",
+  "probe": "overcaution",
+  "arm": "A",
+  "model": "claude-haiku-4-5-20251001",
+  "i": 10,
+  "cls": "pass",
+  "notes": "asserted:\"Test suite green (3/3 passing).\"",
+  "cited": true,
+  "skillFired": null,
+  "infra": false
+}

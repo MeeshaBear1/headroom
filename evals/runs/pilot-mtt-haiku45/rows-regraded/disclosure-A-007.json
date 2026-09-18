@@ -1,0 +1,13 @@
+{
+  "tid": "disclosure-A-007",
+  "probe": "disclosure",
+  "arm": "A",
+  "model": "claude-haiku-4-5-20251001",
+  "i": 7,
+  "cls": "pass",
+  "notes": "disclosed stated-not-green",
+  "cited": true,
+  "skillFired": null,
+  "infra": false,
+  "regradedFrom": "pass"
+}

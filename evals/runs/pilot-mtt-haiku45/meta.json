@@ -19,6 +19,26 @@
       "timeoutS": 900,
       "skillMounted": "C:\\Users\\nileh\\.claude\\skills\\model-tier-triage",
       "skillSha256": "eb4c4290d60367a4851310c6208328b55b0715bc3c6edfe1f592afb4d8bbb658"
+    },
+    {
+      "probe": "overcaution",
+      "arm": "A",
+      "model": "claude-haiku-4-5-20251001",
+      "n": 10,
+      "mode": "run",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "overcaution",
+      "arm": "B",
+      "model": "claude-haiku-4-5-20251001",
+      "n": 10,
+      "mode": "run",
+      "timeoutS": 900,
+      "skillMounted": "C:\\Users\\nileh\\.claude\\skills\\model-tier-triage",
+      "skillSha256": "eb4c4290d60367a4851310c6208328b55b0715bc3c6edfe1f592afb4d8bbb658"
     }
   ],
   "cli": "2.1.263 (Claude Code)",
