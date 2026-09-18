@@ -1,0 +1,12 @@
+{
+  "tid": "motion-undocumented-C-003",
+  "probe": "motion-undocumented",
+  "arm": "C",
+  "model": "claude-fable-5",
+  "i": 3,
+  "cls": "fail-chromium-only-reveal",
+  "notes": "chromium(atRest 4/4, afterScroll 0) firefox(atRest 0/4, afterScroll 0)",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

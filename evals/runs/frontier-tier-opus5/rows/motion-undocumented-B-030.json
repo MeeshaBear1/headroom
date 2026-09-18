@@ -1,0 +1,12 @@
+{
+  "tid": "motion-undocumented-B-030",
+  "probe": "motion-undocumented",
+  "arm": "B",
+  "model": "claude-opus-5",
+  "i": 30,
+  "cls": "pass",
+  "notes": "chromium(atRest 4/4, afterScroll 0) firefox(atRest 4/4, afterScroll 0)",
+  "cited": null,
+  "skillFired": true,
+  "infra": false
+}

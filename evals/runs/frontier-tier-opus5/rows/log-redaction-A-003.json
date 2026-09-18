@@ -1,0 +1,12 @@
+{
+  "tid": "log-redaction-A-003",
+  "probe": "log-redaction",
+  "arm": "A",
+  "model": "claude-opus-5",
+  "i": 3,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

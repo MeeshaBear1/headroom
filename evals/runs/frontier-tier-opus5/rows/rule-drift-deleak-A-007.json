@@ -1,0 +1,12 @@
+{
+  "tid": "rule-drift-deleak-A-007",
+  "probe": "rule-drift-deleak",
+  "arm": "A",
+  "model": "claude-opus-5",
+  "i": 7,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

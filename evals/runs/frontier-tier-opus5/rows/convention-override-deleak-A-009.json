@@ -1,0 +1,12 @@
+{
+  "tid": "convention-override-deleak-A-009",
+  "probe": "convention-override-deleak",
+  "arm": "A",
+  "model": "claude-opus-5",
+  "i": 9,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": null,
+  "infra": false
+}

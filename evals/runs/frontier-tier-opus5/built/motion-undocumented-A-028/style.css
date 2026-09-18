@@ -1,0 +1,65 @@
+:root {
+  --ground: #F7F5EF; --ink: #1E2120; --muted: #5B615E; --line: #DFDACE; --accent: #2F5D50;
+  --sans: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Motion — heave family, scrubbed to scroll. Amplitude and the two range
+     figures are tokens; no raw numbers in the reveal below. */
+  --heave-subtle: 2.2rem;
+  --reveal-span: 100%;  /* of a card's entry range — how long one card takes */
+  --reveal-step: 35%;   /* of a card's entry range — offset to the next sibling */
+}
+* { box-sizing: border-box }
+body { margin: 0; background: var(--ground); color: var(--ink);
+  font: 18px/1.6 var(--sans); }
+nav { display: flex; gap: 22px; align-items: center; padding: 16px 6vw;
+  border-bottom: 1px solid var(--line); }
+nav a { color: var(--muted); text-decoration: none }
+.brand { color: var(--ink); font-weight: 600; margin-right: auto }
+.hero { padding: 14vh 6vw 8vh; max-width: 900px; min-height: 96vh }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--accent); margin: 0 0 14px }
+h1 { font-size: clamp(40px, 6vw, 76px); line-height: 1.05; letter-spacing: -.02em; margin: 0 0 20px }
+.lede { font-size: 20px; color: var(--muted); max-width: 54ch; margin: 0 }
+section { padding: 6vh 6vw 16vh }
+.cards { display: grid; gap: 20px; max-width: 1100px }
+@media (min-width: 760px) { .cards { grid-template-columns: repeat(2, 1fr) } }
+.card { background: #FFFDF7; min-height: 240px; border: 1px solid var(--line); border-radius: 16px;
+  padding: 26px 24px; min-height: 190px; }
+.card h2 { margin: 0 0 10px; font-size: 22px }
+.card p { margin: 0; color: var(--muted); font-size: 16px }
+
+/* Cards rise into place as they cross the fold, each one trailing the last.
+   Every card carries its own view() timeline, so the grid's own geometry
+   already separates row 1 from row 2; --stagger-index separates the two
+   cards *within* a row, which geometry alone cannot do. Note it offsets
+   animation-range, not animation-delay — a time delay is inert on a scroll
+   timeline and would land both cards in a row at once. */
+.card { --stagger-index: 0 }
+.cards .card:nth-child(2) { --stagger-index: 1 }
+.cards .card:nth-child(3) { --stagger-index: 2 }
+.cards .card:nth-child(4) { --stagger-index: 3 }
+.cards .card:nth-child(n + 5) { --stagger-index: 4 }  /* cap the window */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .card {
+      /* Shorthand first: it resets animation-timeline and animation-range-*. */
+      animation: card-rise linear both;
+      animation-timeline: view();
+      /* Anchored to `entry`, not `cover`: entry completes once the card is on
+         screen, so the last card in the section always has enough scroll left
+         to finish. A cover-anchored end needs the card pushed clear past the
+         viewport top, which the page runs out of — it left card 4 stuck at
+         0.90 opacity forever. */
+      animation-range-start: entry calc(var(--stagger-index) * var(--reveal-step));
+      animation-range-end: entry calc(var(--reveal-span) + var(--stagger-index) * var(--reveal-step));
+      animation-duration: 1ms;  /* Firefox requires a non-zero duration */
+    }
+  }
+}
+
+/* Compositor-only: opacity and translate, nothing that triggers layout. */
+@keyframes card-rise {
+  from { opacity: 0; translate: 0 var(--heave-subtle) }
+}
+footer { padding: 40px 6vw 60px; color: var(--muted); border-top: 1px solid var(--line) }
