@@ -1,5 +1,23 @@
 # Phase C — the one probe with headroom, contrasted at Opus 5
 
+> **WITHDRAWN, 2026-09-20. The uplift below is not an uplift.**
+> The confound this record disclosed was re-measured under a seal:
+> [`2026-09-20-gates-seal-recheck-and-nullcensus.md`](2026-09-20-gates-seal-recheck-and-nullcensus.md).
+>
+> - Arm A here is **8/30 (26.7%)**, measured with the operator's home
+>   configuration directory reachable. Sealed, the same probe and the same
+>   model pass **10/10**, and the gate returns `VOID-FOR-TIER`.
+> - `python harness/fisher.py 10 0 8 22` -> **p = 5.16x10-5** (post-hoc; the
+>   two arms are reported side by side and never pooled).
+> - The mechanism is claims 19 and 24 plus the
+>   [doctrine comparison](2026-09-20-doctrine-comparison.md): arm A read
+>   `slipway:motion`'s `SKILL.md` and complied with it, arm B never went
+>   looking, and the stricter rule the oracle grades is not a rule the fleet
+>   holds. The gap is the asymmetry, not the library.
+> - **Do not cite the 8/30 -> 30/30 figure.** Claim 22 in `EVIDENCE.md` is
+>   withdrawn.
+
+
 **Read the confound section before the results table.** Arm A of this contrast
 reached the operator's home configuration directory in 20 of 30 trials. Arm B
 reached it in 0 of 30. "Unaided" in this record means one thing in one arm and

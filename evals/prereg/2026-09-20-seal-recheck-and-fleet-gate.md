@@ -96,3 +96,33 @@ Gate 1 re-runs from scratch into `evals/runs/seal-recheck-opus5-r2/`, as the
 529-outage rows did. **No number from the voided arm is quoted anywhere**, and P4
 is already falsified: trials did classify `infra-reached-operator-config`, for a
 reason that turned out to be ours.
+
+**2026-09-20 - the detector was wrong a second time, and the tenth row came
+back.** The re-run graded 9 rows and voided one more, `A-007`, on the same
+class. That row was refused too, in the CLI's other voice: `Permission to use
+Bash with command ... has been denied`, which the v2 detector did not know.
+A third case then turned up in the voided v1 run - a malformed command whose
+result was `bash: unexpected EOF`, which is not a refusal at all.
+
+The fault is structural. v1 and v2 both inferred that content was obtained
+from the ABSENCE of a known failure string, so every failure mode not yet met
+read as a breach. v3 requires positive evidence instead: a tool result must
+carry a line that is literally in one of the operator's own docs. Under v3,
+**0 of 20 sealed trials obtained operator content**, across both gate-1
+attempts.
+
+`A-007` was then graded by `run.mjs regrade` from its saved transcript and
+trial directory. `regrade` was changed to re-examine rows voided by the seal
+detector - that detector is an instrument, and correcting one is what a
+regrade is for - while every other infra class stays voided. The regrade is
+legal here because no arm B exists for this probe. Its validity check is that
+the nine live-graded rows regraded to the class they already had, 9 for 9;
+only the false void moved.
+
+One number computed today is withdrawn before publication: that 52 of the 102
+historically contaminated trials obtained content. It was a v2 figure. The
+conservative mention count, 102 of 250, stands.
+
+Result: **gate 1 sealed arm A 10/10, `VOID-FOR-TIER`**, which is inside the
+frozen >= 70% band. Gate 4 10/10, `VOID-FOR-TIER`. Both recorded in
+[the run record](../runs/2026-09-20-gates-seal-recheck-and-nullcensus.md).
