@@ -62,10 +62,18 @@ for (const [p, r] of [...by].sort((a, b) => b[1].reached - a[1].reached || a[0].
 }
 console.log("");
 console.log(`TOTAL reached: ${hit.length} / ${files.length}`);
+// This counts MENTIONS, which is deliberately the conservative figure: it cannot
+// tell a successful read from a refusal, and it over-counts on purpose. Under the
+// Defect 5 seal a mention usually means the trial tried and was denied, so the
+// verdict says "named" rather than "read" and points at the precise detector for
+// the other half of the answer. Measured 2026-09-20: 10 of 10 sealed trials named
+// the config, 27 of 29 attempts were refused, and none obtained a line of it.
 if (hit.length) {
-  console.error(`\nFAIL: ${hit.length} trial(s) reached ${cfg}. The fixture was not sealed from the`);
-  console.error(`operator's filesystem, so "unaided" in this run means "without a mounted skill",`);
-  console.error(`not "without access to house doctrine". Report it; do not average it away.`);
+  console.error(`\nFAIL: ${hit.length} trial(s) NAMED ${cfg}.`);
+  console.error(`If the run was unsealed, "unaided" means "without a mounted skill" rather than`);
+  console.error(`"without access to house doctrine" — report it; do not average it away.`);
+  console.error(`If the run was sealed, these are attempts, and whether any SUCCEEDED is a`);
+  console.error(`separate question: obtainedOperatorContent() in harness/seal.mjs answers it.`);
   process.exit(1);
 }
 console.log("PASS: no transcript reached the operator's config directory.");
