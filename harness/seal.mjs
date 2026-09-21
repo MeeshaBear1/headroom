@@ -83,18 +83,48 @@ export function mentionsOperatorConfig(text, cfg) {
 // error. A refusal arrives as `<tool_use_error>File is in a directory that is
 // denied by your permission settings.</tool_use_error>`, which is evidence the
 // seal HELD, not evidence it failed.
+// A directory listing is not content either. Measured 2026-09-20 on the sealed
+// re-gate: Read was refused 19 times out of 19, and the only calls that returned
+// anything were 9 `ls` listings and 2 Glob patterns. Not one returned a line of
+// house doctrine — yet an earlier version of this function voided 8 of 10 trials,
+// because a listing's text contains the config path. Knowing AESTHETIC.md exists
+// is not reading it.
+//
+// So the call is paired with its result and classified by what the tool returns:
+// Read returns file bodies, Glob returns paths, and Bash depends on the command.
+//
+// ponytail: READER_RE is a named list, not a parser. A reader it does not name
+// (a compiled binary, an obscure interpreter) reads through this undetected — the
+// same ceiling the deny rules have. reachcheck.mjs's broader mention count stays
+// the conservative reporting figure precisely because this one can miss.
+const READER_RE = /\b(cat|head|tail|sed|awk|grep|rg|type|more|less|node|python3?|perl|ruby|php|base64|xxd|od|strings)\b/i;
+
 export function obtainedOperatorContent(streamJson, cfg) {
   const needles = operatorConfigForms(cfg).map((s) => s.toLowerCase());
+  const pending = new Map();
   for (const line of streamJson.split("\n")) {
     if (!line.trim()) continue;
     let ev; try { ev = JSON.parse(line); } catch { continue; }
     const content = ev?.message?.content;
-    if (ev.type !== "user" || !Array.isArray(content)) continue;
+    if (!Array.isArray(content)) continue;
     for (const b of content) {
-      if (!b || b.type !== "tool_result") continue;
-      const s = JSON.stringify(b.content ?? "").toLowerCase();
-      if (s.includes("tool_use_error") || s.includes("denied by your permission")) continue;
-      if (needles.some((n) => s.includes(n))) return true;
+      if (!b || typeof b !== "object") continue;
+
+      if (b.type === "tool_use") {
+        const input = JSON.stringify(b.input ?? "").toLowerCase();
+        if (!needles.some((n) => input.includes(n))) continue;
+        // Does this call return a file BODY if it succeeds?
+        const body = b.name === "Read" || b.name === "Grep"
+          || (b.name === "Bash" && READER_RE.test(String(b.input?.command ?? "")));
+        if (body) pending.set(b.id, true);
+        continue;
+      }
+
+      if (b.type === "tool_result" && pending.has(b.tool_use_id)) {
+        const s = JSON.stringify(b.content ?? "").toLowerCase();
+        if (s.includes("tool_use_error") || s.includes("denied by your permission")) continue;
+        return true;
+      }
     }
   }
   return false;
@@ -113,13 +143,29 @@ if (process.argv[1] && process.argv[1].endsWith("seal.mjs")) {
   // The refusal must not be mistaken for a read. This is the whole point of
   // having two detectors, so it is the case the self-check asserts.
   const cfg = "C:\\Users\\nileh\\.claude";
-  const refused = JSON.stringify({ type: "user", message: { content: [{ type: "tool_result",
-    content: "<tool_use_error>File is in a directory that is denied by your permission settings.</tool_use_error>",
-    }] } });
-  const got = JSON.stringify({ type: "user", message: { content: [{ type: "tool_result",
-    content: "canary abc\nread from C:/Users/nileh/.claude/AESTHETIC.md" }] } });
+  const use = (id, name, input) => JSON.stringify({ type: "assistant", message: { content: [
+    { type: "tool_use", id, name, input }] } });
+  const result = (id, content) => JSON.stringify({ type: "user", message: { content: [
+    { type: "tool_result", tool_use_id: id, content }] } });
+  const DENIED = "<tool_use_error>File is in a directory that is denied by your permission settings.</tool_use_error>";
+
+  // 1. A refused Read is not a read.
+  const refused = use("t1", "Read", { file_path: "C:\\Users\\nileh\\.claude\\AESTHETIC.md" })
+    + "\n" + result("t1", DENIED);
+  // 2. A successful Read is.
+  const read = use("t2", "Read", { file_path: "C:\\Users\\nileh\\.claude\\AESTHETIC.md" })
+    + "\n" + result("t2", "# The aesthetic bar\nEvery artifact ships at...");
+  // 3. An `ls` listing is NOT content, however much of the path it prints.
+  const listing = use("t3", "Bash", { command: 'ls -la "C:/Users/nileh/.claude/"' })
+    + "\n" + result("t3", "AESTHETIC.md\nCOPY.md\nBRIEFGATE.md\nC:/Users/nileh/.claude/");
+  // 4. A `cat` through Bash IS content.
+  const cat = use("t4", "Bash", { command: 'cat "C:/Users/nileh/.claude/COPY.md"' })
+    + "\n" + result("t4", "# The copy bar\nEvery word...");
+
   if (obtainedOperatorContent(refused, cfg)) { console.error("FAIL refusal scored as a read"); process.exit(1); }
-  if (!obtainedOperatorContent(got, cfg)) { console.error("FAIL real read not detected"); process.exit(1); }
-  if (!mentionsOperatorConfig(refused + got, cfg)) { console.error("FAIL mention detector missed"); process.exit(1); }
-  console.log(`PASS seal: ${f.length} spellings, ${d.length} deny rules, refusal != read`);
+  if (!obtainedOperatorContent(read, cfg)) { console.error("FAIL real read not detected"); process.exit(1); }
+  if (obtainedOperatorContent(listing, cfg)) { console.error("FAIL listing scored as content"); process.exit(1); }
+  if (!obtainedOperatorContent(cat, cfg)) { console.error("FAIL cat not detected as content"); process.exit(1); }
+  if (!mentionsOperatorConfig(listing, cfg)) { console.error("FAIL mention detector missed a listing"); process.exit(1); }
+  console.log(`PASS seal: ${f.length} spellings, ${d.length} deny rules, refusal/listing != read`);
 }

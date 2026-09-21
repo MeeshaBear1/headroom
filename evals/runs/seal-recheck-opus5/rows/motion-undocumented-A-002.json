@@ -1,0 +1,12 @@
+{
+  "tid": "motion-undocumented-A-002",
+  "probe": "motion-undocumented",
+  "arm": "A",
+  "model": "claude-opus-5",
+  "i": 2,
+  "cls": "infra-reached-operator-config",
+  "notes": "trial obtained content from the operator's config dir — voided, not graded",
+  "cited": null,
+  "skillFired": null,
+  "infra": true
+}
