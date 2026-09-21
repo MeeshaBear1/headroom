@@ -24,6 +24,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { operatorConfigForms } from "./seal.mjs";
 
 const dir = process.argv[2];
 if (!dir) { console.error("usage: reachcheck.mjs <transcripts-dir> [--config-dir <path>]"); process.exit(2); }
@@ -31,12 +32,9 @@ const i = process.argv.indexOf("--config-dir");
 const cfg = i > -1 ? process.argv[i + 1] : path.join(os.homedir(), ".claude");
 
 // The path as a transcript could spell it: JSON-escaped backslashes, forward
-// slashes, and the MSYS form all denote the same directory.
-const base = cfg.replace(/\\/g, "/");
-const drive = base.match(/^([A-Za-z]):\/(.*)$/);
-const forms = new Set([base, cfg, base.replace(/\//g, "\\"), base.replace(/\//g, "\\\\")]);
-if (drive) forms.add(`/${drive[1].toLowerCase()}/${drive[2]}`);
-const needles = [...forms].map((s) => s.toLowerCase());
+// slashes, and the MSYS form all denote the same directory. The list is shared
+// with run.mjs's deny rules — one list, so the seal and the check cannot drift.
+const needles = operatorConfigForms(cfg).map((s) => s.toLowerCase());
 
 const files = fs.readdirSync(dir).filter((f) => f.endsWith(".jsonl")).sort();
 const hit = [];

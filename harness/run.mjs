@@ -20,6 +20,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import os from "node:os";
 import { pathToFileURL } from "node:url";
+import { makeConfigDir, obtainedOperatorContent } from "./seal.mjs";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1"), "..");
 
@@ -121,18 +122,8 @@ function childEnv(configDir, probeEnv = {}) {
   return out;
 }
 
-// A fresh config dir per trial: no global skills, hooks, plugins, memory, or
-// CLAUDE.md, and no cross-trial state of any kind.
-function makeConfigDir(dir) {
-  fs.mkdirSync(dir, { recursive: true });
-  const key = process.env.ANTHROPIC_API_KEY ?? "";
-  fs.writeFileSync(path.join(dir, ".claude.json"), JSON.stringify({
-    hasCompletedOnboarding: true,
-    customApiKeyResponses: { approved: [key.slice(-20)], rejected: [] },
-  }));
-  fs.writeFileSync(path.join(dir, "settings.json"), JSON.stringify({ includeCoAuthoredBy: false }));
-  return dir;
-}
+// makeConfigDir lives in seal.mjs — the trial config, the deny rules and the
+// reach check are built from one module so a seal and its check cannot drift.
 
 // sha256 over every file in a library dir, path-sorted — so a run record names
 // exactly which bytes were mounted, not just which directory.
@@ -247,13 +238,27 @@ async function oneTrial({ probe, arm, model, i, out, timeoutS }) {
   // touched as a behavioural failure. 2026-08-11: 24 trials died on repeated 529s
   // and scored as fail-no-audit. Terminal reason is the only honest signal.
   const apiDied = res.stdout.includes('"terminal_reason":"api_error"');
+
+  // Defect 5, enforced per trial. The deny rules in seal.mjs stop the excursion
+  // the 2026-09-18 census actually observed — `ls ~/.claude` then Read, both now
+  // refused. They are not a jail: sealtest.mjs defeated them with `node -e` when
+  // it was explicitly told to escalate, and enumerating interpreters is a game
+  // the deny list loses. So a trial that nonetheless OBTAINED operator content is
+  // voided here and re-run, exactly as an API outage is.
+  //
+  // It is deliberately the "obtained" detector and not the "mentions" one: a
+  // refused attempt saw nothing, its behaviour is still measurable, and voiding
+  // it would discard a good row and re-run it into the same refusal forever.
+  const reached = obtainedOperatorContent(res.stdout);
   const infra = Boolean(res.error) || res.timedOut || (res.status !== 0 && !res.stdout.trim())
-    || !res.stdout.includes('"type":"result"') || apiDied;
+    || !res.stdout.includes('"type":"result"') || apiDied || reached;
 
   const text = assistantText(res.stdout);
   const graded = infra
-    ? { cls: apiDied ? "infra-api-error" : "infra-harness",
-        notes: apiDied ? "terminal_reason=api_error" : res.timedOut ? "timeout" : (res.error?.message ?? `exit ${res.status}`) }
+    ? { cls: apiDied ? "infra-api-error" : reached ? "infra-reached-operator-config" : "infra-harness",
+        notes: apiDied ? "terminal_reason=api_error"
+             : reached ? "trial obtained content from the operator's config dir — voided, not graded"
+             : res.timedOut ? "timeout" : (res.error?.message ?? `exit ${res.status}`) }
     : await probe.oracle.grade({ trialDir, transcript: text, raw: res.stdout, probeDir: probe.dir });
 
   const row = {
