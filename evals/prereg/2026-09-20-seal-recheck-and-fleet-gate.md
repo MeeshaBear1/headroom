@@ -1,0 +1,75 @@
+# Freeze — seal re-gate at Opus 5, and a second fleet skill at Sonnet 5
+
+Committed before trial 1. Two gates, 20 trials, arm A only. No contrast is
+licensed by this freeze under any outcome.
+
+| | |
+|---|---|
+| Gate 1 | `motion-undocumented`, arm A, `claude-opus-5`, n = 10, **sealed** |
+| Gate 4 | `null-census`, arm A, `claude-sonnet-5`, n = 10 |
+| Harness | `harness/run.mjs` at commit `5c23018`, with the Defect 5 seal and the per-trial void rule |
+| Out dirs | `evals/runs/seal-recheck-opus5/`, `evals/runs/gate-nullcensus-sonnet5/` |
+| Infra floor | 6 infra rows in either gate aborts that gate and voids its arm |
+
+Gate 1 runs in a **fresh** output directory. The runner resumes by trial id, so
+reusing `frontier-tier-opus5/` would return the contaminated rows rather than
+run anything.
+
+## Why these two
+
+Gate 1 is the only cheap test of whether this repository's single frontier-tier
+uplift survives its own disclosed confound. Arm A of the
+[contrast](../runs/2026-09-18-contrast-motion-undocumented-opus5.md) obtained
+operator content in 20 of 30 trials and read house doctrine that satisfies a
+weaker rule than the oracle grades. The
+[doctrine comparison](../runs/2026-09-20-doctrine-comparison.md) then found that
+the stricter rule is absent from the fleet entirely. So arm A has never been
+measured under a seal, and the result rests on trials whose alternative source
+of guidance pointed at the failing answer.
+
+Gate 4 costs almost nothing and adds the second fleet-installed skill ever put
+through this harness. `null-census` names `provenance-print-houses`, which is
+installed in the operator's library. It gated 10/10 at Opus 5 and has never been
+gated at Sonnet 5, the tier where this repository has actually found headroom.
+
+## Predictions, frozen
+
+| # | Prediction |
+|---|---|
+| P1 | Gate 1 returns **`HAS-HEADROOM`** — the sealed arm-A rate stays at or below 50% |
+| P2 | Gate 1's sealed rate lands **above** the contaminated 8/30 (26.7%), because the doctrine that steered 8 of 9 readers to the failing answer is now out of reach |
+| P3 | Gate 4 returns **`VOID-FOR-TIER`** at 9/10 or better |
+| P4 | Zero trials classify `infra-reached-operator-config` in gate 1 |
+
+P2 and P1 can both hold; they are not the same claim. P1 is about the verdict,
+P2 about the direction of the rate.
+
+## The decision rule, fixed before the data
+
+Written now so no outcome can be read favourably afterwards.
+
+| Gate 1 sealed rate | Reading | Action |
+|---|---|---|
+| ≤ 50% | The uplift survives the seal | Fund the full re-run of the census and contrast |
+| 51–69% | Ambiguous at n = 10 | One more n = 10 before any contrast spend |
+| ≥ 70% | The contrast largely measured contamination | **Cancel the re-run.** Publish the correction against claim 22 |
+
+| Gate 4 | Action |
+|---|---|
+| ≥ 9/10 | Second fleet skill void. Combined with the Opus 5 census, stop building frontier probes for installed skills |
+| ≤ 8/10 | A fleet skill has a measurable gap at Sonnet 5. A contrast becomes worth pricing, under its own later freeze |
+
+## What this freeze does not license
+
+- No contrast, no arm B, no `--skill` mount, in either gate.
+- No claim about `everyone-path` as a library to install. The
+  [doctrine comparison](../runs/2026-09-20-doctrine-comparison.md) settled that
+  it teaches a rule the fleet does not hold, and no gate here revisits it.
+- No pooling of gate 1's rows with the 2026-09-18 arm A. Different seal, different
+  instrument, reported side by side and never summed.
+- No number from either gate quoted as a result. **Both are gates.** This
+  repository has withdrawn a claim for breaking that rule once.
+
+## Deviations
+
+Recorded here as they occur, dated, never by editing the text above.
