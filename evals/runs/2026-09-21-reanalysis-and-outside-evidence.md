@@ -254,6 +254,53 @@ that matters commercially — a measured, replicated lift at Opus or Sonnet.
    Opus 5. The fleet's claim, today, is a method — the gate, the seal, the harm
    control, the withdrawn-claims ledger — not a lift.
 
+## Part 3 — the pre-seal contrasts, re-read with the reach check
+
+Every contrast before 2026-09-20 ran without the seal. `reachcheck.mjs` over
+every run that still has transcripts on disk, then the two detectors per arm
+(after adding the `~/.claude` and `$HOME/.claude` spellings, which 8 July trials
+used and nothing knew):
+
+| contrast | arm | n | reached | obtained (v3) | pass, reached | pass, stayed |
+|---|---|---|---|---|---|---|
+| `rule-drift`, Sonnet 5, 2026-07-24 | A | 30 | **29** | **29** | 10/29 | 1/1 |
+| | B | 30 | 8 | 6 | 8/8 | 22/22 |
+| `convention-override`, Sonnet 5 (harm control) | A | 30 | 25 | 25 | 25/25 | 5/5 |
+| | B | 30 | 6 | 4 | 6/6 | 24/24 |
+| `retry-discipline`, Sonnet 5 (second control) | A | 30 | 5 | 5 | 4/5 | 25/25 |
+| | B | 30 | 19 | 19 | 19/19 | 11/11 |
+| `rule-drift`, Fable 5, 2026-08-11 | A | 30 | **0** | **0** | — | 24/30 |
+| | B | 30 | 0 | 0 | — | 30/30 |
+| `convention-override`, Fable 5 | A | 30 | 5 | 5 | 5/5 | 25/25 |
+| | B | 30 | 0 | 0 | — | 30/30 |
+
+What the July trials obtained is not in doubt: `RTK.md`, `WHEREFORE.md` and
+`LINKS.md` — the three files the operator's `CLAUDE.md` imported at the time —
+read by name in 16 of 30 arm-A trials each, and v3 matches their literal lines
+in 64 of 120 transcripts. The model knew those three names, so the operator's
+`CLAUDE.md` was in its context; the throwaway config dir landed in the same
+commit as the run and evidently after it.
+
+Three readings, in order of weight.
+
+- **The Fable 5 headline is clean.** 0 of 60 `rule-drift` trials at either arm
+  touched the operator's disk. The 24/30 → 30/30, the 0/30 discordant
+  mechanism, and the harm control at p = 1.0 stand as measured.
+- **The Sonnet 5 headline is pre-seal, and the asymmetry is the same shape as
+  claim 22's.** Arm A reached 29/30, arm B 8/30. Unlike `motion-undocumented`,
+  nothing obtained bears on the fixture's rule: a token-proxy manual, a decision
+  ledger and a link convention do not tell a model which way to order anything.
+  Among the 29 that reached, 10 passed; the one that stayed passed. There is no
+  mechanism here pointing at the failing answer, and the seal moved Opus 5 by
+  five times on the last probe where a mechanism was also thought absent until
+  the oracle was re-read. **The 37% baseline is unmeasured under a seal.**
+- **The controls are near ceiling in both arms**, so reach cannot have moved
+  them, and `retry-discipline`'s reach runs the other way (B 19, A 5) for the
+  reason claim 24 gave: a mounted skill answers first.
+
+The instrument change is committed with this record: `operatorConfigForms()`
+now carries seven spellings and `denyRules()` 77 rules.
+
 ## Limits
 
 - One session's web sweep. Abstracts and vendor posts were read; the bodies of
