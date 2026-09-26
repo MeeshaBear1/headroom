@@ -58,6 +58,32 @@ export function makeConfigDir(dir) {
   return dir;
 }
 
+// Defect 6 (2026-09-26). The CLI walks UP from the trial cwd and loads any
+// ancestor's CLAUDE.md or .claude/CLAUDE.md as project memory, so a trial staged
+// under C:/Users/nileh/... carried the operator's ~/.claude/CLAUDE.md -- its six
+// @import lines, unexpanded -- whatever CLAUDE_CONFIG_DIR said. Measured on the
+// sealed rule-drift re-gate: 10 of 10 trials named those files before any tool
+// returned them, and 2 fetched them with a shell loop no deny prefix matches.
+// HOME and USERPROFILE overrides do not close it; the cwd does. So trials stage
+// under a root outside the home tree, and staging refuses a dir the walk would
+// find a memory file above.
+export function trialsRoot() {
+  return process.env.HEADROOM_TRIALS_ROOT
+    ?? path.join(path.parse(os.homedir()).root, "headroom-trials");
+}
+export function ancestorMemory(dir) {
+  let d = path.resolve(dir);
+  for (;;) {
+    for (const f of ["CLAUDE.md", path.join(".claude", "CLAUDE.md")]) {
+      const p = path.join(d, f);
+      if (fs.existsSync(p)) return p;
+    }
+    const up = path.dirname(d);
+    if (up === d) return null;
+    d = up;
+  }
+}
+
 export function denyRules() {
   const deny = [];
   for (const f of operatorConfigForms()) {
@@ -215,5 +241,10 @@ if (process.argv[1] && process.argv[1].endsWith("seal.mjs")) {
   if (obtainedOperatorContent(globDenied, cfg)) { console.error("FAIL glob refusal scored as content"); process.exit(1); }
   if (obtainedOperatorContent(broken, cfg)) { console.error("FAIL shell error scored as content"); process.exit(1); }
   if (!mentionsOperatorConfig(listing, cfg)) { console.error("FAIL mention detector missed a listing"); process.exit(1); }
-  console.log(`PASS seal: ${f.length} spellings, ${d.length} deny rules, ${doctrineLines(cfg).length} doctrine lines, 7 cases`);
+  // 8. Defect 6: a trial dir under the operator's home finds their CLAUDE.md;
+  //    the trials root does not.
+  const under = ancestorMemory(path.join(os.homedir(), "github", "x", "trials", "t"));
+  if (!under || !under.toLowerCase().endsWith("claude.md")) { console.error("FAIL ancestor walk missed the home CLAUDE.md"); process.exit(1); }
+  if (ancestorMemory(path.join(trialsRoot(), "x", "t"))) { console.error(`FAIL trials root ${trialsRoot()} sits under a CLAUDE.md`); process.exit(1); }
+  console.log(`PASS seal: ${f.length} spellings, ${d.length} deny rules, ${doctrineLines(cfg).length} doctrine lines, 8 cases`);
 }

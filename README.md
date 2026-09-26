@@ -41,7 +41,7 @@ API tokens and are gated behind an explicit spend flag.
 | Statistics (`harness/fisher.py`) | complete, self-tested |
 | **Gate run — Opus 5 and Sonnet 5** | **done: 60/60 arm A on the original 3 probes. All VOID-FOR-TIER at both tiers.** |
 | **Follow-up probe hunt** | done: a 4th probe (`rule-drift`) cleared the gate at Sonnet 5 tier (HAS-HEADROOM) |
-| **Uplift contrast** | **done: p = 5.34×10⁻⁸, 37%→100%, full gap closure to the Opus 5 ceiling. Matched harm control: no change (p = 1.0)** |
+| **Uplift contrast** | **done: p = 5.34×10⁻⁸, 37%→100%, full gap closure to the Opus 5 ceiling. Matched harm control: no change (p = 1.0)** **Sealed re-gate 2026-09-26: arm A 2/8 under the Defect 5 seal, `HAS-HEADROOM`; the gap stands, and the run found Defect 6, the CLI loading the operator's CLAUDE.md from the trial's ancestors** ([re-gate](evals/runs/2026-09-26-seal-regate-rule-drift-sonnet5.md)) |
 | **External review + retest** | done: fixture-integrity guard added (130 historical trials regraded, 0 changed); de-leaked skill retest confirms the content transfers (100% when opened) but adoption drops without the domain-matched description (100%→37% fired) |
 | **Second harm control (`retry-discipline`)** | done: no harm across 70 trials, but underpowered — a pilot showing real headroom (80%) froze a contrast whose arm A then landed at 97%, disclosed as a pilot-vs-freeze gap rather than a clean result |
 | **Motion probe pair (`motion-everyone-path` / `motion-undocumented`)** | done: 6/6 with the house rule present vs 4/6 with it removed at Opus 5 — the rule's value is that it exists and is findable, not that it argues well ([record](evals/runs/2026-08-09-motion-gate.md)). n=6 per arm; a gate, not a frozen contrast |

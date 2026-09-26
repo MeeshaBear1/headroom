@@ -46,3 +46,17 @@ seal. The 37% baseline has never been measured sealed.
 ## Deviations
 
 Recorded here as they occur, dated, never by editing the text above.
+
+**2026-09-26 — result, and a defect the freeze did not anticipate.** Ten
+trials ran. Two were voided as `infra-reached-operator-config`; eight graded
+at 2 passes, 25%, `HAS-HEADROOM`, inside the ≤ 50% band. P1 held; P2, P3 and
+P4 failed. P3 failed because of Defect 6: the CLI loads the operator's
+`~/.claude/CLAUDE.md` as an ancestor project memory for any trial staged under
+the home directory, so all ten trials had its six `@import` lines in context
+and two fetched the files with a shell loop the deny prefixes cannot match.
+The seal held on content for eight trials and on the pointer for none. The
+July 37% was measured under the same pointer, so the ≤ 50% reading is applied
+as written, with the qualification recorded in
+[the run record](../runs/2026-09-26-seal-regate-rule-drift-sonnet5.md). The
+harness now stages trials outside the home tree and refuses to stage under any
+memory file; no row from this gate was regraded.

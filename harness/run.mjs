@@ -20,7 +20,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import os from "node:os";
 import { pathToFileURL } from "node:url";
-import { makeConfigDir, obtainedOperatorContent } from "./seal.mjs";
+import { makeConfigDir, obtainedOperatorContent, trialsRoot, ancestorMemory } from "./seal.mjs";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1"), "..");
 
@@ -202,7 +202,10 @@ async function oneTrial({ probe, arm, model, i, out, timeoutS }) {
   const rowFile = path.join(out, "rows", `${tid}.json`);
   if (fs.existsSync(rowFile)) return JSON.parse(fs.readFileSync(rowFile, "utf8")); // resume
 
-  const trialDir = path.join(out, "trials", tid);
+  // Defect 6: outside the home tree, or the CLI loads the operator's CLAUDE.md.
+  const trialDir = path.join(trialsRoot(), path.basename(path.resolve(out)), tid);
+  const leak = ancestorMemory(path.dirname(trialDir));
+  if (leak) die(`trial dir ${trialDir} sits under a memory file the CLI would load: ${leak} -- set HEADROOM_TRIALS_ROOT outside it`);
   stageFixture(probe, trialDir);
   const configDir = makeConfigDir(path.join(out, "cfg", tid));
 
@@ -302,7 +305,7 @@ async function doRun({ gateMode }) {
   if (!process.env.ANTHROPIC_API_KEY) die("ANTHROPIC_API_KEY not set");
   if (!has("yes")) die(`spend gate: ${n} live ${model} trials, probe ${probe.spec.id}, arm ${arm}. Re-run with --yes.`, 3);
 
-  for (const d of ["rows", "trials", "transcripts", "cfg"]) fs.mkdirSync(path.join(out, d), { recursive: true });
+  for (const d of ["rows", "transcripts", "cfg"]) fs.mkdirSync(path.join(out, d), { recursive: true });
 
   // Freeze what produced these numbers, before spending anything.
   const metaFile = path.join(out, "meta.json");
@@ -311,7 +314,7 @@ async function doRun({ gateMode }) {
   meta.node = process.version;
   const mounted = arm === "B" ? (has("skill") ? path.resolve(flags.skill)
                                 : path.join(probe.dir, probe.spec.skillUnderTest ?? "skill")) : null;
-  meta.runs.push({ probe: probe.spec.id, arm, model, n, mode: gateMode ? "gate" : "run", timeoutS,
+  meta.runs.push({ probe: probe.spec.id, arm, model, n, trialsRoot: trialsRoot(), mode: gateMode ? "gate" : "run", timeoutS,
                    skillMounted: mounted, skillSha256: mounted ? dirSha256(mounted) : null });
   fs.writeFileSync(metaFile, JSON.stringify(meta, null, 2));
 
@@ -402,7 +405,9 @@ async function regrade() {
     // CLI's plain-prose refusal as obtained content and voided a trial the seal
     // had successfully protected.
     if (row.infra && row.cls !== "infra-reached-operator-config") continue;
-    const trialDir = path.join(out, "trials", row.tid);
+    // New runs stage under trialsRoot(); runs before 2026-09-26 kept trials in out/.
+    const trialDir = [path.join(trialsRoot(), path.basename(path.resolve(out)), row.tid),
+                      path.join(out, "trials", row.tid)].find((d) => fs.existsSync(d)) ?? path.join(out, "trials", row.tid);
     const raw = readOr(path.join(out, "transcripts", `${row.tid}.jsonl`), "");
     if (!fs.existsSync(trialDir) || !raw) die(`cannot regrade ${row.tid}: trial dir or transcript missing`);
     if (obtainedOperatorContent(raw)) {
