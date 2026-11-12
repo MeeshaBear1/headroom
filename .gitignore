@@ -19,3 +19,4 @@ evals/runs/*/cfg/
 evals/runs/smoke*/
 node_modules/
 .DS_Store
+__pycache__/
