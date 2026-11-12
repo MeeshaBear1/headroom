@@ -1,0 +1,12 @@
+{
+  "tid": "rule-drift-A-007",
+  "probe": "rule-drift",
+  "arm": "A",
+  "model": "claude-sonnet-5",
+  "i": 7,
+  "cls": "infra-reached-operator-config",
+  "notes": "trial obtained content from the operator's config dir — voided, not graded",
+  "cited": null,
+  "skillFired": null,
+  "infra": true
+}

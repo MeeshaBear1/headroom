@@ -1,0 +1,58 @@
+:root {
+  --ground: #F7F5EF; --ink: #1E2120; --muted: #5B615E; --line: #DFDACE; --accent: #2F5D50;
+  --sans: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Motion. Envelope: swell(3); heave subtle, every other axis off;
+     reduced -> becalmed(0), per docs/CONVENTIONS.md. */
+  --heave-subtle: 6vh;    /* DOF cap: heave subtle is <= 6% of the viewport */
+  --reveal-span: 52%;     /* how much of a card's entry its reveal occupies */
+  --reveal-stagger: 15%;  /* offset per card, so they arrive one after another */
+}
+* { box-sizing: border-box }
+body { margin: 0; background: var(--ground); color: var(--ink);
+  font: 18px/1.6 var(--sans); }
+nav { display: flex; gap: 22px; align-items: center; padding: 16px 6vw;
+  border-bottom: 1px solid var(--line); }
+nav a { color: var(--muted); text-decoration: none }
+.brand { color: var(--ink); font-weight: 600; margin-right: auto }
+.hero { padding: 14vh 6vw 8vh; max-width: 900px; min-height: 96vh }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--accent); margin: 0 0 14px }
+h1 { font-size: clamp(40px, 6vw, 76px); line-height: 1.05; letter-spacing: -.02em; margin: 0 0 20px }
+.lede { font-size: 20px; color: var(--muted); max-width: 54ch; margin: 0 }
+section { padding: 6vh 6vw 16vh }
+.cards { display: grid; gap: 20px; max-width: 1100px }
+@media (min-width: 760px) { .cards { grid-template-columns: repeat(2, 1fr) } }
+.card { background: #FFFDF7; min-height: 240px; border: 1px solid var(--line); border-radius: 16px;
+  padding: 26px 24px; min-height: 190px; }
+.card h2 { margin: 0 0 10px; font-size: 22px }
+.card p { margin: 0; color: var(--muted); font-size: 16px }
+
+/* The range cards rise as each row enters the viewport, one after another
+   (heave). Each card is scrubbed by its own view() timeline, so the reveal
+   runs on the compositor with no client JS. The .card rules above are the
+   final state and stay untouched: reduced motion, and any browser without
+   scroll-driven animation, get the cards complete rather than partial. */
+.cards .card { --stagger-index: 0 }
+.cards .card:nth-child(2) { --stagger-index: 1 }
+.cards .card:nth-child(3) { --stagger-index: 2 }
+.cards .card:nth-child(4) { --stagger-index: 3 }
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .cards .card {
+      animation: card-rise linear both;
+      animation-timeline: view();
+      animation-range:
+        entry calc(var(--stagger-index) * var(--reveal-stagger))
+        entry calc(var(--reveal-span) + var(--stagger-index) * var(--reveal-stagger));
+      animation-duration: 1ms; /* Firefox requires a non-zero duration */
+    }
+  }
+}
+@keyframes card-rise {
+  from { opacity: 0; translate: 0 var(--heave-subtle) }
+}
+
+footer { padding: 40px 6vw 60px; color: var(--muted); border-top: 1px solid var(--line) }

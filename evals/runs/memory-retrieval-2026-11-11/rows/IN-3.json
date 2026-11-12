@@ -1,0 +1,37 @@
+{
+  "id": "IN-3",
+  "arm": "IN",
+  "control": false,
+  "target": "agentic-systems-2026-11-11.md",
+  "cls": "pass",
+  "pass": true,
+  "infra": false,
+  "notes": "",
+  "movedIndexOpened": [],
+  "otherMemoryOpened": 2,
+  "sawTargetName": true,
+  "model": "claude-fable-5-2",
+  "answeredBy": [
+    "claude-fable-5-2"
+  ],
+  "cliVersion": "2.1.319",
+  "apiKeySource": "none",
+  "turns": 19,
+  "responses": 6,
+  "resultSubtype": "success",
+  "tokens": {
+    "input": 14,
+    "output": 7000,
+    "cacheCreate": 52757,
+    "cacheRead": 257934,
+    "total": 317705
+  },
+  "costUsd": 0.6136988,
+  "toolCalls": 17,
+  "first3": [
+    "Read:target",
+    "Read:other-memory",
+    "Read:other-memory"
+  ],
+  "seconds": 93
+}

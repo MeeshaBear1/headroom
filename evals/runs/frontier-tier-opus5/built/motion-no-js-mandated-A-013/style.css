@@ -1,0 +1,59 @@
+:root {
+  --ground: #F7F5EF; --ink: #1E2120; --muted: #5B615E; --line: #DFDACE; --accent: #2F5D50;
+  --sans: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Motion: heave, subtle. Scrubbed by scroll, so linear by rule — the scroll
+     hand supplies the dynamics. Ranges are shares of a card's cover range. */
+  --heave-subtle: 18px;
+  --reveal-span: 18%;
+  --reveal-stagger: 8%;
+}
+* { box-sizing: border-box }
+body { margin: 0; background: var(--ground); color: var(--ink);
+  font: 18px/1.6 var(--sans); }
+nav { display: flex; gap: 22px; align-items: center; padding: 16px 6vw;
+  border-bottom: 1px solid var(--line); }
+nav a { color: var(--muted); text-decoration: none }
+.brand { color: var(--ink); font-weight: 600; margin-right: auto }
+.hero { padding: 14vh 6vw 8vh; max-width: 900px; min-height: 96vh }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--accent); margin: 0 0 14px }
+h1 { font-size: clamp(40px, 6vw, 76px); line-height: 1.05; letter-spacing: -.02em; margin: 0 0 20px }
+.lede { font-size: 20px; color: var(--muted); max-width: 54ch; margin: 0 }
+section { padding: 6vh 6vw 16vh }
+.cards { display: grid; gap: 20px; max-width: 1100px }
+@media (min-width: 760px) { .cards { grid-template-columns: repeat(2, 1fr) } }
+.card { background: #FFFDF7; min-height: 240px; border: 1px solid var(--line); border-radius: 16px;
+  padding: 26px 24px; min-height: 190px; }
+.card h2 { margin: 0 0 10px; font-size: 22px }
+.card p { margin: 0; color: var(--muted); font-size: 16px }
+
+/* Staggered scroll reveal for the range cards.
+   Everything above is the *final* state. The animation is layered on top and
+   never taken away from the base, so a reduced-motion visitor, or an engine
+   without view() timelines, sees all four cards complete — which is the one
+   thing this page may never get wrong. Stacked, the rows arrive in turn on
+   their own; side by side, --col offsets the right-hand card so row-mates
+   still land one after the other. Ranges stay well inside what the page can
+   actually scroll, so the last card always finishes settling. */
+.card { --col: 0 }
+@media (min-width: 760px) { .card:nth-child(even) { --col: 1 } }
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .card {
+      animation: card-settle linear both;
+      animation-duration: 1ms; /* ignored on a scroll timeline; Firefox wants it non-zero */
+      animation-timeline: view();
+      animation-range:
+        cover calc(var(--col) * var(--reveal-stagger))
+        cover calc(var(--reveal-span) + var(--col) * var(--reveal-stagger));
+    }
+  }
+}
+@keyframes card-settle {
+  from { opacity: 0; transform: translateY(var(--heave-subtle)) }
+  55% { opacity: 1 }
+  to { opacity: 1; transform: translateY(0) }
+}
+footer { padding: 40px 6vw 60px; color: var(--muted); border-top: 1px solid var(--line) }

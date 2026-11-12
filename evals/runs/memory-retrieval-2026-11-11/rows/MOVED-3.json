@@ -1,0 +1,39 @@
+{
+  "id": "MOVED-3",
+  "arm": "MOVED",
+  "control": false,
+  "target": "rotairo-receipt-monetization-2026-11-06.md",
+  "cls": "pass",
+  "pass": true,
+  "infra": false,
+  "notes": "",
+  "movedIndexOpened": [
+    "memory-index-moved-2026-11-09.md"
+  ],
+  "otherMemoryOpened": 1,
+  "sawTargetName": true,
+  "model": "claude-fable-5-2",
+  "answeredBy": [
+    "claude-fable-5-2"
+  ],
+  "cliVersion": "2.1.319",
+  "apiKeySource": "none",
+  "turns": 23,
+  "responses": 5,
+  "resultSubtype": "success",
+  "tokens": {
+    "input": 10,
+    "output": 5640,
+    "cacheCreate": 58295,
+    "cacheRead": 214969,
+    "total": 278914
+  },
+  "costUsd": 0.6221938,
+  "toolCalls": 22,
+  "first3": [
+    "Grep:memory-dir",
+    "Grep:memory-dir",
+    "Glob:cwd"
+  ],
+  "seconds": 96
+}

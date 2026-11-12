@@ -20,6 +20,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import os from "node:os";
 import { pathToFileURL } from "node:url";
+import { makeConfigDir, obtainedOperatorContent, trialsRoot, ancestorMemory } from "./seal.mjs";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, "$1"), "..");
 
@@ -87,6 +88,17 @@ async function selftest() {
     console.log(`${ok ? "ok  " : "FAIL"}  ${(c.name ?? c.overlay ?? "base").padEnd(22)} expect=${c.expect} got=${got.cls}`);
   }
   fs.rmSync(tmp, { recursive: true, force: true });
+
+  // The adoption detector gets checked too. It is graded on every arm-B row and
+  // nothing else exercises it, which is how it shipped searching for the wrong
+  // name for a whole phase. A real Skill load must read true for the mounted
+  // library and false for a library that was not mounted.
+  const load = JSON.stringify({ type: "assistant", message: { content: [
+    { type: "tool_use", name: "Skill", input: { command: "mounted-lib" } }] } });
+  if (!skillFired(load, "mounted-lib")) { console.log("FAIL  skillFired missed a real load"); fails++; }
+  if (skillFired(load, "not-mounted-lib")) { console.log("FAIL  skillFired fired on an unmounted name"); fails++; }
+  console.log(`ok    ${"skillFired".padEnd(22)} true for the mounted name, false for an unmounted one`);
+
   if (fails) die(`${fails} selftest case(s) failed — probe is not gradeable, do not run trials`, 1);
   console.log(`\nselftest OK — ${probe.spec.id}: oracle fails at base, passes at pristine fix`);
 }
@@ -110,18 +122,8 @@ function childEnv(configDir, probeEnv = {}) {
   return out;
 }
 
-// A fresh config dir per trial: no global skills, hooks, plugins, memory, or
-// CLAUDE.md, and no cross-trial state of any kind.
-function makeConfigDir(dir) {
-  fs.mkdirSync(dir, { recursive: true });
-  const key = process.env.ANTHROPIC_API_KEY ?? "";
-  fs.writeFileSync(path.join(dir, ".claude.json"), JSON.stringify({
-    hasCompletedOnboarding: true,
-    customApiKeyResponses: { approved: [key.slice(-20)], rejected: [] },
-  }));
-  fs.writeFileSync(path.join(dir, "settings.json"), JSON.stringify({ includeCoAuthoredBy: false }));
-  return dir;
-}
+// makeConfigDir lives in seal.mjs — the trial config, the deny rules and the
+// reach check are built from one module so a seal and its check cannot drift.
 
 // sha256 over every file in a library dir, path-sorted — so a run record names
 // exactly which bytes were mounted, not just which directory.
@@ -182,6 +184,14 @@ function assistantText(streamJson) {
   return out.join("\n");
 }
 
+// Adoption. The name searched for must be the name of the library actually
+// MOUNTED, which `--skill` can make different from the one probe.json declares.
+// 2026-09-18: it wasn't. This read `probe.spec.skillUnderTest` while the mount
+// read `--skill`, so every `--skill` run searched the transcript for a string
+// only the unmounted library could contain and returned false by construction.
+// The one affected run (desc-swap, Haiku 4.5) had cross-checked its zero by
+// grep, so no published number moved — but E4 there was the primary endpoint
+// and its detector could only ever return zero. Guarded in selftest() now.
 function skillFired(streamJson, skillName) {
   return new RegExp(`"(name|skill)"\\s*:\\s*"(Skill|${skillName})"`).test(streamJson)
     && streamJson.includes(skillName);
@@ -192,12 +202,16 @@ async function oneTrial({ probe, arm, model, i, out, timeoutS }) {
   const rowFile = path.join(out, "rows", `${tid}.json`);
   if (fs.existsSync(rowFile)) return JSON.parse(fs.readFileSync(rowFile, "utf8")); // resume
 
-  const trialDir = path.join(out, "trials", tid);
+  // Defect 6: outside the home tree, or the CLI loads the operator's CLAUDE.md.
+  const trialDir = path.join(trialsRoot(), path.basename(path.resolve(out)), tid);
+  const leak = ancestorMemory(path.dirname(trialDir));
+  if (leak) die(`trial dir ${trialDir} sits under a memory file the CLI would load: ${leak} -- set HEADROOM_TRIALS_ROOT outside it`);
   stageFixture(probe, trialDir);
   const configDir = makeConfigDir(path.join(out, "cfg", tid));
 
   // Arm B only: the library is present on disk. The prompt is byte-identical
   // across arms and never mentions skills — adoption is part of what we measure.
+  let mountedName = null;
   if (arm === "B") {
     // --skill <dir> mounts a library from outside the probe (a fleet skill under
     // test) without editing the probe's own record. Its sha256 goes in meta.json.
@@ -208,7 +222,8 @@ async function oneTrial({ probe, arm, model, i, out, timeoutS }) {
           `  Populate it with the exact skill content under test and freeze its hash in the\n` +
           `  contrast pre-registration before running any B trial.`);
     }
-    const dest = path.join(trialDir, ".claude", "skills", path.basename(src));
+    mountedName = path.basename(src);
+    const dest = path.join(trialDir, ".claude", "skills", mountedName);
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.cpSync(src, dest, { recursive: true });
   }
@@ -226,20 +241,34 @@ async function oneTrial({ probe, arm, model, i, out, timeoutS }) {
   // touched as a behavioural failure. 2026-08-11: 24 trials died on repeated 529s
   // and scored as fail-no-audit. Terminal reason is the only honest signal.
   const apiDied = res.stdout.includes('"terminal_reason":"api_error"');
+
+  // Defect 5, enforced per trial. The deny rules in seal.mjs stop the excursion
+  // the 2026-09-18 census actually observed — `ls ~/.claude` then Read, both now
+  // refused. They are not a jail: sealtest.mjs defeated them with `node -e` when
+  // it was explicitly told to escalate, and enumerating interpreters is a game
+  // the deny list loses. So a trial that nonetheless OBTAINED operator content is
+  // voided here and re-run, exactly as an API outage is.
+  //
+  // It is deliberately the "obtained" detector and not the "mentions" one: a
+  // refused attempt saw nothing, its behaviour is still measurable, and voiding
+  // it would discard a good row and re-run it into the same refusal forever.
+  const reached = obtainedOperatorContent(res.stdout);
   const infra = Boolean(res.error) || res.timedOut || (res.status !== 0 && !res.stdout.trim())
-    || !res.stdout.includes('"type":"result"') || apiDied;
+    || !res.stdout.includes('"type":"result"') || apiDied || reached;
 
   const text = assistantText(res.stdout);
   const graded = infra
-    ? { cls: apiDied ? "infra-api-error" : "infra-harness",
-        notes: apiDied ? "terminal_reason=api_error" : res.timedOut ? "timeout" : (res.error?.message ?? `exit ${res.status}`) }
+    ? { cls: apiDied ? "infra-api-error" : reached ? "infra-reached-operator-config" : "infra-harness",
+        notes: apiDied ? "terminal_reason=api_error"
+             : reached ? "trial obtained content from the operator's config dir — voided, not graded"
+             : res.timedOut ? "timeout" : (res.error?.message ?? `exit ${res.status}`) }
     : await probe.oracle.grade({ trialDir, transcript: text, raw: res.stdout, probeDir: probe.dir });
 
   const row = {
     tid, probe: probe.spec.id, arm, model, i,
     cls: graded.cls, notes: graded.notes ?? "",
     cited: graded.cited ?? null,
-    skillFired: arm === "B" ? skillFired(res.stdout, path.basename(probe.spec.skillUnderTest ?? "skill")) : null,
+    skillFired: arm === "B" ? skillFired(res.stdout, mountedName) : null,
     infra,
   };
   fs.mkdirSync(path.dirname(rowFile), { recursive: true });
@@ -276,7 +305,7 @@ async function doRun({ gateMode }) {
   if (!process.env.ANTHROPIC_API_KEY) die("ANTHROPIC_API_KEY not set");
   if (!has("yes")) die(`spend gate: ${n} live ${model} trials, probe ${probe.spec.id}, arm ${arm}. Re-run with --yes.`, 3);
 
-  for (const d of ["rows", "trials", "transcripts", "cfg"]) fs.mkdirSync(path.join(out, d), { recursive: true });
+  for (const d of ["rows", "transcripts", "cfg"]) fs.mkdirSync(path.join(out, d), { recursive: true });
 
   // Freeze what produced these numbers, before spending anything.
   const metaFile = path.join(out, "meta.json");
@@ -285,7 +314,7 @@ async function doRun({ gateMode }) {
   meta.node = process.version;
   const mounted = arm === "B" ? (has("skill") ? path.resolve(flags.skill)
                                 : path.join(probe.dir, probe.spec.skillUnderTest ?? "skill")) : null;
-  meta.runs.push({ probe: probe.spec.id, arm, model, n, mode: gateMode ? "gate" : "run", timeoutS,
+  meta.runs.push({ probe: probe.spec.id, arm, model, n, trialsRoot: trialsRoot(), mode: gateMode ? "gate" : "run", timeoutS,
                    skillMounted: mounted, skillSha256: mounted ? dirSha256(mounted) : null });
   fs.writeFileSync(metaFile, JSON.stringify(meta, null, 2));
 
@@ -368,13 +397,26 @@ async function regrade() {
   const changed = [];
   for (const f of fs.readdirSync(path.join(out, "rows"))) {
     const row = JSON.parse(fs.readFileSync(path.join(out, "rows", f), "utf8"));
-    if (row.probe !== probe.spec.id || row.infra) continue;
-    const trialDir = path.join(out, "trials", row.tid);
+    if (row.probe !== probe.spec.id) continue;
+    // A row voided by the SEAL detector is re-examined, because that detector is
+    // an instrument too and correcting it is exactly what a regrade is for. Every
+    // other infra class (outage, timeout, harness) stays voided — no oracle can
+    // grade a trial that never ran. Measured 2026-09-20: the detector counted the
+    // CLI's plain-prose refusal as obtained content and voided a trial the seal
+    // had successfully protected.
+    if (row.infra && row.cls !== "infra-reached-operator-config") continue;
+    // New runs stage under trialsRoot(); runs before 2026-09-26 kept trials in out/.
+    const trialDir = [path.join(trialsRoot(), path.basename(path.resolve(out)), row.tid),
+                      path.join(out, "trials", row.tid)].find((d) => fs.existsSync(d)) ?? path.join(out, "trials", row.tid);
     const raw = readOr(path.join(out, "transcripts", `${row.tid}.jsonl`), "");
     if (!fs.existsSync(trialDir) || !raw) die(`cannot regrade ${row.tid}: trial dir or transcript missing`);
+    if (obtainedOperatorContent(raw)) {
+      fs.writeFileSync(path.join(dst, f), JSON.stringify(row, null, 2));
+      continue;                                   // still a breach under the corrected rule
+    }
     const g = await probe.oracle.grade({ trialDir, transcript: assistantText(raw), raw, probeDir: probe.dir });
     if (g.cls !== row.cls) changed.push(`${row.tid}: ${row.cls} -> ${g.cls}`);
-    fs.writeFileSync(path.join(dst, f), JSON.stringify({ ...row, cls: g.cls, notes: g.notes ?? "", cited: g.cited ?? null, regradedFrom: row.cls }, null, 2));
+    fs.writeFileSync(path.join(dst, f), JSON.stringify({ ...row, cls: g.cls, notes: g.notes ?? "", cited: g.cited ?? null, infra: false, regradedFrom: row.cls }, null, 2));
   }
   const rows = fs.readdirSync(dst).map((f) => JSON.parse(fs.readFileSync(path.join(dst, f), "utf8"))).filter((r) => r.probe === probe.spec.id);
   console.log(`regraded ${rows.length} rows, ${changed.length} changed`);
