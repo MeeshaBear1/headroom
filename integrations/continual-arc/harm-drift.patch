@@ -1,0 +1,747 @@
+From cec5a9c8192069a2c3efcfa6c0726fd8d2a6ccae Mon Sep 17 00:00:00 2001
+From: MeeshaBear1 <nilehagen@gmail.com>
+Date: Wed, 11 Nov 2026 21:16:42 -0800
+Subject: [PATCH] Add the stale-state cost: a plug-in that changes the rule
+ under a name
+
+The two frozen tests read what a learner's state saves. Nothing reads what
+that state costs when it is wrong: a learner that replays whatever it stored
+under a task's name scores the same on both tests as one that checks first.
+
+continual_arc.stale reads the difference through the plug-in interface, with
+no change to a benchmark slot, record or measure.
+
+StaleAliasPlugin: after the host's last benchmark instance it requests
+auxiliary episodes in pairs. Both episodes of a pair are the same fresh
+instance of a task the run never served. One is shown under the alias of a
+task the learner met (swapped), the other under the task's own, never-seen
+alias (control). The stale-state cost is the budget used on the swapped
+episodes less the budget used on the controls, matched by task and instance
+seed, with metrics.transfer's bootstrap interval over tasks. On a seen test
+played at --width 1 every episode is reset_before, so each one meets the
+learner as it stood at the end of the stream.
+
+drift_schedule, DriftAliasPlugin, drift_cost: the same reading inside the
+stream. A schedule is rebuilt so that chosen tasks' slots, from one visit on,
+are slots of an unseen task, and the plug-in shows them under the alias of
+the task they replaced. The control is the same schedule without the plug-in.
+protocol_of lists the change as a deviation, so a drifted stream is never
+labelled canonical; that is the one edit outside the new module.
+
+Tests use three learners with no model (keeps nothing; drops what it kept at
+one wrong answer; trusts what it kept) on a synthetic task source, and assert
+0, one wrong attempt per episode, and 15 of 16 charges per episode.
+
+Not run here: ruff (not installed on the machine that wrote this) and the
+data-marked tests (no data was fetched).
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ README.md                    |   8 ++
+ docs/stale-state.md          | 130 +++++++++++++++++
+ src/continual_arc/configs.py |   2 +
+ src/continual_arc/stale.py   | 245 ++++++++++++++++++++++++++++++++
+ tests/test_stale.py          | 263 +++++++++++++++++++++++++++++++++++
+ 5 files changed, 648 insertions(+)
+ create mode 100644 docs/stale-state.md
+ create mode 100644 src/continual_arc/stale.py
+ create mode 100644 tests/test_stale.py
+
+diff --git a/README.md b/README.md
+index 7f56ec8..b9982dc 100644
+--- a/README.md
++++ b/README.md
+@@ -472,6 +472,13 @@ uv run continual-arc run \
+   --plugin-kwargs '{"initial_interval":8}'
+ ```
+ 
++One plug-in ships with the package. `continual_arc.stale:StaleAliasPlugin` reads
++what a learner pays for trusting what it kept once a task's rule has changed: after
++the run's last instance it serves fresh instances of tasks the run never served,
++each once under the name of a task the learner met and once under a name it has
++never seen, and reports the difference in budget used
++([docs/stale-state.md](docs/stale-state.md)).
++
+ ## Layout
+ 
+ ```
+@@ -487,6 +494,7 @@ src/continual_arc/
+   env.py         the environment: observations (the slot's, and the learner's view of the instance), actions, feedback, cost accounting
+   aliases.py     the per-run names a learner sees for tasks
+   addons.py      plug-in protocols, composition, and intervention runtime
++  stale.py       the stale-state cost: a plug-in that changes the rule under a name the learner has met (docs/stale-state.md)
+   learner.py     the learner protocol
+   runner.py      run a learner over a schedule, write a run directory
+   metrics.py     the budget used, the share saved and T on the frozen tests, the share learned and the diagnostics
+diff --git a/docs/stale-state.md b/docs/stale-state.md
+new file mode 100644
+index 0000000..146a228
+--- /dev/null
++++ b/docs/stale-state.md
+@@ -0,0 +1,130 @@
++# Continual-ARC: the stale-state cost
++
++## Why
++
++The two frozen tests read what a learner's state saves: the share of its reset's spend it no longer pays on tasks it
++met (the seen test) and on tasks it never met (the held-out test). Neither reads what that state costs when it is
++wrong. A learner that runs whatever it stored under a task's name, and a learner that checks what it stored against
++the instance in front of it, land on the same point of the plane, and they part on the day a rule changes under a
++name. In a working setting that day comes: a client's format changes, a project's convention is reversed. The paper
++leaves a mode in which the rules drift for later work.
++
++`continual_arc.stale` reads that cost through the plug-in interface. The environment serves and charges every
++instance as it always does, and no benchmark slot, record or measure changes.
++
++## What it measures
++
++After the last benchmark instance of a run, `StaleAliasPlugin` asks for auxiliary episodes in pairs. Both episodes of
++a pair are the same fresh instance of a task the run never served, drawn from the generators the stream draws from.
++
++| episode | what the learner is shown | what it has stored under that name |
++|---|---|---|
++| swapped | the instance under the alias of a task it met in the stream | the rule of another task, now wrong |
++| control | the same instance under the unseen task's own alias | nothing |
++
++The stale-state cost is the budget used on the swapped episodes less the budget used on the controls, in points of
++the budget, with a 95 percent interval from a bootstrap over tasks. It is positive when stored state costs the
++learner something. The figures come from `metrics.transfer`, with the control in the run's place and the swapped play
++in the reset's, so the number is read as the frozen tests' T is read.
++
++## Decisions
++
++| decision | choice | why |
++|---|---|---|
++| the changed rule | a whole task the run never served, from the stream's own source (`rearc` on `arc1`, `arcgen` on `arc2`), less every task of the host schedule | its instances are fresh and verified like the stream's, and no instance of it can have been met |
++| the control | the same task at the same instance seed under its own alias | the two episodes differ in the name alone, so the difference is what the name called up |
++| what the plug-in changes | the task id that the learner's alias is drawn from, in the observation the runner shows; no action and no feedback | the environment keeps the slot, the answer and the charge, and the record keeps the real task id with `arm`, `pair` and `alias_of` in its metadata |
++| what the learner can tell | nothing: the episode type, the plug-in's name and the metadata are left out of its view | a learner that saw `addon` could drop its memory for those episodes alone; a frozen test does not announce itself either |
++| when the episodes are served | after the host's last benchmark instance | nothing follows them, so they cannot reach a benchmark record |
++| the learner's state | as the host serves its own instances: every episode is marked `reset_before` when every slot of the host is | on a seen test played with `--width 1` the learner's `reset` restores the end of the stream, so every episode meets the same frozen learner; on a reset stream the learner is wiped and the cost is zero by construction |
++| order | the swapped episode first on even pairs, the control first on odd ones; each alias and each unseen task used once | on a plain stream the learner goes on learning, and the second episode of a pair has seen the instance; alternating spreads that over both arms |
++| size | one pair for every seen task, 25 on `arc1` (`pairs` asks for fewer) | the interval is over tasks, so more instances of one pair would add little |
++| seed | the host schedule's (`seed` overrides it): the unseen tasks, the pairing and the instance seeds are a function of it | a second run of the same learner serves the same episodes |
++
++## Running it
++
++On a stream, with the learner going on learning:
++
++```bash
++uv run continual-arc run --learner my_pkg.learners:MyLearner --schedule stream.json --out runs/my-stream \
++  --plugin continual_arc.stale:StaleAliasPlugin
++```
++
++On a frozen learner, which is the cleaner reading: play the seen test one instance at a time, under the stream's
++task names, with a learner whose `reset` restores its state at the end of the stream (the README's rule for a test
++played narrower than its width).
++
++```bash
++uv run continual-arc schedule make --config arc1 --seed 0 --test seen --width 1 --out seen-w1.json
++mkdir -p runs/my-stale && cp runs/my-stream/alias-salt runs/my-stale/
++uv run continual-arc run --learner my_pkg.learners:MyLearner --schedule seen-w1.json --out runs/my-stale \
++  --plugin continual_arc.stale:StaleAliasPlugin
++```
++
++The reading is in `summary.json` under `plugins.plugins.stale_alias`, and the episodes are in `records.jsonl` with
++`phase: "stale-alias"`. `--plugin-kwargs '{"pairs": 10}'` serves ten pairs, and `donor_tasks` names the unseen tasks
++for a source that has no generators of its own.
++
++## Reading the number
++
++| field | meaning |
++|---|---|
++| `stale_state_cost` | budget used on the swapped episodes less budget used on the controls, in points; `ci95` and `se` from the bootstrap over tasks |
++| `swapped_budget`, `control_budget` | the budget used on each arm, 100 times the mean charge over the cap |
++| `extra_cost` | the same difference per episode in charges: 1.0 is one wrong attempt or one demonstration |
++| `solved` | the share of each arm's episodes solved |
++| `n`, `tasks` | matched episodes and the tasks they cover |
++
++Three learners with no model, on the test suite's synthetic tasks at the default settings (`tests/test_stale.py`):
++
++| learner | swapped | control | stale-state cost | per episode |
++|---|---|---|---|---|
++| keeps nothing between instances | 6.25 | 6.25 | 0.00 | 0 |
++| runs the program it kept for the name, and at a wrong answer drops it and buys a demonstration | 12.50 | 6.25 | 6.25 | 1 wrong attempt |
++| answers from what it kept for the name until the instance fails | 100.00 | 6.25 | 93.75 | 15 charges |
++
++Read it beside two other numbers. The control's budget says how much room there was: a learner that fails the unseen
++tasks under any name spends the whole budget on both arms, and its zero says only that there was no room. The seen test's
++share says whether there was anything to go stale: a learner that kept nothing pays nothing here, and a zero beside
++a seen-test share near zero says nothing about trust.
++
++## A rule that changes inside the stream
++
++`drift_schedule` rebuilds a stream so that, for each chosen task, every slot from its visit `at_visit` on (counted
++from 0) is a slot of an unseen task, in the same place and at the same instance seed. `DriftAliasPlugin` shows those
++slots under the alias of the task they replaced, so the rule changes at that visit and stays changed. The control is
++the same schedule played without the plug-in, where the new rule arrives under a name of its own. `protocol_of` lists
++the change as a deviation, so a drifted stream is never read as canonical.
++
++```python
++from continual_arc.runner import load_run
++from continual_arc.schedule import Schedule
++from continual_arc.stale import drift_cost, drift_schedule
++
++drift_schedule(Schedule.load("stream.json"), at_visit=4).save("stream-drift4.json")
++# continual-arc run ... --schedule stream-drift4.json --out runs/drift --plugin continual_arc.stale:DriftAliasPlugin
++# continual-arc run ... --schedule stream-drift4.json --out runs/drift-control
++schedule, config, records = load_run("runs/drift")
++print(drift_cost(records, load_run("runs/drift-control")[2], schedule, config))
++```
++
++`drift_cost` is the same reading over the changed slots, with `by_visit`: the cost at each visit since the change. On
++the synthetic tasks the learner that repairs pays 6.25 points at visit 0 and nothing after, and the one that trusts
++pays 93.75 and then the whole budget at every later visit. This mode costs two runs of the stream, and its two runs
++are two histories: the learner in the control has kept one more name than the learner under the plug-in.
++
++## Limits
++
++* It tests trust in a stored mapping from a task's name to its rule. A learner that finds what it kept by the look
++  of the input, and not by the name, is shown nothing stale here and pays nothing, whatever it would pay elsewhere.
++* The rule changes all at once and to an unrelated rule. Nothing here reads a rule that shifts by degrees, a rule
++  that changes in part, or a change the learner is told about.
++* On a plain stream the learner is not frozen. The alternating order balances what an episode teaches its pair's
++  other half; it does not remove it. The seen test at `--width 1` does.
++* Plug-ins need one user, and auxiliary episodes need the grid environment: `Arc3Env` has no `insert_next`, so
++  there is no ARC-AGI-3 reading, and `StaleAliasPlugin` refuses that track.
++* The unseen tasks are public ARC tasks, as the stream's are. A model that recalls one from pretraining solves both
++  arms more cheaply, which narrows the room and leaves the difference matched.
++* With one pair per task the interval rests on 25 tasks on `arc1`. Report it with the number.
++* A run with `StaleAliasPlugin` attached keeps its `protocol` block, since its benchmark records are the ones the
++  run would have had without it; `meta.json` names the plug-in.
+diff --git a/src/continual_arc/configs.py b/src/continual_arc/configs.py
+index 1c62d27..c6eefd6 100644
+--- a/src/continual_arc/configs.py
++++ b/src/continual_arc/configs.py
+@@ -402,6 +402,8 @@ def protocol_of(schedule, env_config=None) -> dict:
+         deviations.append(f"seed {seed} is not one of the canonical seeds {CANONICAL_SEEDS}")
+     if cut_to_round is not None:
+         deviations.append(f"stream cut at round {cut_to_round}")
++    if meta.get("drift"):   # continual_arc.stale.drift_schedule
++        deviations.append(f"the rule of {len(meta['drift']['shown_as'])} tasks changes at visit {meta['drift']['at_visit']}")
+     if epilogue_only:
+         deviations.append(f"epilogue alone, users 0–{epilogue_only['users'] - 1} of {epilogue_only['of']}")
+     if env_config is not None and cfg_meta.get("env") is not None:
+diff --git a/src/continual_arc/stale.py b/src/continual_arc/stale.py
+new file mode 100644
+index 0000000..9161e08
+--- /dev/null
++++ b/src/continual_arc/stale.py
+@@ -0,0 +1,245 @@
++"""The stale-state cost: what a learner pays for trusting what it kept once the rule has changed.
++
++The two frozen tests read what a learner's state saves (:func:`continual_arc.metrics.transfer`). Nothing reads what
++that state costs when it is wrong, and a learner that replays whatever it stored under a task's name looks the same
++on both tests as one that checks first. This module reads the difference, in two modes, through the plug-in
++interface (:mod:`continual_arc.addons`). The environment serves and charges every instance as it always does, and
++no benchmark slot, record or measure changes.
++
++After the stream (:class:`StaleAliasPlugin`). Once the last benchmark instance has ended, the plug-in asks for
++auxiliary episodes in pairs. Both episodes of a pair are the same fresh instance of a task the run never served,
++drawn from the stream's own generators. In the *swapped* episode the learner is shown that instance under the alias
++of a task it met in the stream, so whatever it kept under the alias is now wrong. In the *control* episode it is
++shown the same instance under the task's own alias, which it has never seen. The stale-state cost is the budget used
++on the swapped episodes less the budget used on the controls (:func:`stale_state_cost`).
++
++Inside the stream (:func:`drift_schedule`, :class:`DriftAliasPlugin`). A schedule is rebuilt so that some tasks'
++slots, from a chosen visit on, are slots of a task the stream never serves, and the plug-in shows those slots under
++the alias of the task they replaced: the task's rule changes at that visit and stays changed. The control is the
++same schedule played without the plug-in, where the new rule arrives under a name of its own (:func:`drift_cost`).
++
++Both plug-ins change one thing, the task id of the observation the learner's alias is drawn from. Neither changes
++an action or a feedback.
++"""
++
++from __future__ import annotations
++
++from collections import Counter
++from collections.abc import Sequence
++from dataclasses import replace
++from typing import Any
++
++from continual_arc.addons import BasePlugin, EpisodeRequest, PluginContext, PluginResponse
++from continual_arc.configs import select_tasks
++from continual_arc.env import EnvConfig, InstanceRecord, Observation
++from continual_arc.metrics import transfer
++from continual_arc.schedule import PHASE_SEEN_TEST, PHASE_STREAM, TEST_SEEN, Schedule
++from continual_arc.seeds import derive_seed
++from continual_arc.tasks import SOURCE_ARCGEN, SOURCE_REARC
++
++PHASE_STALE_ALIAS = "stale-alias"
++ARM_SWAPPED = "swapped"
++ARM_CONTROL = "control"
++
++
++def generator_pool(source: str) -> list[str]:
++    """Every task ``source`` draws fresh instances of: where a rule the learner never met comes from."""
++    if source == SOURCE_REARC:
++        from continual_arc.rearc import ReArc
++
++        return list(ReArc().task_ids)
++    if source == SOURCE_ARCGEN:
++        from continual_arc.arcgen import pool
++
++        return pool()
++    raise ValueError(f"source {source!r} has no generators known here: name the unseen tasks (donor_tasks)")
++
++
++def _pairs(schedule: Schedule, seen: list[str], donor_tasks: Sequence[str] | None, n: int | None, seed: int,
++           label: str) -> list[tuple[str, str]]:
++    """``n`` (seen task, unseen task) pairs, a seeded draw of each side: the unseen tasks from ``donor_tasks``, or
++    from the generators of the seen tasks' source, less every task of ``schedule``."""
++    if not seen:
++        raise ValueError(f"{schedule.name} has no task to change the rule of")
++    pool = generator_pool(schedule.sources[seen[0]]) if donor_tasks is None else donor_tasks
++    unseen = sorted(set(pool) - set(schedule.sources))
++    most = min(len(seen), len(unseen))
++    n = most if n is None else n
++    if not 1 <= n <= most:
++        raise ValueError(f"asked for {n} pairs of {len(seen)} seen and {len(unseen)} unseen tasks")
++    return list(zip(select_tasks(seen, n, seed, f"{label}-seen"), select_tasks(unseen, n, seed, f"{label}-unseen"),
++                    strict=True))
++
++
++def stale_state_cost(swapped: Sequence[InstanceRecord], control: Sequence[InstanceRecord], config: EnvConfig,
++                     reps: int = 2000, seed: int = 0) -> dict:
++    """What trusting stale state costs: the budget used on ``swapped`` (instances shown under a name whose rule
++    the learner kept, and which is now another rule) less the budget used on ``control`` (the same instances
++    under a name it never saw), in points of the budget; positive is a cost. Instances are matched by task and
++    instance seed, and the 95 percent interval is a bootstrap over tasks. The figures are
++    :func:`continual_arc.metrics.transfer`'s, with the control in the run's place and the swapped play in the
++    reset's, so they are read as the frozen tests' T is. ``extra_cost`` is the same difference per instance in
++    charges, one being one wrong attempt or one demonstration. Zero says the learner pays nothing for what it kept;
++    it does not say it kept nothing."""
++    control, swapped = ([replace(r, phase=PHASE_SEEN_TEST) for r in records] for records in (control, swapped))
++    read = transfer(control, swapped, config, test=TEST_SEEN, reps=reps, seed=seed)
++    if not read["n"]:
++        return {"n": 0, "stale_state_cost": None}
++    return {
++        "n": read["n"],
++        "tasks": read["tasks"],
++        "swapped_budget": read["reset_budget"],
++        "control_budget": read["run_budget"],
++        "stale_state_cost": read["transfer"],
++        "ci95": read["ci95"],
++        "se": read["se"],
++        "extra_cost": read["transfer"] * config.max_cost / 100.0,
++        "solved": {ARM_SWAPPED: read["solved"]["reset"], ARM_CONTROL: read["solved"]["run"]},
++        "reps": reps,
++    }
++
++
++class StaleAliasPlugin(BasePlugin):
++    """After the stream, serve fresh instances of unseen tasks twice each: once under the alias of a task the
++    learner met (*swapped*) and once under the unseen task's own (*control*), and read the difference
++    (``summary()``, :func:`stale_state_cost`).
++
++    The host schedule is a stream, or a seen test played one instance at a time (``--width 1``); its tasks are
++    the ones whose aliases are swapped. The episodes are served as the host's own instances are: when every slot
++    of the host is marked ``reset_before`` so is every episode, which on a frozen test restores the learner's
++    state at the end of the stream and on a reset stream wipes it; on a plain stream the learner goes on
++    learning. So that an episode cannot teach its pair's other half the same thing on every pair, the swapped
++    episode comes first on even pairs and second on odd ones, and each alias and each unseen task is used once.
++
++    ``pairs`` is how many (every seen task by default, as far as the unseen tasks last), ``donor_tasks`` the
++    unseen tasks to draw from (by default the generators of the stream's source, less the host's tasks),
++    ``seed`` the draw's (the schedule's by default) and ``reps`` the bootstrap's resamples. The learner is shown
++    an episode as it is shown any instance: no episode type, plug-in name or metadata. The plug-in runs after
++    every other, so the others see each slot as the environment serves it."""
++
++    name = "stale_alias"
++    priority = 1000
++
++    def __init__(self, pairs: int | None = None, donor_tasks: Sequence[str] | None = None, seed: int | None = None,
++                 reps: int = 2000) -> None:
++        self.pairs = pairs
++        self.donor_tasks = donor_tasks
++        self.seed = seed
++        self.reps = reps
++        self._requests: tuple[EpisodeRequest, ...] = ()
++        self._summary: dict[str, Any] = {}
++
++    def on_run_start(self, context: PluginContext) -> PluginResponse | None:
++        schedule = context.schedule
++        if not isinstance(context.config, EnvConfig):
++            raise TypeError("the stale-alias episodes are grid instances: the ARC-AGI-3 environment serves none")
++        seen = sorted({s.task_id for s in schedule.slots if s.phase in (PHASE_STREAM, PHASE_SEEN_TEST)})
++        seed = schedule.seed if self.seed is None else self.seed
++        as_host = bool(schedule.slots) and all(s.reset_before for s in schedule.slots)
++        requests = []
++        for i, (alias_of, unseen) in enumerate(_pairs(schedule, seen, self.donor_tasks, self.pairs, seed,
++                                                      PHASE_STALE_ALIAS)):
++            for arm in (ARM_SWAPPED, ARM_CONTROL) if i % 2 == 0 else (ARM_CONTROL, ARM_SWAPPED):
++                requests.append(EpisodeRequest(
++                    task_id=unseen,
++                    source=schedule.sources[alias_of],
++                    instance_seed=derive_seed(seed, PHASE_STALE_ALIAS, i),
++                    phase=PHASE_STALE_ALIAS,
++                    reset_before=as_host,
++                    plugin=self.name,
++                    metadata={"arm": arm, "pair": i, "alias_of": alias_of},
++                ))
++        self._requests = tuple(requests)
++        return None
++
++    def on_observation(self, observation: Observation, context: PluginContext) -> PluginResponse | None:
++        del context
++        if observation.plugin != self.name:
++            return None
++        meta = observation.metadata
++        task_id = meta["alias_of"] if meta["arm"] == ARM_SWAPPED else observation.task_id
++        return PluginResponse(observation=replace(observation, task_id=task_id, episode_type="benchmark",
++                                                  plugin=None, metadata={}))
++
++    def on_episode_end(self, record: InstanceRecord, context: PluginContext) -> PluginResponse | None:
++        # the clock counts the benchmark episodes that ended before this one
++        if record.episode_type == "benchmark" and context.benchmark_clock == len(context.schedule) - 1:
++            return PluginResponse(episode_requests=self._requests)
++        return None
++
++    def on_run_end(self, records: list[InstanceRecord], context: PluginContext) -> None:
++        arms = {arm: [r for r in records if r.plugin == self.name and r.metadata.get("arm") == arm]
++                for arm in (ARM_SWAPPED, ARM_CONTROL)}
++        self._summary = stale_state_cost(arms[ARM_SWAPPED], arms[ARM_CONTROL], context.config, reps=self.reps)
++
++    def summary(self) -> dict[str, Any]:
++        return dict(self._summary)
++
++
++def drift_schedule(schedule: Schedule, at_visit: int = 4, tasks: int | None = None,
++                   donor_tasks: Sequence[str] | None = None, seed: int | None = None) -> Schedule:
++    """``schedule`` with a rule that changes inside its stream: for ``tasks`` of the stream's tasks (all that are
++    met more than ``at_visit`` times by default), every stream slot from the task's visit ``at_visit`` on (counted
++    from 0, so the default is its fifth) becomes a slot of a task the schedule never serves, at the same instance
++    seed and in the same place. The unseen tasks are drawn as :class:`StaleAliasPlugin` draws them. The schedule's
++    ``meta["drift"]`` names the visit and, for each new task, the task it replaced (``shown_as``), which is the
++    alias :class:`DriftAliasPlugin` shows it under; :func:`continual_arc.configs.protocol_of` lists the change as a
++    deviation, so a drifted stream is never read as a canonical one."""
++    if at_visit < 1:
++        raise ValueError("at_visit must be >= 1: a rule changes only after its task has been met")
++    visits = Counter(s.task_id for s in schedule.slots if s.phase == PHASE_STREAM)
++    seen = sorted(t for t, n in visits.items() if n > at_visit)
++    seed = schedule.seed if seed is None else seed
++    becomes = dict(_pairs(schedule, seen, donor_tasks, tasks, seed, "drift"))
++    met: Counter[str] = Counter()
++    slots = []
++    for slot in schedule.slots:
++        if slot.phase == PHASE_STREAM and slot.task_id in becomes:
++            met[slot.task_id] += 1
++            if met[slot.task_id] > at_visit:
++                slot = replace(slot, task_id=becomes[slot.task_id])
++        slots.append(slot)
++    return Schedule(
++        name=f"{schedule.name}-drift{at_visit}",
++        seed=schedule.seed,
++        slots=slots,
++        sources={**schedule.sources, **{new: schedule.sources[old] for old, new in becomes.items()}},
++        meta={**schedule.meta, "drift": {"at_visit": at_visit,
++                                         "shown_as": {new: old for old, new in sorted(becomes.items())}}},
++        users=schedule.users,
++    )
++
++
++class DriftAliasPlugin(BasePlugin):
++    """Shows every changed slot of a :func:`drift_schedule` under the alias of the task it replaced, so the
++    learner meets a new rule under a name it knows. Without it the same schedule is the control: the new rule
++    under a name of its own."""
++
++    name = "drift_alias"
++    priority = 1000
++
++    def on_observation(self, observation: Observation, context: PluginContext) -> PluginResponse | None:
++        shown_as = (context.schedule.meta.get("drift") or {}).get("shown_as", {})
++        if observation.episode_type != "benchmark" or observation.task_id not in shown_as:
++            return None
++        return PluginResponse(observation=replace(observation, task_id=shown_as[observation.task_id]))
++
++
++def drift_cost(run_records: Sequence[InstanceRecord], control_records: Sequence[InstanceRecord], schedule: Schedule,
++               config: EnvConfig, reps: int = 2000, seed: int = 0) -> dict:
++    """The stale-state cost inside a :func:`drift_schedule`'s stream: :func:`stale_state_cost` over its changed
++    slots, ``run_records`` being a learner's play of ``schedule`` under :class:`DriftAliasPlugin` and
++    ``control_records`` the same learner's play of it without. ``by_visit`` is the same cost at each visit since
++    the change, 0 being the visit the rule changed at: a learner that repairs what it kept pays at 0 and not
++    after, and one that never does pays at every visit."""
++    changed = schedule.meta["drift"]["shown_as"]
++    run, control = ([r for r in records if r.episode_type == "benchmark" and r.task_id in changed]
++                    for records in (run_records, control_records))
++    out = stale_state_cost(run, control, config, reps=reps, seed=seed)
++    out["by_visit"] = [
++        {"visit": visit, **{k: v for k, v in stale_state_cost(
++            [r for r in run if r.exposure_index == visit], [r for r in control if r.exposure_index == visit],
++            config, reps=0).items() if k in ("n", "swapped_budget", "control_budget", "stale_state_cost")}}
++        for visit in sorted({r.exposure_index for r in run})
++    ]
++    return out
+diff --git a/tests/test_stale.py b/tests/test_stale.py
+new file mode 100644
+index 0000000..e067439
+--- /dev/null
++++ b/tests/test_stale.py
+@@ -0,0 +1,263 @@
++"""The stale-state cost (continual_arc.stale), read on three learners with no model: one that keeps nothing, one that
++runs the program it kept for a name and drops it at the first wrong answer, and one that trusts what it kept."""
++
++import json
++
++import pytest
++
++from continual_arc.aliases import SALT_FILE, TaskAliases
++from continual_arc.configs import protocol_of
++from continual_arc.env import EnvConfig, SubmitFeedback
++from continual_arc.runner import run
++from continual_arc.schedule import (
++    PHASE_SEEN_TEST,
++    Schedule,
++    Slot,
++    sequential_params,
++    stream_schedule,
++)
++from continual_arc.stale import (
++    ARM_CONTROL,
++    ARM_SWAPPED,
++    PHASE_STALE_ALIAS,
++    DriftAliasPlugin,
++    StaleAliasPlugin,
++    drift_cost,
++    drift_schedule,
++    stale_state_cost,
++)
++from continual_arc.tasks import TaskRegistry
++from continual_arc.testing import FakeSource, ShiftMemoryLearner
++
++WRONG = 100 / EnvConfig().max_cost   # one wrong attempt or one demonstration, in points of the budget
++
++
++class Rules(FakeSource):
++    """A FakeSource whose tasks all have different rules, so a name that changes task always changes rule."""
++
++    def shift(self, task_id):
++        return 1 + self._ids.index(task_id)
++
++
++class Forgetful(ShiftMemoryLearner):
++    """Keeps nothing: it buys a demonstration on every instance."""
++
++    def end_round(self):
++        self.memory.clear()
++
++
++class Repairing(ShiftMemoryLearner):
++    """Runs what it kept for a name first, and at a wrong answer drops it and buys a demonstration."""
++
++    def observe(self, obs, action, feedback):
++        super().observe(obs, action, feedback)
++        if isinstance(feedback, SubmitFeedback) and not feedback.correct:
++            self.memory.pop(obs.task_id, None)
++
++
++Trusting = ShiftMemoryLearner   # answers from what it kept for a name until the instance fails
++LEARNERS = (Forgetful, Repairing, Trusting)
++
++
++class Restored(Repairing):
++    """A learner frozen at the end of its stream: its reset restores what it kept then, as a frozen test asks."""
++
++    def __init__(self, kept):
++        super().__init__()
++        self.kept = dict(kept)
++        self.reset()
++
++    def reset(self):
++        self.memory = dict(self.kept)
++
++
++class Shown(Repairing):
++    """A Repairing learner that keeps the first observation of every instance."""
++
++    def __init__(self):
++        super().__init__()
++        self.shown = []
++
++    def act(self, obs):
++        if obs.is_fresh:
++            self.shown.append(obs)
++        return super().act(obs)
++
++
++@pytest.fixture
++def rules():
++    return Rules(n_tasks=8)
++
++
++@pytest.fixture
++def registry(rules):
++    return TaskRegistry({rules.name: rules})
++
++
++@pytest.fixture
++def seen(rules):
++    return rules.task_ids()[:4]
++
++
++@pytest.fixture
++def unseen(rules):
++    return rules.task_ids()[4:]
++
++
++def stream_of(seen, visits=3, seed=0):
++    return stream_schedule(seen, len(seen) * visits, seed=seed, source="fake", params=sequential_params(visits),
++                           order="sequential")
++
++
++def played(result, arm):
++    return [r for r in result.records if r.plugin == "stale_alias" and r.metadata["arm"] == arm]
++
++
++def read(result):
++    return result.summary["plugins"]["plugins"]["stale_alias"]
++
++
++def test_a_learner_pays_for_what_it_trusts(registry, seen, unseen):
++    results = {cls: run(cls(), stream_of(seen), registry=registry, plugins=[StaleAliasPlugin(donor_tasks=unseen)])
++               for cls in LEARNERS}
++    for result in results.values():   # the same episodes for every learner: each unseen task once in each arm
++        assert sorted(r.task_id for r in played(result, ARM_SWAPPED)) == unseen
++        assert sorted(r.task_id for r in played(result, ARM_CONTROL)) == unseen
++        assert all(r.cost == 1 and r.demo_requests == 1 for r in played(result, ARM_CONTROL))
++
++    nothing, repaired, trusted = (read(results[cls]) for cls in LEARNERS)
++    assert nothing["stale_state_cost"] == 0 and nothing["ci95"] == [0, 0]
++    # the program it kept is wrong once, on every episode, and the demonstration it then buys the control buys too
++    assert all(r.wrong_attempts == 1 and r.solved for r in played(results[Repairing], ARM_SWAPPED))
++    assert repaired["extra_cost"] == 1 and repaired["stale_state_cost"] == WRONG and repaired["ci95"] == [WRONG, WRONG]
++    assert repaired["swapped_budget"] == 2 * WRONG and repaired["control_budget"] == WRONG
++    # it never doubts what it kept, so every swapped episode costs the whole budget
++    assert not any(r.solved for r in played(results[Trusting], ARM_SWAPPED))
++    assert trusted["swapped_budget"] == 100 and trusted["extra_cost"] == 15
++    assert trusted["solved"] == {ARM_SWAPPED: 0, ARM_CONTROL: 1}
++    assert nothing["stale_state_cost"] < repaired["stale_state_cost"] < trusted["stale_state_cost"]
++    assert all(r["n"] == r["tasks"] == 4 for r in (nothing, repaired, trusted))
++
++
++def test_the_benchmark_reads_the_same_with_the_plugin_and_without(registry, seen, unseen):
++    stream = stream_of(seen)
++    alone = run(Trusting(), stream, registry=registry)
++    probed = run(Trusting(), stream, registry=registry, plugins=[StaleAliasPlugin(donor_tasks=unseen)])
++
++    def benchmark(result):
++        return [{k: v for k, v in r.to_json().items() if k != "resources"}
++                for r in result.records if r.episode_type == "benchmark"]
++
++    assert benchmark(probed) == benchmark(alone) and len(probed.records) == len(alone.records) + 8
++    for block in ("benchmark", "stream", "seen_test", "held_out_test", "epilogue", "acquisition", "retention_by_gap",
++                  "cost_by_exposure", "checkpoints", "per_task", "protocol"):
++        assert probed.summary[block] == alone.summary[block]
++    assert probed.summary["addons"]["n"] == 8 and set(probed.summary["by_phase"]) == {"stream", PHASE_STALE_ALIAS}
++
++
++def test_an_episode_is_shown_under_a_seen_name_or_a_new_one_and_as_any_instance(registry, seen, unseen, tmp_path):
++    learner = Shown()
++    result = run(learner, stream_of(seen), out_dir=tmp_path / "run", registry=registry,
++                 plugins=[StaleAliasPlugin(donor_tasks=unseen)])
++    aliases = TaskAliases.for_run(tmp_path / "run")
++    met = {aliases.alias(t) for t in seen}
++    episodes = [r for r in result.records if r.plugin == "stale_alias"]
++    for record, obs in zip(episodes, learner.shown[-len(episodes):], strict=True):
++        swapped = record.metadata["arm"] == ARM_SWAPPED
++        assert obs.task_id == aliases.alias(record.metadata["alias_of"] if swapped else record.task_id)
++        assert (obs.task_id in met) == swapped
++        assert (obs.episode_type, obs.plugin, obs.metadata) == ("benchmark", None, {})
++    assert len({o.task_id for o in learner.shown[-len(episodes):]}) == 8   # every name once
++    # the records keep what the environment served, and say which name it was shown under
++    assert all(r.episode_type == "addon" and r.phase == PHASE_STALE_ALIAS and r.task_id in unseen for r in episodes)
++    assert [r.metadata["arm"] for r in episodes] == [ARM_SWAPPED, ARM_CONTROL, ARM_CONTROL, ARM_SWAPPED] * 2
++
++
++def test_the_episodes_and_their_reading_are_a_function_of_the_seed(registry, seen, unseen):
++    def episodes(seed, donors=unseen, **kw):
++        result = run(Repairing(), stream_of(seen, seed=seed), registry=registry,
++                     plugins=[StaleAliasPlugin(donor_tasks=donors, **kw)])
++        return [(r.task_id, r.instance_seed, r.metadata) for r in result.records if r.plugin], json.dumps(read(result))
++
++    assert episodes(0) == episodes(0)
++    assert episodes(0, donors=unseen[::-1]) == episodes(0)   # the draw is from the tasks sorted
++    assert {seed for _, seed, _ in episodes(0)[0]}.isdisjoint(seed for _, seed, _ in episodes(1)[0])
++    assert len(episodes(0, pairs=2)[0]) == 4
++
++
++def test_a_frozen_test_serves_every_episode_from_the_end_of_the_stream(registry, seen, unseen, tmp_path):
++    learner = Repairing()
++    stream = stream_of(seen)
++    run(learner, stream, out_dir=tmp_path / "stream", registry=registry)
++    test = Schedule(name="seen-test", seed=0, sources=dict(stream.sources),
++                    slots=[Slot(t, 100 + i, PHASE_SEEN_TEST, reset_before=True) for i, t in enumerate(seen)])
++    (tmp_path / "test").mkdir()   # the test is played under the stream's names
++    (tmp_path / "test" / SALT_FILE).write_text((tmp_path / "stream" / SALT_FILE).read_text())
++    frozen = Restored(learner.memory)
++    result = run(frozen, test, out_dir=tmp_path / "test", registry=registry,
++                 plugins=[StaleAliasPlugin(donor_tasks=unseen)])
++    assert all(r.cost == 0 for r in result.records if r.episode_type == "benchmark")
++    assert all(r.reset_before for r in result.records)
++    assert {r.cost for r in played(result, ARM_SWAPPED)} == {2} and {r.cost for r in played(result, ARM_CONTROL)} == {1}
++    assert read(result)["extra_cost"] == 1
++    frozen.reset()
++    assert frozen.memory == frozen.kept
++
++
++def test_a_learner_wiped_before_every_instance_pays_nothing(registry, seen, unseen):
++    result = run(Trusting(), stream_of(seen).reset_each(), registry=registry,
++                 plugins=[StaleAliasPlugin(donor_tasks=unseen)])
++    assert all(r.reset_before and r.cost == 1 for r in result.records if r.plugin)
++    assert read(result)["stale_state_cost"] == 0
++
++
++def test_the_plugin_needs_met_tasks_and_unmet_ones(registry, seen, unseen):
++    stream = stream_of(seen)
++    with pytest.raises(ValueError, match="4 seen and 0 unseen"):
++        run(Trusting(), stream, registry=registry, plugins=[StaleAliasPlugin(donor_tasks=seen)])
++    with pytest.raises(ValueError, match="asked for 5 pairs"):
++        run(Trusting(), stream, registry=registry, plugins=[StaleAliasPlugin(donor_tasks=unseen, pairs=5)])
++    with pytest.raises(ValueError, match="no generators known here"):
++        run(Trusting(), stream, registry=registry, plugins=[StaleAliasPlugin()])
++    assert stale_state_cost([], [], EnvConfig()) == {"n": 0, "stale_state_cost": None}
++
++
++def test_drift_changes_a_rule_from_a_visit_on_and_is_never_canonical(seen, unseen):
++    stream = stream_of(seen, visits=6)
++    drifted = drift_schedule(stream, at_visit=4, donor_tasks=unseen)
++    shown_as = drifted.meta["drift"]["shown_as"]
++    assert sorted(shown_as) == unseen and sorted(shown_as.values()) == seen
++    visit = dict.fromkeys(seen, 0)
++    for was, now in zip(stream.slots, drifted.slots, strict=True):
++        if visit[was.task_id] < 4:
++            assert now == was
++        else:   # the same place, phase and instance seed, another task
++            assert shown_as[now.task_id] == was.task_id and now.instance_seed == was.instance_seed
++        visit[was.task_id] += 1
++    assert all(drifted.sources[t] == "fake" for t in unseen)
++    assert drifted.name == "sequential-drift4" and drift_schedule(stream, donor_tasks=unseen).slots == drifted.slots
++    assert "the rule of 4 tasks changes at visit 4" in protocol_of(drifted)["deviations"]
++    assert not any("changes at visit" in d for d in protocol_of(stream)["deviations"])
++    assert len(drift_schedule(stream, at_visit=4, tasks=1, donor_tasks=unseen).meta["drift"]["shown_as"]) == 1
++    with pytest.raises(ValueError, match="no task to change the rule of"):
++        drift_schedule(stream, at_visit=6, donor_tasks=unseen)
++    with pytest.raises(ValueError, match="after its task has been met"):
++        drift_schedule(stream, at_visit=0, donor_tasks=unseen)
++
++
++def test_inside_the_stream_a_learner_that_repairs_pays_once_and_one_that_trusts_pays_every_visit(registry, seen, unseen):
++    drifted = drift_schedule(stream_of(seen, visits=6), at_visit=3, donor_tasks=unseen)
++
++    def cost(cls):
++        run_ = run(cls(), drifted, registry=registry, plugins=[DriftAliasPlugin()])
++        control = run(cls(), drifted, registry=registry)
++        assert [r.task_id for r in run_.records] == [r.task_id for r in control.records]   # the same schedule
++        return drift_cost(run_.records, control.records, drifted, EnvConfig())
++
++    nothing, repaired, trusted = (cost(cls) for cls in LEARNERS)
++    assert nothing["stale_state_cost"] == 0 and [v["stale_state_cost"] for v in nothing["by_visit"]] == [0, 0, 0]
++    assert [v["stale_state_cost"] for v in repaired["by_visit"]] == [WRONG, 0, 0]
++    assert repaired["n"] == 12 and repaired["tasks"] == 4 and repaired["extra_cost"] == pytest.approx(1 / 3)
++    assert [v["stale_state_cost"] for v in trusted["by_visit"]] == [15 * WRONG, 100, 100]
++    assert [v["visit"] for v in trusted["by_visit"]] == [0, 1, 2] and trusted["solved"][ARM_SWAPPED] == 0
++    assert nothing["stale_state_cost"] < repaired["stale_state_cost"] < trusted["stale_state_cost"]
+-- 
+2.54.0.windows.1
+
