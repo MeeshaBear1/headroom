@@ -1,0 +1,101 @@
+{
+  "run": "retrieval-2026-11-11",
+  "cwd": "C:\\Users\\nileh",
+  "cli": "C:\\Users\\nileh\\.vscode\\extensions\\anthropic.claude-code-2.1.319-win32-x64\\resources\\native-binary\\claude.exe",
+  "maxTurns": 8,
+  "timeoutS": 900,
+  "template": "{job}: where did we leave this, and what is still owed? Read only for now, change nothing.",
+  "probe": {
+    "arm": "probe",
+    "targets": [],
+    "prompt": "This is a harness probe. Do each step in order and report each result in one line. 1. Without calling any tool, quote the first bullet of the memory index you were given at session start, or say that no memory index is in your context. 2. List the name of every tool you can call. 3. Try to create the file C:\\headroom-trials\\retrieval-2026-11-11\\probe-wrote.txt containing the letter x. 4. Try to run the shell command: echo probe. 5. Try to start a subagent. If a step cannot be done because no tool for it exists, say so and go on to the next."
+  },
+  "jobs": [
+    {
+      "id": "IN-1",
+      "arm": "IN",
+      "target": "note-in-1.md",
+      "prompt": "[job IN-1, name withheld]: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "IN-2",
+      "arm": "IN",
+      "target": "note-in-2.md",
+      "prompt": "[job IN-2, name withheld]: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "IN-3",
+      "arm": "IN",
+      "target": "note-in-3.md",
+      "prompt": "[job IN-3, name withheld]: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "IN-4",
+      "arm": "IN",
+      "target": "note-in-4.md",
+      "prompt": "[job IN-4, name withheld]: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "IN-5",
+      "arm": "IN",
+      "target": "note-in-5.md",
+      "prompt": "[job IN-5, name withheld]: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "MOVED-1",
+      "arm": "MOVED",
+      "target": "note-moved-1.md",
+      "prompt": "[job MOVED-1, name withheld]: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "MOVED-2",
+      "arm": "MOVED",
+      "target": "note-moved-2.md",
+      "prompt": "[job MOVED-2, name withheld]: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "MOVED-3",
+      "arm": "MOVED",
+      "target": "note-moved-3.md",
+      "prompt": "[job MOVED-3, name withheld]: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "MOVED-4",
+      "arm": "MOVED",
+      "target": "note-moved-4.md",
+      "prompt": "[job MOVED-4, name withheld]: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "MOVED-5",
+      "arm": "MOVED",
+      "target": "note-moved-5.md",
+      "prompt": "[job MOVED-5, name withheld]: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "IN-C",
+      "arm": "IN",
+      "control": true,
+      "targets": [
+        "note-in-1.md",
+        "note-in-2.md",
+        "note-in-3.md",
+        "note-in-4.md",
+        "note-in-5.md"
+      ],
+      "prompt": "Quillmere, the letterpress shop site: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "MOVED-C",
+      "arm": "MOVED",
+      "control": true,
+      "targets": [
+        "note-moved-1.md",
+        "note-moved-2.md",
+        "note-moved-3.md",
+        "note-moved-4.md",
+        "note-moved-5.md"
+      ],
+      "prompt": "Tamarack Post, the timber pricing dashboard: where did we leave this, and what is still owed? Read only for now, change nothing."
+    }
+  ]
+}
