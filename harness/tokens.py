@@ -54,11 +54,19 @@ def collect(run_dir):
             "turns": res.get("num_turns", 0),
             "secs": res.get("duration_ms", 0) / 1000,
             "out_tok": u.get("output_tokens", 0),
-            "total_tok": sum(u.get(k, 0) for k in (
-                "input_tokens", "output_tokens",
-                "cache_creation_input_tokens", "cache_read_input_tokens")),
+            "total_tok": usage_total(res),
         })
     return trials
+
+
+def usage_total(res):
+    """Additive usage of one result line: every token the session processed,
+    cache writes and cache reads included. stream_metrics.py charges in this
+    unit, so the sum lives here once."""
+    u = res.get("usage", {})
+    return sum(u.get(k, 0) for k in (
+        "input_tokens", "output_tokens",
+        "cache_creation_input_tokens", "cache_read_input_tokens"))
 
 
 def agg(trials):

@@ -24,6 +24,10 @@ model had any room to improve on that probe before running the contrast.**
   before the work and pass after it is thrown away, not tuned
 - a **matched harm control** for every probe, because a library that lifts one
   behaviour by suppressing judgement everywhere else is a net loss
+- a **stream mode** ([`harness/stream.mjs`](harness/stream.mjs)) for the question a
+  single exposure cannot answer: when the same kind of job comes back after a
+  gap, does a setup that carries its state do it for less than the same setup
+  reset before every visit
 - six **skills** encoding the method, usable by any coding agent
 
 Everything here is offline-reproducible except the trials themselves, which cost
@@ -39,6 +43,7 @@ API tokens and are gated behind an explicit spend flag.
 | Harness (`harness/run.mjs`) | complete; skills and memory measured as sealed by [`harness/sealprobe.mjs`](harness/sealprobe.mjs), the operator's `CLAUDE.md` import lines measured as **not** sealed |
 | Probes + oracles + selftests | 13 probes, all selftesting clean; 40 selftest cases are real model transcripts |
 | Statistics (`harness/fisher.py`) | complete, self-tested |
+| Stream mode (`harness/stream.mjs`, `schedule.mjs`, `stream_metrics.py`) | built and self-tested with fake learners (`node harness/streamtest.mjs`). **No model trial has been run in this mode and it carries no result.** The first study is written and not frozen: [draft pre-registration](evals/prereg/2026-11-11-stream-fork-family.md) |
 | **Gate run — Opus 5 and Sonnet 5** | **done: 60/60 arm A on the original 3 probes. All VOID-FOR-TIER at both tiers.** |
 | **Follow-up probe hunt** | done: a 4th probe (`rule-drift`) cleared the gate at Sonnet 5 tier (HAS-HEADROOM) |
 | **Uplift contrast** | **done: p = 5.34×10⁻⁸, 37%→100%, full gap closure to the Opus 5 ceiling. Matched harm control: no change (p = 1.0)** **Sealed re-gate 2026-09-26: arm A 2/8 under the Defect 5 seal, `HAS-HEADROOM`; the gap stands, and the run found Defect 6, the CLI loading the operator's CLAUDE.md from the trial's ancestors** ([re-gate](evals/runs/2026-09-26-seal-regate-rule-drift-sonnet5.md)) |
@@ -282,6 +287,49 @@ A-vs-B pair. Runs resume: interrupt it and re-run the same command, and complete
 trials are skipped. This exact recipe, on `rule-drift` and its matched harm
 control `convention-override`, is what produced
 [the real contrast](evals/runs/2026-07-24-contrast-rule-drift.md).
+
+**Stream mode — the same job, returning.**
+
+The gate and the contrast measure one exposure. Stream mode measures what a
+setup keeps. A seeded schedule visits each job several times with gaps between
+spells, serving a fresh instance on every visit, and two arms meet the same
+schedule: `carried` keeps one sealed config and state directory from the first
+visit to the last, and `reset` has it rebuilt from the same starting setup
+before every visit. The protocol follows Continual-ARC (Unify, 2026), rewritten
+for work: a job is a folder with a `stream.mjs` that generates a fixture from a
+seed and grades it, and no visit is told which job it is unless `--alias` asks.
+
+Offline, no tokens:
+
+```bash
+node harness/streamtest.mjs
+node harness/stream.mjs gate --task probes/rule-drift
+node harness/schedule.mjs --tasks probes/rule-drift --held probes/repo-truth --seed 0 > schedule.json
+```
+
+`streamtest` runs three fake learners through the door the model uses and
+requires the share learned, L, to come out at 0 for one that keeps nothing, 1
+for perfect memory and below 0 for one that replays stale state. It also
+requires the schedule to be the same bytes across two processes and the metrics
+to be the same bytes under three `PYTHONHASHSEED` values. `rule-drift` and
+`repo-truth` each carry a seeded generator as worked examples; the other probes
+do not.
+
+Paid, behind the same spend flag:
+
+```bash
+for arm in reset carried; do
+  node harness/stream.mjs run --schedule schedule.json --arm $arm \
+    --model claude-sonnet-5 --out evals/runs/stream --plays 4 --yes
+done
+python harness/stream_metrics.py evals/runs/stream --cap <tokens>
+```
+
+The charge for a visit is its additive usage tokens, and a visit the oracle
+fails or that runs past the cap is charged the whole cap. `stream_metrics.py`
+prints U and P per arm, L against the perfect-memory bound, and S on the seen
+and held-out tests, with intervals from seeded resamples of tasks. The cap is
+fixed from a pilot before the stream and written into the pre-registration.
 
 ---
 
