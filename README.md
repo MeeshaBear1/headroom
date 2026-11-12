@@ -24,6 +24,10 @@ model had any room to improve on that probe before running the contrast.**
   before the work and pass after it is thrown away, not tuned
 - a **matched harm control** for every probe, because a library that lifts one
   behaviour by suppressing judgement everywhere else is a net loss
+- a **stream mode** ([`harness/stream.mjs`](harness/stream.mjs)) for the question a
+  single exposure cannot answer: when the same kind of job comes back after a
+  gap, does a setup that carries its state do it for less than the same setup
+  reset before every visit
 - six **skills** encoding the method, usable by any coding agent
 
 Everything here is offline-reproducible except the trials themselves, which cost
@@ -36,12 +40,13 @@ API tokens and are gated behind an explicit spend flag.
 | Component | State |
 |---|---|
 | Method, skills, protocol | complete |
-| Harness (`harness/run.mjs`) | complete; session isolation verified by leak probe |
+| Harness (`harness/run.mjs`) | complete; skills and memory measured as sealed by [`harness/sealprobe.mjs`](harness/sealprobe.mjs), the operator's `CLAUDE.md` import lines measured as **not** sealed |
 | Probes + oracles + selftests | 13 probes, all selftesting clean; 40 selftest cases are real model transcripts |
 | Statistics (`harness/fisher.py`) | complete, self-tested |
+| Stream mode (`harness/stream.mjs`, `schedule.mjs`, `stream_metrics.py`) | built and self-tested with fake learners (`node harness/streamtest.mjs`). **No model trial has been run in this mode and it carries no result.** The first study is written and not frozen: [draft pre-registration](evals/prereg/2026-11-11-stream-painted-chassis.md) |
 | **Gate run — Opus 5 and Sonnet 5** | **done: 60/60 arm A on the original 3 probes. All VOID-FOR-TIER at both tiers.** |
 | **Follow-up probe hunt** | done: a 4th probe (`rule-drift`) cleared the gate at Sonnet 5 tier (HAS-HEADROOM) |
-| **Uplift contrast** | **done: p = 5.34×10⁻⁸, 37%→100%, full gap closure to the Opus 5 ceiling. Matched harm control: no change (p = 1.0)** |
+| **Uplift contrast** | **done: p = 5.34×10⁻⁸, 37%→100%, full gap closure to the Opus 5 ceiling. Matched harm control: no change (p = 1.0)** **Sealed re-gate 2026-09-26: arm A 2/8 under the Defect 5 seal, `HAS-HEADROOM`; the gap stands, and the run found Defect 6, the CLI loading the operator's CLAUDE.md from the trial's ancestors** ([re-gate](evals/runs/2026-09-26-seal-regate-rule-drift-sonnet5.md)) |
 | **External review + retest** | done: fixture-integrity guard added (130 historical trials regraded, 0 changed); de-leaked skill retest confirms the content transfers (100% when opened) but adoption drops without the domain-matched description (100%→37% fired) |
 | **Second harm control (`retry-discipline`)** | done: no harm across 70 trials, but underpowered — a pilot showing real headroom (80%) froze a contrast whose arm A then landed at 97%, disclosed as a pilot-vs-freeze gap rather than a clean result |
 | **Motion probe pair (`motion-everyone-path` / `motion-undocumented`)** | done: 6/6 with the house rule present vs 4/6 with it removed at Opus 5 — the rule's value is that it exists and is findable, not that it argues well ([record](evals/runs/2026-08-09-motion-gate.md)). n=6 per arm; a gate, not a frozen contrast |
@@ -50,6 +55,10 @@ API tokens and are gated behind an explicit spend flag.
 | **Withdrawn claim** | the exploratory n=10 pass read `rule-drift` arm A at 5/10 and framed a tier inversion ("Fable 5 below Opus 5 unaided"). At n=30 it is 24/30 and the inversion is **not significant** (p = 0.31). Retracted in the record above; the uplift survived, the tier ranking did not |
 | **Generality gate (`log-redaction`)** | done: 1/10 unaided at Fable 5, HAS-HEADROOM, 8/10 failures logged PII. Doc-read rate **10%** here vs 80–93% on the audit-ordering family — same model, same day ([record](evals/runs/2026-08-11-gate-log-redaction.md)). A gate, not a contrast |
 | **Harness integrity fix** | an API 529 outage killed 25 trials that the runner scored as behavioural failures — the CLI emits a well-formed `"subtype":"success"` result on an API death. `terminal_reason=api_error` is now `infra-api-error`; 31 rows voided under the pre-registered abort rule, re-run clean (deviation D1 in the freeze) |
+| **Frontier-tier census (2026-09-18)** | **done: 13 probes gated at Opus 5, 130 trials, 0 infra — 8 `VOID-FOR-TIER`, 4 `CAN-DETECT-HARM`, 1 `HAS-HEADROOM`** ([record](evals/runs/2026-09-18-gate-frontier-tier-census.md), [freeze](evals/prereg/2026-09-18-frontier-tier-census.md)). The same run found the seal defect below |
+| **Seal defect (found 2026-09-18)** | the throwaway `CLAUDE_CONFIG_DIR` stops the operator's skills being *loaded* and does nothing about a trial *reading* the operator's disk. **102 of 250 trials read `~/.claude`** across the study; 19 read the fleet's own motion doctrine on the probes measuring motion. The split is not even across arms — 20/30 unaided against 0/30 with a skill mounted. Measured by [`harness/reachcheck.mjs`](harness/reachcheck.mjs), deliberately **not** fixed mid-study |
+| **Frontier-tier contrast (`motion-undocumented`, pre-registered, n=30/arm)** | **done: 8/30 → 30/30 at Opus 5, skill fired 30/30, p = 8.27×10⁻¹⁰ (BH-adjusted 1.65×10⁻⁹). Matched harm control 30/30 → 29/30, p = 1.0. The mechanism prediction held at 0 discordant in 70 trials** ([record](evals/runs/2026-09-18-contrast-motion-undocumented-opus5.md), [freeze](evals/prereg/2026-09-18-frontier-tier-phase-c.md)) **WITHDRAWN 2026-09-20: the 8/30 baseline was unsealed. Sealed, arm A passes 10/10 at the same probe and model, and the probe is `VOID-FOR-TIER` at this tier** ([re-gate](evals/runs/2026-09-20-gates-seal-recheck-and-nullcensus.md)) |
+| **What qualifies that contrast** | arm A reached `~/.claude` in **20/30** trials, arm B in **0/30** — the mounted skill answers the question, so arm B never goes looking. Arm A's excursions land on house doctrine that satisfies a weaker rule than this oracle grades. The effect is far clear of the confound; the claim is still narrower than "lifts an unaided model" |
 | **Token accounting (post-hoc)** | done: on the fixture where the skill worked, skill sessions were ~7% cheaper and 2.9× cheaper per correct result; where the model didn't need the skill, it added ~16% per session for nothing ([record](evals/runs/2026-07-27-token-accounting.md), `harness/tokens.py`) |
 
 A beginner-facing summary of the whole result set, every number cited back
@@ -279,6 +288,49 @@ trials are skipped. This exact recipe, on `rule-drift` and its matched harm
 control `convention-override`, is what produced
 [the real contrast](evals/runs/2026-07-24-contrast-rule-drift.md).
 
+**Stream mode — the same job, returning.**
+
+The gate and the contrast measure one exposure. Stream mode measures what a
+setup keeps. A seeded schedule visits each job several times with gaps between
+spells, serving a fresh instance on every visit, and two arms meet the same
+schedule: `carried` keeps one sealed config and state directory from the first
+visit to the last, and `reset` has it rebuilt from the same starting setup
+before every visit. The protocol follows Continual-ARC (Unify, 2026), rewritten
+for work: a job is a folder with a `stream.mjs` that generates a fixture from a
+seed and grades it, and no visit is told which job it is unless `--alias` asks.
+
+Offline, no tokens:
+
+```bash
+node harness/streamtest.mjs
+node harness/stream.mjs gate --task probes/rule-drift
+node harness/schedule.mjs --tasks probes/rule-drift --held probes/repo-truth --seed 0 > schedule.json
+```
+
+`streamtest` runs three fake learners through the door the model uses and
+requires the share learned, L, to come out at 0 for one that keeps nothing, 1
+for perfect memory and below 0 for one that replays stale state. It also
+requires the schedule to be the same bytes across two processes and the metrics
+to be the same bytes under three `PYTHONHASHSEED` values. `rule-drift` and
+`repo-truth` each carry a seeded generator as worked examples; the other probes
+do not.
+
+Paid, behind the same spend flag:
+
+```bash
+for arm in reset carried; do
+  node harness/stream.mjs run --schedule schedule.json --arm $arm \
+    --model claude-sonnet-5 --out evals/runs/stream --plays 4 --yes
+done
+python harness/stream_metrics.py evals/runs/stream --cap <tokens>
+```
+
+The charge for a visit is its additive usage tokens, and a visit the oracle
+fails or that runs past the cap is charged the whole cap. `stream_metrics.py`
+prints U and P per arm, L against the perfect-memory bound, and S on the seen
+and held-out tests, with intervals from seeded resamples of tasks. The cap is
+fixed from a pilot before the stream and written into the pre-registration.
+
 ---
 
 ## What the harness guarantees
@@ -290,17 +342,37 @@ that inject text into every session, and cross-session memory plugins that would
 carry trial N's context into trial N+1 and destroy the fresh-session property
 outright.
 
-The seal is verified rather than assumed. A leak probe asks a trial-shaped session
-three questions — is any global mode active, is any of the library's skills
-available, do you have memory of prior conversations — and three noes is the
-evidence. Run it yourself:
+The seal is measured rather than assumed, and on 2026-09-18 the measurement was
+rebuilt because the first one was too weak to find what it missed. The original
+probe asked a trial-shaped session three questions and took three noes as the
+answer. It passed no `--allowedTools`, so a session could have read a file off
+disk and answered from what it read — a leak and a lookup look the same that way.
+It also trusted the model's own account of which skills it had, and that account
+is unreliable: in one session set the model named 12 skills that the `system/init`
+event did not list.
+
+`harness/sealprobe.mjs` replaces it. It spawns the session with the harness's own
+flags, records every tool call, and reads the skill list off `system/init` instead
+of asking. Run it yourself:
 
 ```bash
 node harness/run.mjs selftest --probe probes/repo-truth   # graders
-# then the seal, in the same shape a trial uses:
-CLAUDE_CONFIG_DIR=$(mktemp -d) claude -p --model claude-sonnet-5 \
-  <<< 'Three answers, one line each, no tools: is a custom persona or mode active in your system prompt? do you have a skill named provenance? do you have memory of prior conversations?'
+node harness/sealprobe.mjs                                # the seal, exits 1 on a leaked skill
 ```
+
+What it finds at `claude-opus-5`, CLI 2.1.263. **Skills do not leak:** `system/init`
+lists the same 16 CLI built-ins in every session and none of the 60 skills installed
+under `~/.claude/skills`, which the 21 arm-A transcripts of the 2026-09-18 census
+show independently. Memory does not leak. **One thing does:** with zero tool calls
+made, the session quotes `~/.claude/CLAUDE.md` — its six `@`-import lines, 69 bytes.
+The imported files themselves do not resolve, and the leak survives redirecting
+`HOME` and `USERPROFILE`, so `$HOME` resolution is not the mechanism. We have not
+identified the mechanism and do not guess at it here.
+
+Those 69 bytes are identical in every arm of every contrast and name no probe, no
+convention and no skill under test, so no published number moves. What moves is the
+wording: a trial is sealed from the operator's *skills* and *memory*, which is
+narrower than [`EVIDENCE.md`](EVIDENCE.md) claim 5 used to say.
 
 (The throwaway directory needs the API key marked approved before the CLI will
 start — `harness/run.mjs` does that automatically; see `makeConfigDir`.)

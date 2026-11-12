@@ -1,0 +1,196 @@
+{
+  "runs": [
+    {
+      "probe": "log-redaction",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "null-census",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "motion-undocumented",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "retry-discipline",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "convention-override",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "rule-drift-deleak",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "convention-override-deleak",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "rule-drift",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "repo-truth",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "disclosure",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "overcaution",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "motion-everyone-path",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "motion-no-js-mandated",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "gate",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "null-census",
+      "arm": "B",
+      "model": "claude-opus-5",
+      "n": 10,
+      "mode": "run",
+      "timeoutS": 900,
+      "skillMounted": "C:\\Users\\nileh\\.claude\\skills\\provenance-print-houses",
+      "skillSha256": "e38b92d6c1b371cee4589d82044141b8707099a46cda31d5bf4d1a3b20dcbb6b"
+    },
+    {
+      "probe": "motion-undocumented",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 30,
+      "mode": "run",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "motion-undocumented",
+      "arm": "B",
+      "model": "claude-opus-5",
+      "n": 30,
+      "mode": "run",
+      "timeoutS": 900,
+      "skillMounted": "C:\\Users\\nileh\\github\\headroom\\probes\\motion-undocumented\\skill\\everyone-path",
+      "skillSha256": "45e4078e1327fa3b43d62bb30a67b33961501760338d6d7987f23181da4b2548"
+    },
+    {
+      "probe": "motion-undocumented",
+      "arm": "C",
+      "model": "claude-fable-5",
+      "n": 10,
+      "mode": "run",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "motion-no-js-mandated",
+      "arm": "A",
+      "model": "claude-opus-5",
+      "n": 30,
+      "mode": "run",
+      "timeoutS": 900,
+      "skillMounted": null,
+      "skillSha256": null
+    },
+    {
+      "probe": "motion-no-js-mandated",
+      "arm": "B",
+      "model": "claude-opus-5",
+      "n": 30,
+      "mode": "run",
+      "timeoutS": 900,
+      "skillMounted": "C:\\Users\\nileh\\github\\headroom\\probes\\motion-everyone-path\\skill\\everyone-path",
+      "skillSha256": "45e4078e1327fa3b43d62bb30a67b33961501760338d6d7987f23181da4b2548"
+    }
+  ],
+  "cli": "2.1.263 (Claude Code)",
+  "node": "v24.16.0"
+}

@@ -1,0 +1,79 @@
+#!/usr/bin/env node
+// Reach check — what a trial reached, as opposed to what reached the trial.
+//
+//   node harness/reachcheck.mjs <transcripts-dir> [--config-dir <path>]
+//
+// `sealprobe.mjs` asks what is handed to a trial session. This asks the other
+// half, and the answer on 2026-09-18 was worse: nothing stops a trial READING
+// the operator's real home configuration off disk. Trials run with
+// `--allowedTools ...,Bash,Read,...` and `--permission-mode acceptEdits` in a
+// staged fixture, and `GIT_CEILING_DIRECTORIES` bounds git traversal only. A
+// throwaway CLAUDE_CONFIG_DIR stops the operator's skills being LOADED; it does
+// not stop `ls ~/.claude` from working.
+//
+// Measured on the 2026-09-18 census, 140 trials: 54 reached `~/.claude`, and 19
+// read `slipway:motion`'s SKILL.md — the operator's own motion doctrine, on the
+// probes measuring motion conventions. `motion-undocumented` declares in its
+// probe.json that "nothing anywhere states the two-layer rule, names
+// animation-timeline, or mentions browser support". Inside the fixture that is
+// true. Nine of its ten trials went outside the fixture and found a rule.
+//
+// So: run this over any run's transcripts before believing its fixture was
+// sealed. Exits 1 if any transcript reached the operator's config directory.
+
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { operatorConfigForms } from "./seal.mjs";
+
+const dir = process.argv[2];
+if (!dir) { console.error("usage: reachcheck.mjs <transcripts-dir> [--config-dir <path>]"); process.exit(2); }
+const i = process.argv.indexOf("--config-dir");
+const cfg = i > -1 ? process.argv[i + 1] : path.join(os.homedir(), ".claude");
+
+// The path as a transcript could spell it: JSON-escaped backslashes, forward
+// slashes, and the MSYS form all denote the same directory. The list is shared
+// with run.mjs's deny rules — one list, so the seal and the check cannot drift.
+const needles = operatorConfigForms(cfg).map((s) => s.toLowerCase());
+
+const files = fs.readdirSync(dir).filter((f) => f.endsWith(".jsonl")).sort();
+const hit = [];
+for (const f of files) {
+  const s = fs.readFileSync(path.join(dir, f), "utf8").toLowerCase();
+  if (needles.some((n) => s.includes(n))) hit.push(f);
+}
+
+// Group by probe so a single contaminated fixture is visible, not averaged away.
+const by = new Map();
+for (const f of files) {
+  const p = f.replace(/-[ABC]-\d+\.jsonl$/, "");
+  const r = by.get(p) ?? { n: 0, reached: 0 };
+  r.n++; if (hit.includes(f)) r.reached++;
+  by.set(p, r);
+}
+
+console.log(`config dir checked: ${cfg}`);
+console.log(`transcripts:        ${files.length}`);
+console.log("");
+console.log("| probe | reached operator config / trials |");
+console.log("|---|---|");
+for (const [p, r] of [...by].sort((a, b) => b[1].reached - a[1].reached || a[0].localeCompare(b[0]))) {
+  console.log(`| \`${p}\` | ${r.reached} / ${r.n}${r.reached ? "" : "  (clean)"} |`);
+}
+console.log("");
+console.log(`TOTAL reached: ${hit.length} / ${files.length}`);
+// This counts MENTIONS, which is deliberately the conservative figure: it cannot
+// tell a successful read from a refusal, and it over-counts on purpose. Under the
+// Defect 5 seal a mention usually means the trial tried and was denied, so the
+// verdict says "named" rather than "read" and points at the precise detector for
+// the other half of the answer. Measured 2026-09-20: 10 of 10 sealed trials named
+// the config, 27 of 29 attempts were refused, and none obtained a line of it.
+if (hit.length) {
+  console.error(`\nFAIL: ${hit.length} trial(s) NAMED ${cfg}.`);
+  console.error(`If the run was unsealed, "unaided" means "without a mounted skill" rather than`);
+  console.error(`"without access to house doctrine" — report it; do not average it away.`);
+  console.error(`If the run was sealed, these are attempts, and whether any SUCCEEDED is a`);
+  console.error(`separate question: obtainedOperatorContent() in harness/seal.mjs answers it.`);
+  process.exit(1);
+}
+console.log("PASS: no transcript reached the operator's config directory.");

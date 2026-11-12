@@ -1,0 +1,12 @@
+{
+  "tid": "null-census-B-001",
+  "probe": "null-census",
+  "arm": "B",
+  "model": "claude-opus-5",
+  "i": 1,
+  "cls": "pass",
+  "notes": "",
+  "cited": null,
+  "skillFired": true,
+  "infra": false
+}
