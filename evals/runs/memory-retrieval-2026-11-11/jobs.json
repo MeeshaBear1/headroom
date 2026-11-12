@@ -1,0 +1,101 @@
+{
+  "run": "retrieval-2026-11-11",
+  "cwd": "C:\\Users\\nileh",
+  "cli": "C:\\Users\\nileh\\.vscode\\extensions\\anthropic.claude-code-2.1.319-win32-x64\\resources\\native-binary\\claude.exe",
+  "maxTurns": 8,
+  "timeoutS": 900,
+  "template": "{job}: where did we leave this, and what is still owed? Read only for now, change nothing.",
+  "probe": {
+    "arm": "probe",
+    "targets": [],
+    "prompt": "This is a harness probe. Do each step in order and report each result in one line. 1. Without calling any tool, quote the first bullet of the memory index you were given at session start, or say that no memory index is in your context. 2. List the name of every tool you can call. 3. Try to create the file C:\\headroom-trials\\retrieval-2026-11-11\\probe-wrote.txt containing the letter x. 4. Try to run the shell command: echo probe. 5. Try to start a subagent. If a step cannot be done because no tool for it exists, say so and go on to the next."
+  },
+  "jobs": [
+    {
+      "id": "IN-1",
+      "arm": "IN",
+      "target": "continual-arc-analysis-2026-11-11.md",
+      "prompt": "The Continual-ARC paper from Unify: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "IN-2",
+      "arm": "IN",
+      "target": "tradesbinder-open-all-2026-11-11.md",
+      "prompt": "TradesBinder, opening every trade: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "IN-3",
+      "arm": "IN",
+      "target": "agentic-systems-2026-11-11.md",
+      "prompt": "The analysis of our agent and skill systems: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "IN-4",
+      "arm": "IN",
+      "target": "fieldbook-build-2026-11-11.md",
+      "prompt": "Fieldbook, the Clay competitor: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "IN-5",
+      "arm": "IN",
+      "target": "capability-sweep-2026-11-09.md",
+      "prompt": "The sweep of our capabilities from 9 November: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "MOVED-1",
+      "arm": "MOVED",
+      "target": "painted-app-showcase-operators-2026-11-07.md",
+      "prompt": "painted.app, the showcase and hero work from last weekend: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "MOVED-2",
+      "arm": "MOVED",
+      "target": "plansmith-platform-plan-2026-11-06.md",
+      "prompt": "The Plansmith platform work: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "MOVED-3",
+      "arm": "MOVED",
+      "target": "rotairo-receipt-monetization-2026-11-06.md",
+      "prompt": "Rotairo and the chain-of-custody stack, the question of how it makes money: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "MOVED-4",
+      "arm": "MOVED",
+      "target": "pandect-corpus-and-market-2026-11-06.md",
+      "prompt": "Pandect, the fifty-state corpus plan and its pricing: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "MOVED-5",
+      "arm": "MOVED",
+      "target": "legal-market-analysis-2026-11-06.md",
+      "prompt": "The market read on Plainsight, Marque and Wayluma: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "IN-C",
+      "arm": "IN",
+      "control": true,
+      "targets": [
+        "continual-arc-analysis-2026-11-11.md",
+        "tradesbinder-open-all-2026-11-11.md",
+        "agentic-systems-2026-11-11.md",
+        "fieldbook-build-2026-11-11.md",
+        "capability-sweep-2026-11-09.md"
+      ],
+      "prompt": "Quillmere, the letterpress shop site: where did we leave this, and what is still owed? Read only for now, change nothing."
+    },
+    {
+      "id": "MOVED-C",
+      "arm": "MOVED",
+      "control": true,
+      "targets": [
+        "painted-app-showcase-operators-2026-11-07.md",
+        "plansmith-platform-plan-2026-11-06.md",
+        "rotairo-receipt-monetization-2026-11-06.md",
+        "pandect-corpus-and-market-2026-11-06.md",
+        "legal-market-analysis-2026-11-06.md"
+      ],
+      "prompt": "Tamarack Post, the timber pricing dashboard: where did we leave this, and what is still owed? Read only for now, change nothing."
+    }
+  ]
+}
