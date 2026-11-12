@@ -7,6 +7,7 @@
 //   node harness/retrieval.mjs check  --jobs <jobs.json>    # lint prompts, confirm targets exist
 //   node harness/retrieval.mjs probe  --jobs <jobs.json> --yes
 //   node harness/retrieval.mjs trial <id> --jobs <jobs.json> --yes
+//   node harness/retrieval.mjs regrade --jobs <jobs.json>   # rebuild rows from the transcripts on disk
 //   node harness/retrieval.mjs report --jobs <jobs.json>
 //
 // This is the one harness in the repo that runs a trial INSIDE the operator's
@@ -45,13 +46,14 @@ const MOVED_RE = /\/memory\/(memory-index-(?:moved-[\d-]+|overflow)\.md)$/;
 function parse(raw) {
   const calls = [], errored = new Set(), answered = new Set();
   let init = null, result = null;
-  const fallbacks = [];
+  const fallbacks = [], responses = new Set();
   for (const line of raw.split("\n")) {
     if (!line.trim()) continue;
     let ev; try { ev = JSON.parse(line); } catch { continue; }
     if (ev.type === "system" && ev.subtype === "init" && !init) init = ev;
     if (ev.type === "result") result = ev;
     if (ev.type === "system" && ev.subtype === "model_fallback") fallbacks.push(`${ev.original_model}>${ev.fallback_model}`);
+    if (ev.type === "assistant" && ev.message?.id) responses.add(ev.message.id);
     const content = ev?.message?.content;
     if (!Array.isArray(content)) continue;
     for (const b of content) {
@@ -59,7 +61,7 @@ function parse(raw) {
       if (ev.type === "user" && b.type === "tool_result") { answered.add(b.tool_use_id); if (b.is_error) errored.add(b.tool_use_id); }
     }
   }
-  return { calls, errored, answered, init, result, fallbacks };
+  return { calls, errored, answered, init, result, fallbacks, responses: responses.size };
 }
 
 // The path a call OPENED, or null. A Read opens its file. A Grep opens a file
@@ -117,7 +119,10 @@ export function grade(raw, targets) {
     answeredBy: Object.keys(t.result?.modelUsage ?? {}).sort(),
     cliVersion: t.init?.claude_code_version ?? null,
     apiKeySource: t.init?.apiKeySource ?? null,
+    // `turns` is the CLI's own num_turns, which on 2.1.319 counts tool calls plus
+    // one. `responses` counts model responses, the unit --max-turns limits.
     turns: t.result?.num_turns ?? null,
+    responses: t.responses,
     resultSubtype: t.result?.subtype ?? null,
     tokens: { input: tok[0], output: tok[1], cacheCreate: tok[2], cacheRead: tok[3], total: tok.reduce((a, b) => a + b, 0) },
     costUsd: t.result?.total_cost_usd ?? null,
@@ -254,18 +259,33 @@ async function trial(id) {
   console.log(JSON.stringify(row, null, 2));
 }
 
+// Rows are a function of the transcripts. This rebuilds every row from the
+// transcript on disk, keeping only the wall-clock seconds from the old row.
+function regrade() {
+  const { spec, dir, transcripts } = loadJobs();
+  for (const job of spec.jobs) {
+    const rowFile = path.join(dir, "rows", `${job.id}.json`), tf = path.join(transcripts, `${job.id}.jsonl`);
+    if (!fs.existsSync(rowFile) || !fs.existsSync(tf)) continue;
+    const old = JSON.parse(fs.readFileSync(rowFile, "utf8"));
+    const g = grade(fs.readFileSync(tf, "utf8"), job.targets ?? [job.target]);
+    if (old.cls === "infra-timeout") Object.assign(g, { cls: "infra-timeout", pass: false, infra: true });
+    if (g.cls !== old.cls) console.log(`CHANGED ${job.id}: ${old.cls} -> ${g.cls}`);
+    fs.writeFileSync(rowFile, JSON.stringify({ id: job.id, arm: job.arm, control: Boolean(job.control), target: job.target ?? null, ...g, seconds: old.seconds }, null, 2) + "\n");
+  }
+}
+
 function report() {
   const { spec, dir } = loadJobs();
   const rows = spec.jobs.map((j) => { const f = path.join(dir, "rows", `${j.id}.json`); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : null; }).filter(Boolean);
-  console.log("| id | arm | cls | moved index opened | turns | tokens | first three calls |");
-  console.log("|---|---|---|---|---|---|---|");
+  console.log("| id | arm | cls | moved index opened | responses | tool calls | tokens | first three calls |");
+  console.log("|---|---|---|---|---|---|---|---|");
   for (const r of rows) {
-    console.log(`| ${r.id} | ${r.arm}${r.control ? " control" : ""} | ${r.cls} | ${r.movedIndexOpened.join(", ") || "none"} | ${r.turns} | ${r.tokens.total} | ${r.first3.join(", ") || "none"} |`);
+    console.log(`| ${r.id} | ${r.arm}${r.control ? " control" : ""} | ${r.cls} | ${r.movedIndexOpened.join(", ") || "none"} | ${r.responses} | ${r.toolCalls} | ${r.tokens.total} | ${r.first3.join(", ") || "none"} |`);
   }
   const mean = (xs) => (xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length) : 0);
   for (const arm of ["IN", "MOVED"]) {
     const a = rows.filter((r) => r.arm === arm && !r.control && !r.infra);
-    console.log(`\n${arm}: ${a.filter((r) => r.pass).length} of ${a.length} opened the target note; mean turns ${(a.reduce((s, r) => s + r.turns, 0) / (a.length || 1)).toFixed(1)}, mean tokens ${mean(a.map((r) => r.tokens.total))}`);
+    console.log(`\n${arm}: ${a.filter((r) => r.pass).length} of ${a.length} opened the target note; mean responses ${(a.reduce((s, r) => s + r.responses, 0) / (a.length || 1)).toFixed(1)}, mean tool calls ${(a.reduce((s, r) => s + r.toolCalls, 0) / (a.length || 1)).toFixed(1)}, mean tokens ${mean(a.map((r) => r.tokens.total))}`);
   }
   console.log(`models: ${[...new Set(rows.map((r) => r.model))].join(", ")}`);
 }
@@ -330,5 +350,6 @@ else if (cmd === "select") {
 else if (cmd === "check") check();
 else if (cmd === "probe") await trial("probe");
 else if (cmd === "trial") await trial(argv[1]);
+else if (cmd === "regrade") regrade();
 else if (cmd === "report") report();
-else die("usage: retrieval.mjs {--selftest|select|check|probe|trial <id>|report} [--jobs <jobs.json>] [--yes]");
+else die("usage: retrieval.mjs {--selftest|select|check|probe|trial <id>|regrade|report} [--jobs <jobs.json>] [--yes]");
