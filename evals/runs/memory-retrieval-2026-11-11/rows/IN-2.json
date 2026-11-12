@@ -1,0 +1,37 @@
+{
+  "id": "IN-2",
+  "arm": "IN",
+  "control": false,
+  "target": "note-in-2.md",
+  "cls": "pass",
+  "pass": true,
+  "infra": false,
+  "notes": "",
+  "movedIndexOpened": [],
+  "otherMemoryOpened": 1,
+  "sawTargetName": true,
+  "model": "claude-fable-5-2",
+  "answeredBy": [
+    "claude-fable-5-2"
+  ],
+  "cliVersion": "2.1.319",
+  "apiKeySource": "none",
+  "turns": 12,
+  "responses": 6,
+  "resultSubtype": "success",
+  "tokens": {
+    "input": 14,
+    "output": 4861,
+    "cacheCreate": 55742,
+    "cacheRead": 254517,
+    "total": 315134
+  },
+  "costUsd": 0.5941154,
+  "toolCalls": 10,
+  "first3": [
+    "Read:target",
+    "Read:other-memory",
+    "Glob:memory-dir"
+  ],
+  "seconds": 91
+}

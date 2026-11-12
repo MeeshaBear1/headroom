@@ -215,3 +215,40 @@ kept as `<id>.infra-1.json`. A graded row is never re-run.
 ## Deviations
 
 Recorded here as they occur, dated, never by editing the text above.
+
+All entries are dated 2026-11-11, PST.
+
+1. After trial IN-1, the harness changed. IN-1's row said `turns: 29` under a
+   ceiling of eight, which read as a broken ceiling. It was not: the CLI's
+   `num_turns` counts tool calls plus one on a session that ends normally, and
+   IN-1 made 28 calls across 7 model responses. The harness gained a
+   `responses` field (distinct assistant message ids), a `regrade` command that
+   rebuilds every row from its transcript, and two report columns. The pass
+   rule and the classes were not touched. `regrade` was run over all twelve
+   transcripts after the last trial and no row changed class. The harness
+   sha256 is now `8273029cd3d1cf36`; the freeze names `d0ede5f3630fe257`.
+2. "Eight turns is the ceiling" meant less than it reads. `--max-turns 8` caps
+   model responses, and one response can carry several tool calls, so the
+   twelve sessions made between 10 and 31 calls each. Three stopped at the
+   ceiling with `error_max_turns`: IN-4, MOVED-4 and IN-C. Each is graded as it
+   stands, as the freeze says. IN-4 and MOVED-4 had opened their notes in
+   responses 1 and 2.
+3. The 5-hour abort rule had no figure to test. `limit-watch.py status` printed
+   `5h --` at all five readings. The 7-day and Fable windows read 10% and 17%
+   before trial 1, the same after trial 3, 12% and 22% after trials 6 and 9,
+   and 15% and 26% after trial 12. Other sessions were running on the same
+   login, so the rise is not the trials' alone.
+4. The index moved under the run. `MEMORY.md` hashed `dbbb9f7fdab2a5c0` after
+   the last trial against `79d77d99e13e408f` at the freeze. Another session
+   added a qualifying note at 21:22, and `check` now fails on IN-5 because the
+   rule would pick that newer note in its place. The five frozen targets were
+   the rule's picks at the freeze and each was still a line of `MEMORY.md` when
+   its trial ran, by the fact that all five sessions opened the note on their
+   first call.
+5. The re-run allowed for an infrastructure death was not used. No row is
+   classed `infra-*`.
+6. Rows use one path class the freeze does not list: `cwd`, for a Glob or Grep
+   given no path.
+7. Every trial wrote one line to stderr, `[claude-code:unrecognized_model]`
+   naming `claude-fable-5-2`. No `model_fallback` event followed in any
+   transcript and `modelUsage` names that model alone in all twelve.

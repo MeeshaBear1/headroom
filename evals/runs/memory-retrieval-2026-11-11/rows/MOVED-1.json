@@ -1,0 +1,39 @@
+{
+  "id": "MOVED-1",
+  "arm": "MOVED",
+  "control": false,
+  "target": "note-moved-1.md",
+  "cls": "pass",
+  "pass": true,
+  "infra": false,
+  "notes": "",
+  "movedIndexOpened": [
+    "memory-index-moved-2026-11-09.md"
+  ],
+  "otherMemoryOpened": 4,
+  "sawTargetName": true,
+  "model": "claude-fable-5-2",
+  "answeredBy": [
+    "claude-fable-5-2"
+  ],
+  "cliVersion": "2.1.319",
+  "apiKeySource": "none",
+  "turns": 13,
+  "responses": 5,
+  "resultSubtype": "success",
+  "tokens": {
+    "input": 12,
+    "output": 6709,
+    "cacheCreate": 70267,
+    "cacheRead": 240977,
+    "total": 317965
+  },
+  "costUsd": 0.7445594,
+  "toolCalls": 11,
+  "first3": [
+    "Grep:memory-dir",
+    "Glob:memory-dir",
+    "Grep:claude-config"
+  ],
+  "seconds": 89
+}

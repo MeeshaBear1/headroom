@@ -1,0 +1,37 @@
+{
+  "id": "IN-C",
+  "arm": "IN",
+  "control": true,
+  "target": null,
+  "cls": "fail-not-opened",
+  "pass": false,
+  "infra": false,
+  "notes": "",
+  "movedIndexOpened": [],
+  "otherMemoryOpened": 0,
+  "sawTargetName": true,
+  "model": "claude-fable-5-2",
+  "answeredBy": [
+    "claude-fable-5-2"
+  ],
+  "cliVersion": "2.1.319",
+  "apiKeySource": "none",
+  "turns": 9,
+  "responses": 8,
+  "resultSubtype": "error_max_turns",
+  "tokens": {
+    "input": 16,
+    "output": 6539,
+    "cacheCreate": 59535,
+    "cacheRead": 379274,
+    "total": 445364
+  },
+  "costUsd": 0.6829787999999999,
+  "toolCalls": 31,
+  "first3": [
+    "Grep:memory-dir",
+    "Glob:other",
+    "Grep:claude-config"
+  ],
+  "seconds": 158
+}

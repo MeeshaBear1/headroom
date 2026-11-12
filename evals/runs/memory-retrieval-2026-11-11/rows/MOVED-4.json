@@ -1,0 +1,40 @@
+{
+  "id": "MOVED-4",
+  "arm": "MOVED",
+  "control": false,
+  "target": "note-moved-4.md",
+  "cls": "pass",
+  "pass": true,
+  "infra": false,
+  "notes": "",
+  "movedIndexOpened": [
+    "memory-index-moved-2026-11-07.md",
+    "memory-index-moved-2026-11-09.md"
+  ],
+  "otherMemoryOpened": 4,
+  "sawTargetName": true,
+  "model": "claude-fable-5-2",
+  "answeredBy": [
+    "claude-fable-5-2"
+  ],
+  "cliVersion": "2.1.319",
+  "apiKeySource": "none",
+  "turns": 9,
+  "responses": 8,
+  "resultSubtype": "error_max_turns",
+  "tokens": {
+    "input": 18,
+    "output": 4720,
+    "cacheCreate": 69120,
+    "cacheRead": 439650,
+    "total": 513508
+  },
+  "costUsd": 0.7353620000000002,
+  "toolCalls": 26,
+  "first3": [
+    "Grep:memory-dir",
+    "Glob:memory-dir",
+    "Glob:other"
+  ],
+  "seconds": 85
+}
